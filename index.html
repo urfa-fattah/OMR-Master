@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMR Master Pro - Dashboard</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        primary: { DEFAULT: '#2563eb', dark: '#1d4ed8', light: '#eff6ff' },
+                        surface: { glass: 'rgba(255, 255, 255, 0.75)', glassDark: 'rgba(255, 255, 255, 0.95)' }
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+                        'glass-hover': '0 12px 40px 0 rgba(31, 38, 135, 0.12)',
+                        'glow': '0 0 20px rgba(37, 99, 235, 0.15)'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-6px)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at 0% 0%, #e0f2fe 0%, #f0f9ff 50%, #f8fafc 100%);
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // --- Icons (Lucide implementation for React via SVG) ---
+        const Icons = {
+            Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Play: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+            BarChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>,
+            Clock: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+            FileText: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>,
+            Target: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+            Settings: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        };
+
+        // --- Improved Navbar Component ---
+        const Navbar = ({ activePage }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            const [sessionActive, setSessionActive] = useState(false);
+
+            useEffect(() => {
+                const session = localStorage.getItem('omr_current_session');
+                if (session) setSessionActive(true);
+            }, []);
+
+            const links = [
+                { name: 'Dashboard', href: 'index.html', icon: Icons.Home, active: activePage === 'home' },
+                { name: 'Active Session', href: 'exam.html', icon: Icons.Play, active: activePage === 'exam', hidden: !sessionActive },
+                { name: 'Analytics', href: 'analytics.html', icon: Icons.BarChart, active: activePage === 'analytics' },
+            ];
+
+            return (
+                <nav className="fixed top-0 inset-x-0 z-50 nav-glass transition-all duration-300">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-20">
+                            {/* Logo */}
+                            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.location.href='index.html'}>
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 transition-transform group-hover:scale-105 group-hover:rotate-3">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                                </div>
+                                <div>
+                                    <h1 className="text-xl font-bold text-slate-800 tracking-tight leading-none">OMR Master</h1>
+                                    <span className="text-[10px] font-bold tracking-widest text-blue-600 uppercase">Pro Edition</span>
+                                </div>
+                            </div>
+
+                            {/* Desktop Links */}
+                            <div className="hidden md:flex items-center gap-1">
+                                {links.map(link => !link.hidden && (
+                                    <a 
+                                        key={link.name}
+                                        href={link.href}
+                                        className={`
+                                            flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+                                            ${link.active 
+                                                ? 'bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-100' 
+                                                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}
+                                        `}
+                                    >
+                                        <link.icon />
+                                        {link.name}
+                                        {link.name === 'Active Session' && (
+                                            <span className="flex h-2 w-2 relative">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                            </span>
+                                        )}
+                                    </a>
+                                ))}
+                            </div>
+
+                            {/* Mobile Hamburger */}
+                            <div className="md:hidden">
+                                <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Mobile Menu */}
+                    {isOpen && (
+                        <div className="md:hidden border-t border-slate-100 bg-white/95 backdrop-blur-xl absolute w-full shadow-xl">
+                            <div className="p-4 space-y-2">
+                                {links.map(link => !link.hidden && (
+                                    <a 
+                                        key={link.name}
+                                        href={link.href}
+                                        className={`
+                                            flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium
+                                            ${link.active ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}
+                                        `}
+                                    >
+                                        <link.icon />
+                                        {link.name}
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </nav>
+            );
+        };
+
+        // --- Quick Stats Component ---
+        const StatsSummary = () => {
+            const [stats, setStats] = useState({ total: 0, avgScore: 0, lastExam: 'Never' });
+
+            useEffect(() => {
+                const history = JSON.parse(localStorage.getItem('omr_history') || '[]');
+                if (history.length > 0) {
+                    const totalScore = history.reduce((acc, curr) => acc + parseFloat(curr.score), 0);
+                    setStats({
+                        total: history.length,
+                        avgScore: (totalScore / history.length).toFixed(1),
+                        lastExam: new Date(history[history.length - 1].date).toLocaleDateString()
+                    });
+                }
+            }, []);
+
+            return (
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div className="glass-panel p-4 rounded-2xl flex flex-col justify-center items-center text-center animate-slide-up" style={{animationDelay: '0.1s'}}>
+                        <div className="text-sm text-slate-500 font-medium mb-1">Exams Taken</div>
+                        <div className="text-2xl font-bold text-slate-800">{stats.total}</div>
+                    </div>
+                    <div className="glass-panel p-4 rounded-2xl flex flex-col justify-center items-center text-center animate-slide-up" style={{animationDelay: '0.2s'}}>
+                        <div className="text-sm text-slate-500 font-medium mb-1">Avg Score</div>
+                        <div className="text-2xl font-bold text-blue-600">{stats.avgScore}</div>
+                    </div>
+                    <div className="glass-panel p-4 rounded-2xl flex flex-col justify-center items-center text-center animate-slide-up" style={{animationDelay: '0.3s'}}>
+                        <div className="text-sm text-slate-500 font-medium mb-1">Last Active</div>
+                        <div className="text-lg font-bold text-slate-800">{stats.lastExam}</div>
+                    </div>
+                    <div className="glass-panel p-4 rounded-2xl bg-blue-600 text-white flex flex-col justify-center items-center text-center shadow-glow animate-slide-up cursor-pointer hover:bg-blue-700 transition" onClick={() => window.location.href='analytics.html'} style={{animationDelay: '0.4s'}}>
+                        <div className="text-white/80 text-sm font-medium mb-1">Analytics</div>
+                        <div className="text-sm font-bold flex items-center gap-1">View All &rarr;</div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Home = () => {
+            const [resume, setResume] = useState(null);
+            const [config, setConfig] = useState({
+                examName: '', questionCount: 50, optionsCount: 4, duration: 60,
+                positiveMarks: 1, negativeMarks: 0.25, pdfLink: '', targetAccuracy: 90
+            });
+
+            useEffect(() => {
+                const session = JSON.parse(localStorage.getItem('omr_current_session'));
+                if (session && session.timeLeft > 0) setResume(session);
+            }, []);
+
+            const handleChange = (e) => {
+                const { name, value } = e.target;
+                setConfig(prev => ({
+                    ...prev,
+                    [name]: ['examName', 'pdfLink'].includes(name) ? value : Number(value)
+                }));
+            };
+
+            const startExam = (e) => {
+                e.preventDefault();
+                const newSession = {
+                    config,
+                    answers: {},
+                    flags: [],
+                    timeLeft: config.duration * 60,
+                    startTime: Date.now(),
+                    status: 'active'
+                };
+                localStorage.setItem('omr_current_session', JSON.stringify(newSession));
+                window.location.href = 'exam.html';
+            };
+
+            return (
+                <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+                    <Navbar activePage="home" />
+
+                    <div className="max-w-5xl mx-auto">
+                        
+                        {/* Header Section */}
+                        <div className="text-center mb-10 animate-fade-in">
+                            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">
+                                Master Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Exams</span>
+                            </h1>
+                            <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+                                Professional OMR practice suite with advanced analytics, real-time tracking, and split-screen PDF support.
+                            </p>
+                        </div>
+
+                        {/* Resume Card (Conditional) */}
+                        {resume && (
+                            <div className="mb-8 glass-panel p-6 rounded-2xl border-l-4 border-green-500 shadow-glass-hover transform transition hover:-translate-y-1 cursor-pointer" onClick={() => window.location.href='exam.html'}>
+                                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                                    <div className="w-full">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wide">Active Session</span>
+                                            <h3 className="font-bold text-xl text-slate-800">{resume.config.examName}</h3>
+                                        </div>
+                                        {/* Progress Bar for Time */}
+                                        <div className="w-full bg-slate-200 rounded-full h-2.5 mb-2">
+                                            <div className="bg-green-500 h-2.5 rounded-full transition-all duration-1000" style={{ width: `${(resume.timeLeft / (resume.config.duration * 60)) * 100}%` }}></div>
+                                        </div>
+                                        <div className="flex justify-between text-xs text-slate-500 font-medium">
+                                            <span>{Math.floor(resume.timeLeft / 60)} mins remaining</span>
+                                            <span>{Object.keys(resume.answers).length} answered</span>
+                                        </div>
+                                    </div>
+                                    <button className="whitespace-nowrap bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-green-500/30 transition w-full md:w-auto">
+                                        Resume Now
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        <StatsSummary />
+
+                        {/* Main Setup Card */}
+                        <div className="glass-panel rounded-3xl shadow-glass overflow-hidden animate-slide-up">
+                            <div className="bg-white/50 border-b border-white/50 p-6 sm:px-8 flex items-center gap-3">
+                                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                    <Icons.Settings />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-bold text-slate-800">New Exam Configuration</h2>
+                                    <p className="text-xs text-slate-500">Customize your testing environment</p>
+                                </div>
+                            </div>
+
+                            <form onSubmit={startExam} className="p-6 sm:p-8 space-y-8">
+                                
+                                {/* Row 1 */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="col-span-1 md:col-span-2 space-y-2">
+                                        <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                            <Icons.FileText /> Exam Name
+                                        </label>
+                                        <input required name="examName" type="text" placeholder="e.g. Physics Chapter 1 Mock" 
+                                            className="w-full bg-white/60 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-slate-700">Questions</label>
+                                        <input required name="questionCount" type="number" min="1" max="500" value={config.questionCount}
+                                            className="w-full bg-white/60 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-slate-700 flex items-center gap-2"><Icons.Clock /> Duration (Mins)</label>
+                                        <input required name="duration" type="number" min="1" value={config.duration}
+                                            className="w-full bg-white/60 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Row 2: Advanced Options */}
+                                <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-4">
+                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Scoring & Layout</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-medium text-slate-500">Correct (+)</label>
+                                            <input required name="positiveMarks" type="number" step="0.1" value={config.positiveMarks} 
+                                                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm" onChange={handleChange} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-medium text-slate-500">Wrong (-)</label>
+                                            <input required name="negativeMarks" type="number" step="0.1" value={config.negativeMarks} 
+                                                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm" onChange={handleChange} />
+                                        </div>
+                                        <div className="space-y-1 col-span-2">
+                                            <label className="text-xs font-medium text-slate-500">Options Layout</label>
+                                            <select name="optionsCount" value={config.optionsCount} onChange={handleChange}
+                                                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none">
+                                                <option value="4">ABCD (Standard)</option>
+                                                <option value="5">ABCDE (Advanced)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Row 3: PDF Link */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                        <span className="bg-red-100 text-red-600 p-1 rounded text-xs font-bold">PDF</span> 
+                                        Question Paper Link (Optional)
+                                    </label>
+                                    <div className="relative">
+                                        <input name="pdfLink" type="url" placeholder="Paste Google Drive or PDF URL here..." 
+                                            className="w-full bg-white/60 border border-slate-200 rounded-xl pl-4 pr-10 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                            onChange={handleChange}
+                                        />
+                                        <div className="absolute right-3 top-3.5 text-slate-400">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-slate-500">Supports direct PDF links or Google Drive preview links. Split-screen will activate automatically.</p>
+                                </div>
+
+                                <div className="pt-2">
+                                    <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-lg font-bold py-4 rounded-xl shadow-xl shadow-blue-500/20 transform hover:scale-[1.01] transition-all duration-200 flex items-center justify-center gap-2">
+                                        <Icons.Play /> Start Examination
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className="mt-8 text-center text-slate-400 text-sm">
+                            OMR Master Pro v2.0 &bull; Designe by Urfa Hasan Fattah &bull; Local Storage Enabled
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Home />);
+    </script>
+</body>
+</html>

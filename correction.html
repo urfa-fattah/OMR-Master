@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMR Master Pro - Correction</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: #f8fafc; }
+        .slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const Correction = () => {
+            const [data, setData] = useState(null);
+            const [grading, setGrading] = useState({}); // { qId: 'correct' | 'wrong' | 'skipped' }
+            const [stats, setStats] = useState({ correct: 0, wrong: 0, skipped: 0, score: 0 });
+
+            // Load Temp Data
+            useEffect(() => {
+                const temp = localStorage.getItem('omr_temp_grading');
+                if (!temp) {
+                    alert("No active grading session found.");
+                    window.location.href = 'index.html';
+                    return;
+                }
+                const parsed = JSON.parse(temp);
+                setData(parsed);
+                
+                // Initialize Skipped Questions automatically
+                const initialGrading = {};
+                let skippedCount = 0;
+                
+                for (let i = 1; i <= parsed.config.questionCount; i++) {
+                    if (!parsed.answers[i]) {
+                        initialGrading[i] = 'skipped';
+                        skippedCount++;
+                    }
+                }
+                setGrading(initialGrading);
+                setStats(prev => ({ ...prev, skipped: skippedCount }));
+            }, []);
+
+            // Keyboard Navigation for Rapid Grading
+            useEffect(() => {
+                const handleKey = (e) => {
+                    if (!data) return;
+                    // Find first ungraded question that was attempted
+                    const pendingQs = Object.keys(data.answers).filter(q => !grading[q]).map(Number).sort((a,b) => a-b);
+                    
+                    if (pendingQs.length > 0) {
+                        const currentQ = pendingQs[0];
+                        if (e.key === 'ArrowRight') handleGrade(currentQ, 'correct');
+                        if (e.key === 'ArrowLeft') handleGrade(currentQ, 'wrong');
+                    }
+                };
+                window.addEventListener('keydown', handleKey);
+                return () => window.removeEventListener('keydown', handleKey);
+            }, [data, grading]);
+
+            // Real-time Score Calculation
+            useEffect(() => {
+                if (!data) return;
+                let c = 0, w = 0;
+                Object.values(grading).forEach(status => {
+                    if (status === 'correct') c++;
+                    if (status === 'wrong') w++;
+                });
+                
+                const rawScore = (c * data.config.positiveMarks) - (w * data.config.negativeMarks);
+                setStats(prev => ({ ...prev, correct: c, wrong: w, score: rawScore.toFixed(2) }));
+            }, [grading]);
+
+            const handleGrade = (qNum, status) => {
+                setGrading(prev => ({ ...prev, [qNum]: status }));
+                
+                // Auto-scroll logic could be added here
+                const nextEl = document.getElementById(`q-${parseInt(qNum) + 1}`);
+                if (nextEl) nextEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
+
+            const finalizeResults = () => {
+                const finalResult = {
+                    id: Date.now(),
+                    examName: data.config.examName,
+                    date: new Date().toISOString(),
+                    score: stats.score,
+                    accuracy: stats.correct > 0 ? ((stats.correct / (stats.correct + stats.wrong)) * 100).toFixed(1) : 0,
+                    timeTaken: data.timeTaken,
+                    totalQuestions: data.config.questionCount,
+                    gradingDetails: grading, // Save exactly which Q was correct/wrong
+                    userAnswers: data.answers // Save user inputs
+                };
+
+                // Push to History
+                const history = JSON.parse(localStorage.getItem('omr_history') || '[]');
+                history.push(finalResult);
+                localStorage.setItem('omr_history', JSON.stringify(history));
+
+                // Cleanup
+                localStorage.removeItem('omr_temp_grading');
+                window.location.href = 'analytics.html';
+            };
+
+            if (!data) return <div className="p-10 text-center">Loading Correction Suite...</div>;
+
+            const attemptedCount = Object.keys(data.answers).length;
+            const gradedCount = Object.keys(grading).length - stats.skipped; // Exclude auto-skipped from manual count
+            const isComplete = gradedCount === attemptedCount;
+
+            return (
+                <div className="min-h-screen pb-24">
+                    {/* Header */}
+                    <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+                        <div className="max-w-4xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div>
+                                <h1 className="text-xl font-bold text-slate-800">Correction: {data.config.examName}</h1>
+                                <p className="text-sm text-slate-500">
+                                    Use <span className="bg-slate-100 px-1 rounded border">← Wrong</span> and <span className="bg-slate-100 px-1 rounded border">Right →</span> keys for speed.
+                                </p>
+                            </div>
+                            <div className="flex gap-4 text-sm font-medium">
+                                <div className="px-4 py-2 bg-green-50 text-green-700 rounded-lg">Score: {stats.score}</div>
+                                <div className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg">Graded: {gradedCount}/{attemptedCount}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Question List */}
+                    <div className="max-w-3xl mx-auto px-4 mt-8 space-y-4">
+                        {Array.from({ length: data.config.questionCount }, (_, i) => i + 1).map(qNum => {
+                            const userAnswer = data.answers[qNum];
+                            const status = grading[qNum];
+                            
+                            // Visual Styles based on status
+                            let borderClass = 'border-slate-200';
+                            let bgClass = 'bg-white';
+                            if (status === 'correct') { borderClass = 'border-green-500 ring-1 ring-green-500'; bgClass = 'bg-green-50/30'; }
+                            if (status === 'wrong') { borderClass = 'border-red-500 ring-1 ring-red-500'; bgClass = 'bg-red-50/30'; }
+                            if (!userAnswer) { bgClass = 'bg-slate-50 opacity-60'; }
+
+                            return (
+                                <div key={qNum} id={`q-${qNum}`} className={`p-4 rounded-xl border transition-all ${borderClass} ${bgClass} flex items-center justify-between`}>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm">
+                                            {qNum}
+                                        </div>
+                                        <div>
+                                            {userAnswer ? (
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className="text-slate-500 text-sm">You marked:</span>
+                                                    <span className="text-xl font-bold text-slate-800">{userAnswer}</span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-slate-400 italic font-medium">Not Attempted</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    {userAnswer && (
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => handleGrade(qNum, 'wrong')}
+                                                className={`p-2 rounded-lg transition-colors ${status === 'wrong' ? 'bg-red-600 text-white shadow-lg' : 'bg-white border hover:bg-red-50 text-red-500'}`}
+                                            >
+                                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                            </button>
+                                            <button 
+                                                onClick={() => handleGrade(qNum, 'correct')}
+                                                className={`p-2 rounded-lg transition-colors ${status === 'correct' ? 'bg-green-600 text-white shadow-lg' : 'bg-white border hover:bg-green-50 text-green-500'}`}
+                                            >
+                                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Footer Action */}
+                    <div className="fixed bottom-0 w-full bg-white/80 backdrop-blur border-t border-slate-200 p-4">
+                        <div className="max-w-3xl mx-auto">
+                            <button 
+                                onClick={finalizeResults}
+                                disabled={!isComplete}
+                                className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all transform ${
+                                    isComplete 
+                                    ? 'bg-blue-600 text-white hover:scale-[1.01] hover:shadow-blue-500/30' 
+                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                }`}
+                            >
+                                {isComplete ? `Finalize Results (Score: ${stats.score})` : `Grade all attempted questions to finish`}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Correction />);
+    </script>
+</body>
+</html>

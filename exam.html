@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMR Master Pro - Active Session</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    },
+                    colors: {
+                        glass: "rgba(255, 255, 255, 0.8)",
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: #f1f5f9;
+            height: 100vh;
+            overflow: hidden; /* App-like feel */
+        }
+        /* Scrollbar Styling for Grid */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+        .bubble {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bubble:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        // --- Shared Navbar Component (Simplified for Exam Mode) ---
+        const Navbar = ({ toggleFocus, isFocusMode, timeLeft }) => {
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            };
+
+            const isLowTime = timeLeft < 60;
+
+            if (isFocusMode) return null;
+
+            return (
+                <nav className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 z-50 shrink-0">
+                    <div className="font-bold text-xl text-slate-800 tracking-tight flex items-center gap-2">
+                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm">O</div>
+                        <span className="hidden sm:inline">OMR Master Pro</span>
+                    </div>
+
+                    <div className={`font-mono text-2xl font-bold ${isLowTime ? 'text-red-600 animate-pulse' : 'text-slate-800'}`}>
+                        {formatTime(timeLeft)}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <button 
+                            onClick={toggleFocus}
+                            className="text-slate-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 transition-colors"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                            Focus Mode
+                        </button>
+                    </div>
+                </nav>
+            );
+        };
+
+        // --- Main Exam Component ---
+        const ExamInterface = () => {
+            const [session, setSession] = useState(null);
+            const [timeLeft, setTimeLeft] = useState(0);
+            const [isFocusMode, setIsFocusMode] = useState(false);
+            const [answers, setAnswers] = useState({});
+            const [flags, setFlags] = useState([]);
+            
+            // Refs for critical data access inside timers
+            const answersRef = useRef({});
+            const timerRef = useRef(null);
+
+            // 1. Initialize
+            useEffect(() => {
+                const stored = localStorage.getItem('omr_current_session');
+                if (!stored) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                const parsed = JSON.parse(stored);
+                setSession(parsed);
+                setTimeLeft(parsed.timeLeft);
+                setAnswers(parsed.answers || {});
+                setFlags(parsed.flags || []);
+                answersRef.current = parsed.answers || {};
+            }, []);
+
+            // 2. Submit Logic (Memoized)
+            const submitExam = useCallback((isTimeout = false) => {
+                if (!session) return;
+                
+                // CRITICAL: Use the Ref to ensure we have the absolute latest state
+                // regardless of closure staleness
+                const finalAnswers = answersRef.current;
+                
+                // Create Temp Grading Object
+                const gradingData = {
+                    config: session.config,
+                    answers: finalAnswers,
+                    timeTaken: session.config.duration * 60 - (isTimeout ? 0 : timeLeft),
+                    submitTime: new Date().toISOString()
+                };
+
+                // Save for correction page
+                localStorage.setItem('omr_temp_grading', JSON.stringify(gradingData));
+                
+                // Clear active session
+                localStorage.removeItem('omr_current_session');
+                
+                // Redirect
+                window.location.href = 'correction.html';
+            }, [session, timeLeft]);
+
+            // 3. Timer Logic
+            useEffect(() => {
+                if (!session) return;
+
+                timerRef.current = setInterval(() => {
+                    setTimeLeft((prev) => {
+                        if (prev <= 1) {
+                            clearInterval(timerRef.current);
+                            submitExam(true); // Trigger auto-submit
+                            return 0;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
+
+                return () => clearInterval(timerRef.current);
+            }, [session, submitExam]);
+
+            // 4. Auto-Save Logic (Every 5s)
+            useEffect(() => {
+                if (!session) return;
+                
+                const autoSave = setInterval(() => {
+                    const currentData = JSON.parse(localStorage.getItem('omr_current_session') || '{}');
+                    const updated = {
+                        ...currentData,
+                        answers: answersRef.current,
+                        timeLeft: timeLeft, // Note: This might be slightly stale in this closure, but acceptable for resume
+                        flags: flags
+                    };
+                    localStorage.setItem('omr_current_session', JSON.stringify(updated));
+                }, 5000);
+
+                return () => clearInterval(autoSave);
+            }, [session, flags, timeLeft]); 
+            // Include timeLeft dependency to keep it reasonably fresh in the interval closure
+
+            // Handlers
+            const handleBubbleClick = (qNum, option) => {
+                setAnswers(prev => {
+                    const next = { ...prev, [qNum]: option };
+                    answersRef.current = next; // Sync ref immediately
+                    return next;
+                });
+            };
+
+            const clearRow = (qNum) => {
+                setAnswers(prev => {
+                    const next = { ...prev };
+                    delete next[qNum];
+                    answersRef.current = next;
+                    return next;
+                });
+            };
+
+            const toggleFlag = (qNum) => {
+                setFlags(prev => prev.includes(qNum) ? prev.filter(f => f !== qNum) : [...prev, qNum]);
+            };
+
+            if (!session) return <div className="flex h-screen items-center justify-center text-slate-500">Loading Exam Environment...</div>;
+
+            const { config } = session;
+            const options = ['A', 'B', 'C', 'D', 'E'].slice(0, config.optionsCount);
+            
+            // Grid columns calculation based on question count
+            const gridClass = isFocusMode 
+                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+                : config.pdfLink 
+                    ? "grid-cols-1 xl:grid-cols-2" // Less space if PDF is open
+                    : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+
+            return (
+                <div className="flex flex-col h-screen bg-slate-50">
+                    <Navbar 
+                        toggleFocus={() => setIsFocusMode(!isFocusMode)} 
+                        isFocusMode={isFocusMode} 
+                        timeLeft={timeLeft} 
+                    />
+
+                    <div className="flex flex-1 overflow-hidden">
+                        
+                        {/* Left Split: PDF Viewer (Conditional) */}
+                        {config.pdfLink && !isFocusMode && (
+                            <div className="hidden lg:block w-1/2 border-r border-slate-300 bg-slate-100 relative group">
+                                <iframe 
+                                    src={config.pdfLink} 
+                                    className="w-full h-full" 
+                                    title="Question Paper"
+                                ></iframe>
+                                <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <a href={config.pdfLink} target="_blank" className="bg-white/80 backdrop-blur text-blue-600 text-xs px-2 py-1 rounded shadow">
+                                        Open in New Tab
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Right Split: OMR Sheet */}
+                        <div className={`flex-1 flex flex-col ${config.pdfLink && !isFocusMode ? 'lg:w-1/2' : 'w-full'}`}>
+                            
+                            {/* Toolbar */}
+                            <div className="h-12 bg-white border-b border-slate-100 flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
+                                <span className="text-sm font-semibold text-slate-500">
+                                    Attempted: <span className="text-blue-600">{Object.keys(answers).length}</span> / {config.questionCount}
+                                </span>
+                                {isFocusMode && (
+                                    <div className="text-xl font-mono font-bold text-slate-700">
+                                        {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2,'0')}
+                                    </div>
+                                )}
+                                <button 
+                                    onClick={() => {
+                                        if(confirm("Are you sure you want to submit? This cannot be undone.")) {
+                                            submitExam();
+                                        }
+                                    }}
+                                    className="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-1.5 rounded-lg shadow-sm font-medium transition-colors"
+                                >
+                                    Submit Exam
+                                </button>
+                            </div>
+
+                            {/* OMR Grid Scrollable Area */}
+                            <div className="flex-1 overflow-y-auto custom-scroll bg-slate-50 p-4">
+                                <div className={`grid gap-4 ${gridClass}`}>
+                                    {Array.from({ length: config.questionCount }, (_, i) => i + 1).map(qNum => (
+                                        <div 
+                                            key={qNum} 
+                                            className={`
+                                                relative bg-white p-3 rounded-xl border transition-all
+                                                ${flags.includes(qNum) ? 'border-amber-300 bg-amber-50/50' : 'border-slate-200'}
+                                                ${answers[qNum] ? 'shadow-sm border-blue-200' : 'hover:border-slate-300'}
+                                            `}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                {/* Question Number */}
+                                                <div 
+                                                    className="w-8 h-8 flex items-center justify-center font-bold text-slate-500 bg-slate-100 rounded-lg text-sm cursor-pointer hover:bg-slate-200 transition-colors"
+                                                    onClick={() => toggleFlag(qNum)}
+                                                    title="Click number to flag for review"
+                                                >
+                                                    {flags.includes(qNum) ? '🚩' : qNum}
+                                                </div>
+
+                                                {/* Bubbles */}
+                                                <div className="flex-1 flex justify-between gap-1">
+                                                    {options.map(opt => (
+                                                        <button
+                                                            key={opt}
+                                                            onClick={() => handleBubbleClick(qNum, opt)}
+                                                            className={`
+                                                                w-8 h-8 rounded-full text-sm font-semibold flex items-center justify-center border bubble
+                                                                ${answers[qNum] === opt 
+                                                                    ? 'bg-blue-600 border-blue-600 text-white shadow-md transform scale-105' 
+                                                                    : 'bg-white border-slate-200 text-slate-500 hover:border-blue-400 hover:bg-blue-50'}
+                                                            `}
+                                                        >
+                                                            {opt}
+                                                        </button>
+                                                    ))}
+                                                </div>
+
+                                                {/* Clear Action */}
+                                                {answers[qNum] && (
+                                                    <button 
+                                                        onClick={() => clearRow(qNum)}
+                                                        className="text-slate-300 hover:text-red-500 transition-colors px-1"
+                                                        title="Clear Selection"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="h-12"></div> {/* Bottom spacer */}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ExamInterface />);
+    </script>
+</body>
+</html>
