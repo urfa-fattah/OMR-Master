@@ -7,61 +7,190 @@
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { 
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace']
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        bangla: ['Hind Siliguri', 'sans-serif'],
                     },
-                    colors: {
-                        glass: "rgba(255, 255, 255, 0.8)",
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                        'pulse-slow': 'pulse 2s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
                     }
                 }
             }
         }
     </script>
+    
     <style>
         body {
-            background: #f1f5f9;
-            height: 100vh;
-            overflow: hidden; /* App-like feel */
+            background-attachment: fixed;
+            background: radial-gradient(circle at top left, #f8fafc, #e2e8f0);
         }
-        /* Scrollbar Styling for Grid */
-        .custom-scroll::-webkit-scrollbar {
-            width: 8px;
+        .dark body {
+            background: radial-gradient(circle at top left, #0f172a, #1e293b);
         }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
         }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: rgba(0,0,0,0.2);
-            border-radius: 4px;
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .dark .nav-glass {
+            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Bubble Animation */
         .bubble {
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .bubble:active {
             transform: scale(0.9);
         }
+
+        /* Focus Mode */
+        .focus-mode-active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .dark .focus-mode-active {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
     </style>
 </head>
-<body>
+<body class="text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef, useCallback } = React;
+        const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
 
-        // --- Shared Navbar Component (Simplified for Exam Mode) ---
-        const Navbar = ({ toggleFocus, isFocusMode, timeLeft }) => {
+        // --- Translations ---
+        const translations = {
+            en: {
+                app_name: "OMR Master", pro: "PRO", dashboard: "Dashboard", active_session: "Active Session",
+                analytics: "Analytics", about: "About", report: "Report Issues", guideline: "Guidelines", contact: "Contact",
+                footer_credit: "Designed & Developed by", footer_rights: "All Rights Reserved.",
+                // Exam Specific
+                exam_title: "Active Exam Session",
+                time_left: "Time Left",
+                attempted: "Attempted",
+                submit_exam: "Submit Exam",
+                confirm_submit: "Are you sure you want to submit? This cannot be undone.",
+                focus_mode: "Focus Mode",
+                pdf_viewer: "Question Paper",
+                open_new_tab: "Open in New Tab",
+                flag_review: "Click number to flag for review",
+                clear_selection: "Clear Selection",
+                exam_completed: "Exam Completed!",
+                saving_progress: "Saving progress...",
+                low_time_warning: "Less than 1 minute remaining!",
+                loading_exam: "Loading Exam Environment...",
+                // Tooltips
+                tooltip_submit: "Submit your exam for grading",
+                tooltip_focus: "Enter distraction-free mode",
+                tooltip_flag: "Mark question for review",
+                tooltip_clear: "Remove your answer selection"
+            },
+            bn: {
+                app_name: "ওএমআর মাস্টার", pro: "প্রো", dashboard: "ড্যাশবোর্ড", active_session: "চলমান সেশন",
+                analytics: "বিশ্লেষণ", about: "আমাদের সম্পর্কে", report: "সমস্যা জানান", guideline: "নির্দেশাবলী", contact: "যোগাযোগ",
+                footer_credit: "ডিজাইন ও ডেভেলপমেন্টে", footer_rights: "সর্বস্বত্ব সংরক্ষিত।",
+                // Exam Specific
+                exam_title: "চলমান পরীক্ষা সেশন",
+                time_left: "সময় বাকি",
+                attempted: "উত্তর দেওয়া",
+                submit_exam: "পরীক্ষা জমা দিন",
+                confirm_submit: "আপনি কি নিশ্চিত যে আপনি জমা দিতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না।",
+                focus_mode: "ফোকাস মোড",
+                pdf_viewer: "প্রশ্নপত্র",
+                open_new_tab: "নতুন ট্যাবে খুলুন",
+                flag_review: "রিভিউয়ের জন্য সংখ্যাটিতে ক্লিক করুন",
+                clear_selection: "সিলেকশন মুছুন",
+                exam_completed: "পরীক্ষা সম্পন্ন!",
+                saving_progress: "প্রগতি সংরক্ষণ করা হচ্ছে...",
+                low_time_warning: "১ মিনিটের কম সময় বাকি!",
+                loading_exam: "পরীক্ষার পরিবেশ লোড হচ্ছে...",
+                // Tooltips
+                tooltip_submit: "গ্রেডিংয়ের জন্য আপনার পরীক্ষা জমা দিন",
+                tooltip_focus: "বিক্ষেপ-মুক্ত মোডে প্রবেশ করুন",
+                tooltip_flag: "রিভিউয়ের জন্য প্রশ্ন চিহ্নিত করুন",
+                tooltip_clear: "আপনার উত্তর নির্বাচন সরান"
+            }
+        };
+
+        // --- Icons ---
+        const Icons = {
+            Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Play: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+            BarChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>,
+            Sun: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+            Moon: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+            Globe: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+            Focus: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+            ExternalLink: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
+            Book: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+            Flag: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+            Mail: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+            Clock: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+            CheckCircle: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+            AlertCircle: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+            X: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        };
+
+        const AppContext = createContext();
+
+        // --- Enhanced Navbar ---
+        const Navbar = ({ activePage, toggleFocus, isFocusMode, timeLeft }) => {
+            const { lang, setLang, darkMode, setDarkMode } = useContext(AppContext);
+            const [sessionActive, setSessionActive] = useState(true);
+            const t = (k) => translations[lang][k];
+
+            const toggleTheme = () => {
+                setDarkMode(!darkMode);
+                document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', !darkMode ? 'dark' : 'light');
+            };
+
+            const toggleLang = () => {
+                const newLang = lang === 'en' ? 'bn' : 'en';
+                setLang(newLang);
+                localStorage.setItem('lang', newLang);
+            };
+
             const formatTime = (seconds) => {
                 const m = Math.floor(seconds / 60);
                 const s = seconds % 60;
@@ -70,41 +199,107 @@
 
             const isLowTime = timeLeft < 60;
 
+            const links = [
+                { name: t('dashboard'), href: 'index.html', icon: Icons.Home, active: activePage === 'home' },
+                { name: t('active_session'), href: 'exam.html', icon: Icons.Play, active: activePage === 'exam', hidden: !sessionActive },
+                { name: t('analytics'), href: 'analytics.html', icon: Icons.BarChart, active: activePage === 'analytics' },
+                { name: t('about'), href: 'about.html', icon: Icons.Book },
+                { name: t('guideline'), href: 'guidelines.html', icon: Icons.Flag },
+                { name: t('report'), href: 'report.html', icon: Icons.AlertCircle },
+                { name: t('contact'), href: 'contact.html', icon: Icons.Mail }
+            ];
+
             if (isFocusMode) return null;
 
             return (
-                <nav className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 z-50 shrink-0">
-                    <div className="font-bold text-xl text-slate-800 tracking-tight flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm">O</div>
-                        <span className="hidden sm:inline">OMR Master Pro</span>
-                    </div>
+                <nav className="fixed top-0 inset-x-0 z-50 nav-glass transition-all duration-300 shadow-sm">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-20">
+                            {/* Logo */}
+                            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.location.href='index.html'}>
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 transition-transform group-hover:scale-105 group-hover:rotate-3">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                                </div>
+                                <div className={lang === 'bn' ? 'font-bangla' : ''}>
+                                    <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight leading-none">{t('app_name')}</h1>
+                                    <span className="text-[10px] font-bold tracking-widest text-blue-600 dark:text-blue-400 uppercase">{t('pro')}</span>
+                                </div>
+                            </div>
 
-                    <div className={`font-mono text-2xl font-bold ${isLowTime ? 'text-red-600 animate-pulse' : 'text-slate-800'}`}>
-                        {formatTime(timeLeft)}
-                    </div>
+                            {/* Desktop Navigation */}
+                            <div className="hidden lg:flex items-center gap-2">
+                                <div className="flex items-center gap-1 mr-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                                    {links.map(link => !link.hidden && (
+                                        <a key={link.name} href={link.href} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${link.active ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}>
+                                            <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                        </a>
+                                    ))}
+                                </div>
+                                
+                                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                                
+                                {/* Timer Display */}
+                                <div className={`font-mono text-xl font-bold px-4 py-2 rounded-lg ${isLowTime ? 'bg-red-500/10 text-red-600 animate-pulse-slow border border-red-500/20' : 'bg-blue-500/10 text-blue-600 border border-blue-500/20'}`}>
+                                    {formatTime(timeLeft)}
+                                </div>
+                                
+                                <button onClick={toggleFocus} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:scale-105 transition-transform">
+                                    <Icons.Focus /> {t('focus_mode')}
+                                </button>
+                                
+                                <button onClick={toggleLang} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:scale-105 transition-transform">
+                                    <Icons.Globe /> {lang === 'en' ? 'BN' : 'EN'}
+                                </button>
+                                
+                                <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:rotate-12 transition-transform">
+                                    {darkMode ? <Icons.Sun /> : <Icons.Moon />}
+                                </button>
+                            </div>
 
-                    <div className="flex items-center gap-3">
-                        <button 
-                            onClick={toggleFocus}
-                            className="text-slate-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 transition-colors"
-                        >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
-                            Focus Mode
-                        </button>
+                            {/* Mobile Navigation */}
+                            <div className="lg:hidden flex items-center gap-3">
+                                <div className={`font-mono text-lg font-bold px-3 py-1.5 rounded ${isLowTime ? 'bg-red-500/10 text-red-600 animate-pulse' : 'bg-blue-500/10 text-blue-600'}`}>
+                                    {formatTime(timeLeft)}
+                                </div>
+                                <button onClick={toggleLang} className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{lang === 'en' ? 'BN' : 'EN'}</button>
+                                <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-300">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
+                            </div>
+                        </div>
                     </div>
                 </nav>
             );
         };
 
+        // --- Footer ---
+        const Footer = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            return (
+                <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
+                    <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col items-center justify-center gap-2 text-center">
+                        <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
+                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
+                            Urfa Hasan Fattah
+                        </div>
+                        <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                            {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {new Date().getFullYear()} {t('footer_rights')}
+                        </p>
+                    </div>
+                </footer>
+            );
+        };
+
         // --- Main Exam Component ---
         const ExamInterface = () => {
+            const { lang, darkMode } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
             const [session, setSession] = useState(null);
             const [timeLeft, setTimeLeft] = useState(0);
             const [isFocusMode, setIsFocusMode] = useState(false);
             const [answers, setAnswers] = useState({});
             const [flags, setFlags] = useState([]);
+            const [autoSaveStatus, setAutoSaveStatus] = useState("saved");
             
-            // Refs for critical data access inside timers
             const answersRef = useRef({});
             const timerRef = useRef(null);
 
@@ -123,15 +318,12 @@
                 answersRef.current = parsed.answers || {};
             }, []);
 
-            // 2. Submit Logic (Memoized)
+            // 2. Submit Logic
             const submitExam = useCallback((isTimeout = false) => {
                 if (!session) return;
                 
-                // CRITICAL: Use the Ref to ensure we have the absolute latest state
-                // regardless of closure staleness
                 const finalAnswers = answersRef.current;
                 
-                // Create Temp Grading Object
                 const gradingData = {
                     config: session.config,
                     answers: finalAnswers,
@@ -139,13 +331,9 @@
                     submitTime: new Date().toISOString()
                 };
 
-                // Save for correction page
                 localStorage.setItem('omr_temp_grading', JSON.stringify(gradingData));
-                
-                // Clear active session
                 localStorage.removeItem('omr_current_session');
                 
-                // Redirect
                 window.location.href = 'correction.html';
             }, [session, timeLeft]);
 
@@ -157,7 +345,7 @@
                     setTimeLeft((prev) => {
                         if (prev <= 1) {
                             clearInterval(timerRef.current);
-                            submitExam(true); // Trigger auto-submit
+                            submitExam(true);
                             return 0;
                         }
                         return prev - 1;
@@ -167,7 +355,7 @@
                 return () => clearInterval(timerRef.current);
             }, [session, submitExam]);
 
-            // 4. Auto-Save Logic (Every 5s)
+            // 4. Auto-Save Logic
             useEffect(() => {
                 if (!session) return;
                 
@@ -176,21 +364,25 @@
                     const updated = {
                         ...currentData,
                         answers: answersRef.current,
-                        timeLeft: timeLeft, // Note: This might be slightly stale in this closure, but acceptable for resume
+                        timeLeft: timeLeft,
                         flags: flags
                     };
                     localStorage.setItem('omr_current_session', JSON.stringify(updated));
-                }, 5000);
+                    setAutoSaveStatus("saved");
+                    
+                    // Show saving status briefly
+                    setAutoSaveStatus("saving");
+                    setTimeout(() => setAutoSaveStatus("saved"), 1000);
+                }, 10000);
 
                 return () => clearInterval(autoSave);
-            }, [session, flags, timeLeft]); 
-            // Include timeLeft dependency to keep it reasonably fresh in the interval closure
+            }, [session, flags, timeLeft]);
 
             // Handlers
             const handleBubbleClick = (qNum, option) => {
                 setAnswers(prev => {
                     const next = { ...prev, [qNum]: option };
-                    answersRef.current = next; // Sync ref immediately
+                    answersRef.current = next;
                     return next;
                 });
             };
@@ -208,41 +400,41 @@
                 setFlags(prev => prev.includes(qNum) ? prev.filter(f => f !== qNum) : [...prev, qNum]);
             };
 
-            if (!session) return <div className="flex h-screen items-center justify-center text-slate-500">Loading Exam Environment...</div>;
+            if (!session) return <div className="flex h-screen items-center justify-center text-slate-500 dark:text-slate-400">{t('loading_exam')}</div>;
 
             const { config } = session;
             const options = ['A', 'B', 'C', 'D', 'E'].slice(0, config.optionsCount);
             
-            // Grid columns calculation based on question count
-            const gridClass = isFocusMode 
-                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
-                : config.pdfLink 
-                    ? "grid-cols-1 xl:grid-cols-2" // Less space if PDF is open
-                    : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+            const isLowTime = timeLeft < 60;
+            const attemptedCount = Object.keys(answers).length;
+            const progressPercentage = (attemptedCount / config.questionCount) * 100;
 
             return (
-                <div className="flex flex-col h-screen bg-slate-50">
+                <div className={`flex flex-col h-screen ${isFocusMode ? 'focus-mode-active' : 'bg-slate-50 dark:bg-slate-900'}`}>
                     <Navbar 
+                        activePage="exam"
                         toggleFocus={() => setIsFocusMode(!isFocusMode)} 
                         isFocusMode={isFocusMode} 
                         timeLeft={timeLeft} 
                     />
 
-                    <div className="flex flex-1 overflow-hidden">
+                    <div className="flex flex-1 overflow-hidden pt-20">
                         
-                        {/* Left Split: PDF Viewer (Conditional) */}
+                        {/* Left Split: PDF Viewer */}
                         {config.pdfLink && !isFocusMode && (
-                            <div className="hidden lg:block w-1/2 border-r border-slate-300 bg-slate-100 relative group">
-                                <iframe 
-                                    src={config.pdfLink} 
-                                    className="w-full h-full" 
-                                    title="Question Paper"
-                                ></iframe>
-                                <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <a href={config.pdfLink} target="_blank" className="bg-white/80 backdrop-blur text-blue-600 text-xs px-2 py-1 rounded shadow">
-                                        Open in New Tab
+                            <div className="hidden lg:block w-1/2 border-r border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 relative group">
+                                <div className="absolute top-0 left-0 right-0 bg-slate-800 text-white p-2 z-10 flex justify-between items-center">
+                                    <span className="text-sm font-medium">{t('pdf_viewer')}</span>
+                                    <a href={config.pdfLink} target="_blank" rel="noopener noreferrer" 
+                                       className="text-xs bg-white/20 hover:bg-white/30 px-2 py-1 rounded flex items-center gap-1 transition">
+                                        <Icons.ExternalLink /> {t('open_new_tab')}
                                     </a>
                                 </div>
+                                <iframe 
+                                    src={config.pdfLink} 
+                                    className="w-full h-full pt-10"
+                                    title="Question Paper"
+                                ></iframe>
                             </div>
                         )}
 
@@ -250,60 +442,93 @@
                         <div className={`flex-1 flex flex-col ${config.pdfLink && !isFocusMode ? 'lg:w-1/2' : 'w-full'}`}>
                             
                             {/* Toolbar */}
-                            <div className="h-12 bg-white border-b border-slate-100 flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
-                                <span className="text-sm font-semibold text-slate-500">
-                                    Attempted: <span className="text-blue-600">{Object.keys(answers).length}</span> / {config.questionCount}
-                                </span>
-                                {isFocusMode && (
-                                    <div className="text-xl font-mono font-bold text-slate-700">
-                                        {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2,'0')}
+                            <div className="h-14 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between px-4 lg:px-6 shrink-0 shadow-sm">
+                                <div className="flex items-center gap-6">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center">
+                                            <Icons.CheckCircle />
+                                        </div>
+                                        <div>
+                                            <div className="text-xs text-slate-500 dark:text-slate-400">{t('attempted')}</div>
+                                            <div className="font-bold text-slate-800 dark:text-white">
+                                                {attemptedCount} / {config.questionCount}
+                                            </div>
+                                        </div>
                                     </div>
-                                )}
-                                <button 
-                                    onClick={() => {
-                                        if(confirm("Are you sure you want to submit? This cannot be undone.")) {
-                                            submitExam();
-                                        }
-                                    }}
-                                    className="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-1.5 rounded-lg shadow-sm font-medium transition-colors"
-                                >
-                                    Submit Exam
-                                </button>
+                                    
+                                    <div className="hidden md:block">
+                                        <div className="w-48 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                            <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-300" 
+                                                 style={{width: `${progressPercentage}%`}}></div>
+                                        </div>
+                                    </div>
+                                    
+                                    {isLowTime && (
+                                        <div className="flex items-center gap-2 text-red-600 dark:text-red-400 animate-pulse-slow">
+                                            <Icons.AlertCircle />
+                                            <span className="text-sm font-bold">{t('low_time_warning')}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="flex items-center gap-3">
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+                                        {autoSaveStatus === "saving" ? t('saving_progress') : "• " + t('exam_title')}
+                                    </div>
+                                    
+                                    {isFocusMode && (
+                                        <div className="font-mono text-lg font-bold text-slate-800 dark:text-white">
+                                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2,'0')}
+                                        </div>
+                                    )}
+                                    
+                                    <button 
+                                        onClick={() => {
+                                            if(confirm(t('confirm_submit'))) {
+                                                submitExam();
+                                            }
+                                        }}
+                                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-green-500/20 font-bold transition-all hover:scale-105"
+                                        title={t('tooltip_submit')}
+                                    >
+                                        {t('submit_exam')}
+                                    </button>
+                                </div>
                             </div>
 
-                            {/* OMR Grid Scrollable Area */}
-                            <div className="flex-1 overflow-y-auto custom-scroll bg-slate-50 p-4">
-                                <div className={`grid gap-4 ${gridClass}`}>
+                            {/* OMR Grid */}
+                            <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+                                <div className={`grid gap-4 ${isFocusMode ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'}`}>
                                     {Array.from({ length: config.questionCount }, (_, i) => i + 1).map(qNum => (
                                         <div 
                                             key={qNum} 
                                             className={`
-                                                relative bg-white p-3 rounded-xl border transition-all
-                                                ${flags.includes(qNum) ? 'border-amber-300 bg-amber-50/50' : 'border-slate-200'}
-                                                ${answers[qNum] ? 'shadow-sm border-blue-200' : 'hover:border-slate-300'}
+                                                glass-panel p-4 rounded-2xl border transition-all duration-200
+                                                ${flags.includes(qNum) ? 'border-amber-400 bg-amber-50/50 dark:bg-amber-900/20' : 'border-slate-200 dark:border-slate-700'}
+                                                ${answers[qNum] ? 'shadow-md border-blue-300 dark:border-blue-500' : 'hover:border-slate-300 dark:hover:border-slate-600'}
                                             `}
                                         >
                                             <div className="flex items-center gap-3">
-                                                {/* Question Number */}
+                                                {/* Question Number with Flag */}
                                                 <div 
-                                                    className="w-8 h-8 flex items-center justify-center font-bold text-slate-500 bg-slate-100 rounded-lg text-sm cursor-pointer hover:bg-slate-200 transition-colors"
+                                                    className={`w-10 h-10 flex items-center justify-center font-bold rounded-xl text-base cursor-pointer transition-all ${flags.includes(qNum) ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}
                                                     onClick={() => toggleFlag(qNum)}
-                                                    title="Click number to flag for review"
+                                                    title={t('flag_review')}
                                                 >
                                                     {flags.includes(qNum) ? '🚩' : qNum}
                                                 </div>
 
                                                 {/* Bubbles */}
-                                                <div className="flex-1 flex justify-between gap-1">
+                                                <div className="flex-1 flex justify-between gap-2">
                                                     {options.map(opt => (
                                                         <button
                                                             key={opt}
                                                             onClick={() => handleBubbleClick(qNum, opt)}
                                                             className={`
-                                                                w-8 h-8 rounded-full text-sm font-semibold flex items-center justify-center border bubble
+                                                                w-10 h-10 rounded-full text-base font-bold flex items-center justify-center border-2 bubble
                                                                 ${answers[qNum] === opt 
-                                                                    ? 'bg-blue-600 border-blue-600 text-white shadow-md transform scale-105' 
-                                                                    : 'bg-white border-slate-200 text-slate-500 hover:border-blue-400 hover:bg-blue-50'}
+                                                                    ? 'bg-gradient-to-br from-blue-500 to-indigo-500 border-blue-500 text-white shadow-lg transform scale-105' 
+                                                                    : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30'}
                                                             `}
                                                         >
                                                             {opt}
@@ -315,26 +540,68 @@
                                                 {answers[qNum] && (
                                                     <button 
                                                         onClick={() => clearRow(qNum)}
-                                                        className="text-slate-300 hover:text-red-500 transition-colors px-1"
-                                                        title="Clear Selection"
+                                                        className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                        title={t('clear_selection')}
                                                     >
-                                                        ✕
+                                                        <Icons.X />
                                                     </button>
                                                 )}
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="h-12"></div> {/* Bottom spacer */}
+                                <div className="h-12"></div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Mobile Footer */}
+                    <div className="lg:hidden bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-3">
+                        <div className="flex justify-between items-center">
+                            <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                {t('attempted')}: <span className="text-blue-600 dark:text-blue-400">{attemptedCount}</span>
+                            </div>
+                            <button 
+                                onClick={() => setIsFocusMode(!isFocusMode)}
+                                className="px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg text-sm font-bold"
+                            >
+                                {isFocusMode ? 'Exit Focus' : t('focus_mode')}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Desktop Footer */}
+                    <div className="hidden lg:block">
+                        <Footer />
                     </div>
                 </div>
             );
         };
 
+        // --- App Wrapper ---
+        const AppWrapper = () => {
+            const [lang, setLang] = useState('en');
+            const [darkMode, setDarkMode] = useState(false);
+
+            useEffect(() => {
+                const savedLang = localStorage.getItem('lang');
+                if (savedLang) setLang(savedLang);
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    setDarkMode(true);
+                    document.documentElement.classList.add('dark');
+                }
+            }, []);
+
+            return (
+                <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
+                    <ExamInterface />
+                </AppContext.Provider>
+            );
+        };
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<ExamInterface />);
+        root.render(<AppWrapper />);
     </script>
 </body>
 </html>

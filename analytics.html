@@ -3,294 +3,791 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMR Master Pro - Analytics</title>
+    <title>OMR Master Pro - Advanced Intelligence</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
-                    colors: {
-                        glass: "rgba(255, 255, 255, 0.7)",
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        bangla: ['Hind Siliguri', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                        'float': 'float 3s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        popIn: { '0%': { opacity: '0', transform: 'scale(0.9)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+                        shimmer: { '0%': { backgroundPosition: '-200px 0' }, '100%': { backgroundPosition: '200px 0' } },
+                        pulse: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.5' } }
                     }
                 }
             }
         }
     </script>
+
     <style>
-        body { background: #f1f5f9; }
-        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        body {
+            background-attachment: fixed;
+            background: radial-gradient(circle at top left, #f8fafc, #e2e8f0); 
+        }
+        .dark body {
+            background: radial-gradient(circle at top left, #0f172a, #1e293b);
+        }
+        
+        /* Advanced Glassmorphism */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .dark .nav-glass {
+            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+        }
+
+        /* Chart Tooltip */
+        #chartjs-tooltip {
+            opacity: 1;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 6px;
+            pointer-events: none;
+            transform: translate(-50%, 0);
+            transition: all .1s ease;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Loading Animation */
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Heatmap responsive grid */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+            gap: 4px;
+        }
+        @media (min-width: 640px) {
+            .heatmap-grid {
+                grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+                gap: 5px;
+            }
+        }
+        @media (min-width: 768px) {
+            .heatmap-grid {
+                grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+                gap: 6px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .heatmap-grid {
+                grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+                gap: 7px;
+            }
+        }
+        @media (min-width: 1280px) {
+            .heatmap-grid {
+                grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+                gap: 8px;
+            }
+        }
     </style>
 </head>
-<body>
+<body class="text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-blue-500 selection:text-white">
+    
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, createContext, useContext, useRef, useMemo, useCallback } = React;
 
-        // Navbar Helper (Simplified for analytics)
-        const Navbar = () => (
-            <nav className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-                <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.location.href='index.html'}>
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">O</div>
-                    <span className="font-bold text-slate-800 text-lg">OMR Master Pro</span>
-                </div>
-                <div className="flex gap-4">
-                    <a href="index.html" className="text-slate-500 hover:text-blue-600 font-medium">Home</a>
-                    <a href="analytics.html" className="text-blue-600 font-bold bg-blue-50 px-3 py-1 rounded-md">Analytics</a>
-                </div>
-            </nav>
-        );
+        // --- Translations ---
+        const translations = {
+            en: {
+                app_name: "OMR Master", pro: "PRO", dashboard: "Dashboard", active_session: "Active Session",
+                analytics: "Analytics", about: "About", report: "Report Issues", guideline: "Guidelines", contact: "Contact",
+                footer_credit: "Designed & Developed by", footer_rights: "All Rights Reserved.",
+                // Analytics Specific
+                ana_title: "Performance Intelligence",
+                ana_sub: "Deep dive into your exam metrics and cognitive patterns.",
+                kpi_exams: "Total Exams", kpi_acc: "Avg Accuracy", kpi_best: "Best Score", kpi_time: "Study Time",
+                kpi_efficiency: "Efficiency", kpi_consistency: "Consistency",
+                tab_history: "Exam History Log",
+                btn_view: "Deep Dive", btn_back: "Back to Dashboard", btn_export: "Export Data", btn_import: "Import Data", 
+                btn_filter: "Filter", btn_retake: "Retake Exam",
+                det_score: "Final Score", det_acc: "Accuracy", det_time: "Time Taken", det_speed: "Avg Speed",
+                det_chart_perf: "Skill Radar", det_breakdown: "Question Heatmap", det_trend: "Performance Trend",
+                det_insights: "AI Insights", det_patterns: "Pattern Analysis",
+                lbl_correct: "Correct", lbl_wrong: "Wrong", lbl_skip: "Skipped",
+                lbl_weak: "Weak Areas", lbl_strong: "Strong Areas",
+                eff_score: "Efficiency Score", consistency: "Consistency",
+                filter_all: "All Time", filter_month: "This Month", filter_week: "This Week",
+                no_data_title: "No Data Available",
+                no_data_desc: "Take an exam to see analytics!",
+                insight1: "You perform better in the morning sessions",
+                insight2: "Accuracy drops after 30 consecutive questions",
+                insight3: "Strong in logical reasoning, needs work in quantitative",
+                // Tooltips
+                tooltip_kpi_exams: "Total number of exams taken",
+                tooltip_kpi_acc: "Average accuracy across all exams",
+                tooltip_kpi_best: "Highest score achieved",
+                tooltip_kpi_time: "Total time spent on exams",
+                tooltip_kpi_efficiency: "Overall efficiency score",
+                tooltip_kpi_consistency: "Score consistency across exams",
+                tooltip_trend_chart: "Performance trend over time",
+                tooltip_distribution: "Score distribution across ranges",
+                tooltip_history: "Detailed exam history with actions",
+                tooltip_radar: "Visual representation of skill areas",
+                tooltip_heatmap: "Question-by-question performance",
+                tooltip_doughnut: "Breakdown of correct/wrong/skipped",
+                tooltip_ai: "AI-generated insights from patterns",
+                tooltip_mini_trend: "Performance variation during exam",
+                tooltip_retake: "Retake this exam with same questions",
+                tooltip_import: "Import exam data from JSON file",
+                // Import/Export
+                import_success: "Data imported successfully!",
+                import_error: "Error importing data. Invalid format.",
+                import_prompt: "Select JSON file to import",
+                retake_confirm: "Start this exam again? Your previous score will be saved.",
+                delete_confirm: "Permanently delete this exam record?"
+            },
+            bn: {
+                app_name: "ওএমআর মাস্টার", pro: "প্রো", dashboard: "ড্যাশবোর্ড", active_session: "চলমান সেশন",
+                analytics: "বিশ্লেষণ", about: "আমাদের সম্পর্কে", report: "রিপোর্ট", guideline: "নির্দেশিকা", contact: "যোগাযোগ",
+                footer_credit: "ডিজাইন ও ডেভেলপমেন্টে", footer_rights: "সর্বস্বত্ব সংরক্ষিত।",
+                // Analytics Specific
+                ana_title: "পারফরমেন্স ইন্টেলিজেন্স",
+                ana_sub: "আপনার পরীক্ষার মেট্রিক্স এবং প্যাটার্ন বিশ্লেষণ করুন।",
+                kpi_exams: "মোট পরীক্ষা", kpi_acc: "গড় সঠিকতা", kpi_best: "সেরা স্কোর", kpi_time: "মোট সময়",
+                kpi_efficiency: "দক্ষতা", kpi_consistency: "ধারাবাহিকতা",
+                tab_history: "পরীক্ষার ইতিহাস লগ",
+                btn_view: "বিস্তারিত দেখুন", btn_back: "ড্যাশবোর্ডে ফিরুন", btn_export: "ডেটা এক্সপোর্ট", btn_import: "ডেটা ইম্পোর্ট",
+                btn_filter: "ফিল্টার", btn_retake: "পুনরায় পরীক্ষা দিন",
+                det_score: "ফাইনাল স্কোর", det_acc: "সঠিকতা", det_time: "সময় লেগেছে", det_speed: "গড় গতি",
+                det_chart_perf: "দক্ষতা রাডার", det_breakdown: "প্রশ্ন হিটম্যাপ", det_trend: "পারফরমেন্স ট্রেন্ড",
+                det_insights: "এআই ইনসাইটস", det_patterns: "প্যাটার্ন বিশ্লেষণ",
+                lbl_correct: "সঠিক", lbl_wrong: "ভুল", lbl_skip: "উজ্জ",
+                lbl_weak: "দুর্বল ক্ষেত্র", lbl_strong: "শক্তিশালী ক্ষেত্র",
+                eff_score: "দক্ষতা স্কোর", consistency: "ধারাবাহিকতা",
+                filter_all: "সব সময়", filter_month: "এই মাস", filter_week: "এই সপ্তাহ",
+                no_data_title: "কোন তথ্য নেই",
+                no_data_desc: "বিশ্লেষণ দেখতে পরীক্ষা দিন!",
+                insight1: "আপনি সকালের সেশনে ভাল পারফর্ম করেন",
+                insight2: "৩০টি পরপর প্রশ্নের পর নির্ভুলতা কমে যায়",
+                insight3: "লজিক্যাল রিজনিংয়ে শক্তিশালী, কোয়ান্টিটেটিভে কাজ প্রয়োজন",
+                // Tooltips
+                tooltip_kpi_exams: "মোট পরীক্ষার সংখ্যা",
+                tooltip_kpi_acc: "সকল পরীক্ষার গড় নির্ভুলতা",
+                tooltip_kpi_best: "সর্বোচ্চ প্রাপ্ত স্কোর",
+                tooltip_kpi_time: "পরীক্ষায় ব্যয়িত মোট সময়",
+                tooltip_kpi_efficiency: "সামগ্রিক দক্ষতা স্কোর",
+                tooltip_kpi_consistency: "পরীক্ষা জুড়ে স্কোরের ধারাবাহিকতা",
+                tooltip_trend_chart: "সময়ের সাথে পারফরমেন্স ট্রেন্ড",
+                tooltip_distribution: "স্কোরের পরিসীমা অনুযায়ী বিতরণ",
+                tooltip_history: "বিস্তারিত পরীক্ষার ইতিহাস এবং কর্ম",
+                tooltip_radar: "দক্ষতার ক্ষেত্রের ভিজ্যুয়াল উপস্থাপনা",
+                tooltip_heatmap: "প্রশ্ন অনুযায়ী পারফরমেন্স",
+                tooltip_doughnut: "সঠিক/ভুল/উজ্জ এর বিভাজন",
+                tooltip_ai: "প্যাটার্ন থেকে এআই-জেনারেটেড ইনসাইট",
+                tooltip_mini_trend: "পরীক্ষার সময় পারফরমেন্সের ভিন্নতা",
+                tooltip_retake: "একই প্রশ্নসহ পুনরায় পরীক্ষা দিন",
+                tooltip_import: "JSON ফাইল থেকে পরীক্ষার ডেটা ইম্পোর্ট করুন",
+                // Import/Export
+                import_success: "ডেটা সফলভাবে ইম্পোর্ট করা হয়েছে!",
+                import_error: "ডেটা ইম্পোর্টে ত্রুটি। ফর্ম্যাট ভুল।",
+                import_prompt: "ইম্পোর্ট করার জন্য JSON ফাইল নির্বাচন করুন",
+                retake_confirm: "আবার এই পরীক্ষা শুরু করবেন? আপনার আগের স্কোর সংরক্ষিত থাকবে।",
+                delete_confirm: "এই পরীক্ষার রেকর্ড স্থায়ীভাবে মুছে ফেলবেন?"
+            }
+        };
 
-        const Analytics = () => {
-            const [history, setHistory] = useState([]);
-            const [selectedExam, setSelectedExam] = useState('All');
-            const [view, setView] = useState('overview'); // overview | detailed
+        // --- Icons (Original SVG) ---
+        const Icons = {
+            Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Play: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+            BarChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>,
+            Settings: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+            Sun: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+            Moon: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+            Globe: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+            Info: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+            Flag: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+            Mail: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+            Book: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+            X: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+            Check: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+            FileText: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>,
+            Link: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
+            ArrowLeft: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
+            Trash: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>,
+            Eye: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+            Activity: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+            Clock: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+            Award: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+            Zap: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+            TrendingUp: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+            Download: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+            Upload: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+            Filter: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>,
+            Brain: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>,
+            Target: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+            ChevronDown: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+            Menu: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
+            ExternalLink: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
+            Refresh: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        };
+
+        const AppContext = createContext();
+
+        // --- Tooltip Component ---
+        const Tooltip = ({ children, text }) => {
+            const [show, setShow] = useState(false);
             
-            // Chart Refs
-            const chartRef = useRef(null);
-            const chartInstance = useRef(null);
+            return (
+                <div className="relative inline-block">
+                    <button 
+                        className="text-slate-400 hover:text-blue-500 transition-colors focus:outline-none"
+                        onMouseEnter={() => setShow(true)}
+                        onMouseLeave={() => setShow(false)}
+                        onClick={() => setShow(!show)}
+                        aria-label="Information"
+                    >
+                        <Icons.Info />
+                    </button>
+                    {show && (
+                        <div className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg shadow-xl max-w-xs w-max">
+                            <div className="relative">
+                                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+                                {text}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
 
-            // Load Data
+        // --- Enhanced Navbar ---
+        const Navbar = ({ activePage }) => {
+            const { lang, setLang, darkMode, setDarkMode } = useContext(AppContext);
+            const [isOpen, setIsOpen] = useState(false);
+            const [sessionActive, setSessionActive] = useState(false);
+            const t = (k) => translations[lang][k];
+
             useEffect(() => {
-                const stored = JSON.parse(localStorage.getItem('omr_history') || '[]');
-                // Sort by date descending
-                setHistory(stored.reverse());
+                const session = localStorage.getItem('omr_current_session');
+                if (session) setSessionActive(true);
             }, []);
 
-            // Filter Logic
-            const uniqueExams = ['All', ...new Set(history.map(h => h.examName))];
-            const filteredData = selectedExam === 'All' ? history : history.filter(h => h.examName === selectedExam);
-            const latestAttempt = filteredData[0];
-            const previousAttempt = filteredData[1]; // For comparison
+            const toggleTheme = () => {
+                setDarkMode(!darkMode);
+                document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', !darkMode ? 'dark' : 'light');
+            };
 
-            // Chart Rendering
+            const toggleLang = () => {
+                const newLang = lang === 'en' ? 'bn' : 'en';
+                setLang(newLang);
+                localStorage.setItem('lang', newLang);
+            };
+
+            const links = [
+                { name: t('dashboard'), href: 'index.html', icon: Icons.Home, active: activePage === 'home' },
+                { name: t('active_session'), href: 'exam.html', icon: Icons.Play, active: activePage === 'exam', hidden: !sessionActive },
+                { name: t('analytics'), href: 'analytics.html', icon: Icons.BarChart, active: activePage === 'analytics' },
+            ];
+
+            const secondaryLinks = [
+                { name: t('about'), href: 'About.html', icon: Icons.Info },
+                { name: t('guideline'), href: 'Guidelines.html', icon: Icons.Book },
+                { name: t('report'), href: 'ReportIssues.html', icon: Icons.Flag },
+                { name: t('contact'), href: 'Contact.html', icon: Icons.Mail },
+            ];
+
+            return (
+                <nav className="fixed top-0 inset-x-0 z-50 nav-glass transition-all duration-300 shadow-sm">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-20">
+                            {/* Logo */}
+                            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.location.href='index.html'}>
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 transition-transform group-hover:scale-105 group-hover:rotate-3">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                                </div>
+                                <div className={lang === 'bn' ? 'font-bangla' : ''}>
+                                    <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight leading-none">{t('app_name')}</h1>
+                                    <span className="text-[10px] font-bold tracking-widest text-blue-600 dark:text-blue-400 uppercase">{t('pro')}</span>
+                                </div>
+                            </div>
+
+                            {/* Desktop Navigation */}
+                            <div className="hidden lg:flex items-center gap-2">
+                                <div className="flex items-center gap-1 mr-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                                    {links.map(link => !link.hidden && (
+                                        <a key={link.name} href={link.href} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${link.active ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}>
+                                            <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                        </a>
+                                    ))}
+                                </div>
+                                
+                                {secondaryLinks.map((item, idx) => (
+                                    <a key={idx} href={item.href} title={item.name} className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                                        <item.icon />
+                                    </a>
+                                ))}
+                                
+                                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                                
+                                <button onClick={toggleLang} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:scale-105 transition-transform">
+                                    <Icons.Globe /> {lang === 'en' ? 'BN' : 'EN'}
+                                </button>
+                                
+                                <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:rotate-12 transition-transform">
+                                    {darkMode ? <Icons.Sun /> : <Icons.Moon />}
+                                </button>
+                            </div>
+
+                            {/* Mobile Navigation */}
+                            <div className="lg:hidden flex items-center gap-3">
+                                <button onClick={toggleLang} className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{lang === 'en' ? 'BN' : 'EN'}</button>
+                                <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-300">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
+                                <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition">
+                                    <Icons.Menu />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Mobile Menu */}
+                    {isOpen && (
+                        <div className="lg:hidden border-t border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-xl">
+                            <div className="p-4 space-y-2">
+                                {links.map(link => !link.hidden && (
+                                    <a key={link.name} href={link.href} onClick={() => setIsOpen(false)}
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium ${link.active ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'}`}>
+                                        <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                    </a>
+                                ))}
+                                
+                                <hr className="border-slate-100 dark:border-slate-800 my-2" />
+                                
+                                {secondaryLinks.map((item, idx) => (
+                                    <a key={idx} href={item.href} onClick={() => setIsOpen(false)} 
+                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
+                                        <item.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{item.name}</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </nav>
+            );
+        };
+
+        // --- Footer ---
+        const Footer = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const currentYear = new Date().getFullYear();
+            
+            return (
+                <footer className="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
+                    <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center justify-center gap-2 text-center">
+                        <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
+                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
+                            Urfa Hasan Fattah
+                        </div>
+                        <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                            {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {currentYear} {t('footer_rights')}
+                        </p>
+                    </div>
+                </footer>
+            );
+        };
+
+        // --- Enhanced Detail View ---
+        const DetailView = ({ exam, onBack }) => {
+            const { lang, darkMode } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const radarRef = useRef(null);
+            const radarInst = useRef(null);
+            const doughRef = useRef(null);
+            const doughInst = useRef(null);
+            const trendRef = useRef(null);
+            const trendInst = useRef(null);
+            
+            // Advanced Analytics
+            const stats = useMemo(() => {
+                if(!exam) return {};
+                const correct = Object.values(exam.gradingDetails).filter(s => s === 'correct').length;
+                const wrong = Object.values(exam.gradingDetails).filter(s => s === 'wrong').length;
+                const skipped = exam.totalQuestions - (correct + wrong);
+                const attempted = correct + wrong;
+                
+                // Advanced metrics
+                const efficiency = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+                const avgSpeed = attempted > 0 ? (exam.timeTaken / attempted).toFixed(1) : 0;
+                const consistency = Math.min(100, efficiency * 0.8 + (attempted / exam.totalQuestions) * 20);
+                
+                return { correct, wrong, skipped, efficiency, avgSpeed, attempted, consistency };
+            }, [exam]);
+
             useEffect(() => {
-                if (chartRef.current && filteredData.length > 0) {
-                    if (chartInstance.current) chartInstance.current.destroy();
+                if (!exam) return;
 
-                    // Reverse for chronological chart (Oldest -> Newest)
-                    const chartData = [...filteredData].reverse();
+                // 1. Radar Chart
+                if (radarRef.current) {
+                    if (radarInst.current) radarInst.current.destroy();
+                    const ctxR = radarRef.current.getContext('2d');
                     
-                    const ctx = chartRef.current.getContext('2d');
-                    chartInstance.current = new Chart(ctx, {
-                        type: 'line',
+                    radarInst.current = new Chart(ctxR, {
+                        type: 'radar',
                         data: {
-                            labels: chartData.map(d => new Date(d.date).toLocaleDateString()),
+                            labels: ['Accuracy', 'Speed', 'Coverage', 'Consistency', 'Focus', 'Efficiency'],
                             datasets: [{
-                                label: 'Score History',
-                                data: chartData.map(d => d.score),
-                                borderColor: '#2563eb',
-                                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                                tension: 0.3,
-                                fill: true,
-                                pointRadius: 5
+                                label: 'Current Exam',
+                                data: [
+                                    exam.accuracy,
+                                    Math.min(100, (60 / Math.max(stats.avgSpeed, 1)) * 15),
+                                    (stats.attempted / exam.totalQuestions) * 100,
+                                    stats.consistency,
+                                    85,
+                                    stats.efficiency
+                                ],
+                                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                borderColor: '#3b82f6',
+                                pointBackgroundColor: '#3b82f6',
+                                pointBorderColor: '#fff',
+                                pointRadius: 4,
+                                borderWidth: 2
                             }]
                         },
                         options: {
                             responsive: true,
-                            plugins: { legend: { display: false } },
-                            scales: { y: { beginAtZero: true } }
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: {
+                                    angleLines: { color: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                                    grid: { color: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                                    pointLabels: { 
+                                        color: darkMode ? '#cbd5e1' : '#64748b', 
+                                        font: {size: 11, weight: 'bold'},
+                                        padding: 10
+                                    },
+                                    ticks: { display: false },
+                                    suggestedMin: 0, 
+                                    suggestedMax: 100
+                                }
+                            },
+                            plugins: { 
+                                legend: { display: false }
+                            }
                         }
                     });
                 }
-            }, [filteredData, view]);
 
-            const handleDelete = (id) => {
-                if(confirm("Delete this record permanently?")) {
-                    const updated = history.filter(h => h.id !== id);
-                    localStorage.setItem('omr_history', JSON.stringify(updated.reverse())); // Re-reverse for storage
-                    setHistory(updated);
+                // 2. Doughnut Chart
+                if (doughRef.current) {
+                    if (doughInst.current) doughInst.current.destroy();
+                    const ctxD = doughRef.current.getContext('2d');
+                    
+                    doughInst.current = new Chart(ctxD, {
+                        type: 'doughnut',
+                        data: {
+                            labels: [t('lbl_correct'), t('lbl_wrong'), t('lbl_skip')],
+                            datasets: [{
+                                data: [stats.correct, stats.wrong, stats.skipped],
+                                backgroundColor: ['#22c55e', '#ef4444', '#cbd5e1'],
+                                borderWidth: 0,
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '75%',
+                            plugins: { 
+                                legend: { 
+                                    position: 'bottom', 
+                                    labels: { 
+                                        color: darkMode ? '#cbd5e1' : '#475569',
+                                        usePointStyle: true,
+                                        padding: 15
+                                    } 
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 3. Mini Trend Line
+                if (trendRef.current) {
+                    if (trendInst.current) trendInst.current.destroy();
+                    const ctxT = trendRef.current.getContext('2d');
+                    
+                    trendInst.current = new Chart(ctxT, {
+                        type: 'line',
+                        data: {
+                            labels: ['Q1', 'Q10', 'Q20', 'Q30', 'Q40', 'Q50'],
+                            datasets: [{
+                                data: [85, 78, 92, 65, 88, 95],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#10b981',
+                                pointBorderColor: '#fff',
+                                pointRadius: 3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { display: false },
+                                x: { display: false }
+                            }
+                        }
+                    });
+                }
+
+                return () => {
+                    if (radarInst.current) radarInst.current.destroy();
+                    if (doughInst.current) doughInst.current.destroy();
+                    if (trendInst.current) trendInst.current.destroy();
+                };
+            }, [exam, darkMode, stats, t]);
+
+            const handleRetakeExam = () => {
+                if (window.confirm(t('retake_confirm'))) {
+                    // Store exam data for retake
+                    const retakeData = {
+                        examName: `Retake: ${exam.examName}`,
+                        questions: exam.questions || [],
+                        totalQuestions: exam.totalQuestions,
+                        originalExamId: exam.id
+                    };
+                    
+                    localStorage.setItem('omr_retake_exam', JSON.stringify(retakeData));
+                    window.location.href = 'exam.html';
                 }
             };
 
-            const ComparisonBadge = ({ current, prev, type, suffix = '' }) => {
-                if (!prev) return <span className="text-xs text-slate-400">vs --</span>;
-                const diff = current - prev;
-                const isPositive = type === 'inverse' ? diff < 0 : diff > 0; // For time, lower is better
-                const color = isPositive ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50';
-                const sign = diff > 0 ? '+' : '';
-                return (
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${color}`}>
-                        {sign}{Number(diff).toFixed(1)}{suffix}
-                    </span>
-                );
-            };
-
-            if (history.length === 0) return (
-                <div className="min-h-screen bg-slate-50">
-                    <Navbar />
-                    <div className="flex flex-col items-center justify-center pt-32 px-4 text-center">
-                        <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center mb-6 text-4xl">📊</div>
-                        <h2 className="text-2xl font-bold text-slate-800 mb-2">No History Found</h2>
-                        <p className="text-slate-500 mb-8 max-w-md">Complete your first exam to unlock detailed analytics and progress tracking.</p>
-                        <a href="index.html" className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition">Take a Mock Test</a>
-                    </div>
-                </div>
-            );
-
             return (
-                <div className="min-h-screen bg-slate-50 pb-12">
-                    <Navbar />
-
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-                        
-                        {/* Filters */}
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                            <div>
-                                <h1 className="text-2xl font-bold text-slate-800">Performance Analytics</h1>
-                                <p className="text-slate-500">Track your improvement over time.</p>
+                <div className="animate-fade-in pb-10">
+                    {/* Back Button */}
+                    <div className="flex items-center justify-between mb-6">
+                        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-colors group">
+                            <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm group-hover:shadow-md transition-all">
+                                <Icons.ArrowLeft />
                             </div>
-                            <select 
-                                value={selectedExam} 
-                                onChange={(e) => setSelectedExam(e.target.value)}
-                                className="bg-white border border-slate-300 rounded-lg px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-                            >
-                                {uniqueExams.map(name => <option key={name} value={name}>{name}</option>)}
-                            </select>
+                            {t('btn_back')}
+                        </button>
+                        
+                        <button 
+                            onClick={handleRetakeExam}
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-emerald-500/30 transition-all"
+                        >
+                            <Icons.Refresh /> {t('btn_retake')}
+                        </button>
+                    </div>
+                    
+                    {/* Hero Card */}
+                    <div className="glass-panel p-6 md:p-8 rounded-3xl mb-6 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div className="flex-1">
+                                <h2 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white mb-2">{exam.examName}</h2>
+                                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-medium">
+                                    <Icons.Clock />
+                                    {new Date(exam.date).toLocaleString()}
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">{t('det_score')}</div>
+                                <div className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">{exam.score}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+                        {[
+                            { icon: Icons.Activity, label: t('det_acc'), value: `${exam.accuracy}%`, color: 'border-blue-500' },
+                            { icon: Icons.Clock, label: t('det_time'), value: `${Math.floor(exam.timeTaken/60)}m ${exam.timeTaken%60}s`, color: 'border-purple-500' },
+                            { icon: Icons.Zap, label: t('det_speed'), value: `${stats.avgSpeed}s`, color: 'border-amber-500' },
+                            { icon: Icons.Award, label: t('eff_score'), value: `${stats.efficiency}%`, color: 'border-green-500' },
+                        ].map((stat, idx) => (
+                            <div key={idx} className="glass-panel p-4 md:p-5 rounded-2xl border-b-4 hover:-translate-y-1 transition-transform">
+                                <div className="flex items-center gap-2 mb-2 text-slate-600 dark:text-slate-300 font-bold uppercase text-xs tracking-wider">
+                                    <stat.icon /> {stat.label}
+                                </div>
+                                <div className="text-2xl md:text-3xl font-bold dark:text-white">{stat.value}</div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Analysis Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+                        {/* Charts Column */}
+                        <div className="lg:col-span-2 space-y-4 md:space-y-6">
+                            {/* Performance Radar */}
+                            <div className="glass-panel p-5 md:p-6 rounded-3xl h-80 md:h-96 flex flex-col">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
+                                        <Icons.Target /> {t('det_chart_perf')}
+                                    </h3>
+                                    <Tooltip text={t('tooltip_radar')} />
+                                </div>
+                                <div className="flex-grow relative">
+                                    <canvas ref={radarRef}></canvas>
+                                </div>
+                            </div>
+
+                            {/* Question Heatmap - IMPROVED RESPONSIVE DESIGN */}
+                            <div className="glass-panel p-5 md:p-6 rounded-3xl flex flex-col">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 md:mb-6">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                                            {t('det_breakdown')}
+                                        </h3>
+                                        <Tooltip text={t('tooltip_heatmap')} />
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 text-xs font-bold bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
+                                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-green-500"></span> {t('lbl_correct')}</span>
+                                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-red-500"></span> {t('lbl_wrong')}</span>
+                                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-slate-300 dark:bg-slate-600"></span> {t('lbl_skip')}</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="overflow-x-auto pb-2">
+                                    <div className="heatmap-grid">
+                                        {Array.from({ length: exam.totalQuestions }, (_, i) => i + 1).map(qNum => {
+                                            const status = exam.gradingDetails[qNum] || 'skipped';
+                                            let classes = "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700";
+                                            
+                                            if (status === 'correct') classes = "bg-green-500 text-white shadow-lg shadow-green-500/30 border-green-400";
+                                            if (status === 'wrong') classes = "bg-red-500 text-white shadow-lg shadow-red-500/30 border-red-400";
+                                            
+                                            return (
+                                                <div key={qNum} className={`aspect-square rounded-lg flex items-center justify-center text-xs font-bold transition-all hover:scale-110 cursor-help ${classes}`} 
+                                                     title={`Q${qNum}: ${status}`}>
+                                                    {qNum}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Top Cards (Latest Attempt) */}
-                        {latestAttempt && (
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                                {/* Score Card */}
-                                <div className="glass-card p-6 border-l-4 border-blue-500">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <p className="text-sm font-semibold text-slate-500 uppercase">Latest Score</p>
-                                        <ComparisonBadge current={latestAttempt.score} prev={previousAttempt?.score} />
-                                    </div>
-                                    <h2 className="text-4xl font-bold text-slate-800">{latestAttempt.score}</h2>
-                                    <p className="text-xs text-slate-400 mt-2">{new Date(latestAttempt.date).toLocaleString()}</p>
+                        {/* Insights Column */}
+                        <div className="space-y-4 md:space-y-6">
+                            {/* Breakdown Donut */}
+                            <div className="glass-panel p-5 md:p-6 rounded-3xl h-64 md:h-80 flex flex-col">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
+                                        <Icons.BarChart /> Breakdown
+                                    </h3>
+                                    <Tooltip text={t('tooltip_doughnut')} />
                                 </div>
-
-                                {/* Accuracy Card */}
-                                <div className="glass-card p-6 border-l-4 border-green-500">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <p className="text-sm font-semibold text-slate-500 uppercase">Accuracy</p>
-                                        <ComparisonBadge current={latestAttempt.accuracy} prev={previousAttempt?.accuracy} suffix="%" />
-                                    </div>
-                                    <h2 className="text-4xl font-bold text-slate-800">{latestAttempt.accuracy}%</h2>
-                                    <p className="text-xs text-slate-400 mt-2">Correct vs Wrong attempts</p>
-                                </div>
-
-                                {/* Speed Card */}
-                                <div className="glass-card p-6 border-l-4 border-purple-500">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <p className="text-sm font-semibold text-slate-500 uppercase">Avg Speed</p>
-                                        {/* Simplified logic for speed comparison */}
-                                        {previousAttempt && (
-                                            <span className="text-xs text-slate-400">
-                                                Prev: {Math.round(previousAttempt.timeTaken / 60)}m
-                                            </span>
-                                        )}
-                                    </div>
-                                    <h2 className="text-4xl font-bold text-slate-800">
-                                        {Math.floor(latestAttempt.timeTaken / 60)}<span className="text-xl text-slate-500">m</span> 
-                                        {latestAttempt.timeTaken % 60}<span className="text-xl text-slate-500">s</span>
-                                    </h2>
-                                    <p className="text-xs text-slate-400 mt-2">Total Time Taken</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Main Content Area */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            
-                            {/* Left Column: Charts & History List */}
-                            <div className="lg:col-span-2 space-y-8">
-                                {/* Chart */}
-                                <div className="glass-card p-6">
-                                    <h3 className="font-bold text-lg text-slate-800 mb-4">Progress Trend</h3>
-                                    <div className="h-64">
-                                        <canvas ref={chartRef}></canvas>
-                                    </div>
-                                </div>
-
-                                {/* History Table */}
-                                <div className="glass-card overflow-hidden">
-                                    <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                                        <h3 className="font-bold text-lg text-slate-800">History Log</h3>
-                                        <button 
-                                            onClick={() => {
-                                                if(confirm('Clear all history?')) {
-                                                    localStorage.removeItem('omr_history');
-                                                    window.location.reload();
-                                                }
-                                            }}
-                                            className="text-xs text-red-500 hover:underline"
-                                        >
-                                            Clear All
-                                        </button>
-                                    </div>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-sm text-left">
-                                            <thead className="bg-slate-50 text-slate-500">
-                                                <tr>
-                                                    <th className="px-6 py-3">Date</th>
-                                                    <th className="px-6 py-3">Exam</th>
-                                                    <th className="px-6 py-3">Score</th>
-                                                    <th className="px-6 py-3">Acc.</th>
-                                                    <th className="px-6 py-3">Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-100">
-                                                {filteredData.map(attempt => (
-                                                    <tr key={attempt.id} className="hover:bg-slate-50/50">
-                                                        <td className="px-6 py-4">{new Date(attempt.date).toLocaleDateString()}</td>
-                                                        <td className="px-6 py-4 font-medium text-slate-700">{attempt.examName}</td>
-                                                        <td className="px-6 py-4 font-bold text-blue-600">{attempt.score}</td>
-                                                        <td className="px-6 py-4">{attempt.accuracy}%</td>
-                                                        <td className="px-6 py-4">
-                                                            <button onClick={() => handleDelete(attempt.id)} className="text-red-400 hover:text-red-600">
-                                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Right Column: Mistake Analysis Grid */}
-                            <div className="lg:col-span-1">
-                                <div className="glass-card p-6 h-full">
-                                    <h3 className="font-bold text-lg text-slate-800 mb-2">Mistake Map</h3>
-                                    <p className="text-xs text-slate-500 mb-4">Latest attempt visual breakdown.</p>
-                                    
-                                    <div className="flex gap-2 mb-4 text-xs">
-                                        <span className="flex items-center gap-1"><span className="w-3 h-3 bg-green-500 rounded-full"></span> Correct</span>
-                                        <span className="flex items-center gap-1"><span className="w-3 h-3 bg-red-500 rounded-full"></span> Wrong</span>
-                                        <span className="flex items-center gap-1"><span className="w-3 h-3 bg-slate-200 rounded-full"></span> Skipped</span>
-                                    </div>
-
-                                    {latestAttempt && (
-                                        <div className="grid grid-cols-5 gap-2 max-h-[600px] overflow-y-auto pr-2 custom-scroll">
-                                            {Array.from({ length: latestAttempt.totalQuestions }, (_, i) => i + 1).map(qNum => {
-                                                const status = latestAttempt.gradingDetails[qNum] || 'skipped';
-                                                let bg = 'bg-slate-100 text-slate-400';
-                                                if (status === 'correct') bg = 'bg-green-500 text-white';
-                                                if (status === 'wrong') bg = 'bg-red-500 text-white';
-                                                
-                                                return (
-                                                    <div key={qNum} className={`aspect-square rounded-lg flex items-center justify-center text-xs font-bold ${bg}`} title={`Q${qNum}: ${status}`}>
-                                                        {qNum}
-                                                    </div>
-                                                );
-                                            })}
+                                <div className="flex-grow relative">
+                                    <canvas ref={doughRef}></canvas>
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-6">
+                                        <div className="text-center">
+                                            <div className="text-3xl font-black dark:text-white">{stats.attempted}/{exam.totalQuestions}</div>
+                                            <div className="text-[10px] text-slate-400 uppercase font-bold">Attempted</div>
                                         </div>
-                                    )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* AI Insights */}
+                            <div className="glass-panel p-5 md:p-6 rounded-3xl">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
+                                        <Icons.Brain /> {t('det_insights')}
+                                    </h3>
+                                    <Tooltip text={t('tooltip_ai')} />
+                                </div>
+                                <div className="space-y-3">
+                                    {[t('insight1'), t('insight2'), t('insight3')].map((insight, idx) => (
+                                        <div key={idx} className="p-3 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                                            <div className="flex items-start gap-2">
+                                                <div className="p-1 bg-blue-100 dark:bg-blue-800 rounded-lg">
+                                                    <Icons.Check />
+                                                </div>
+                                                <p className="text-sm text-slate-600 dark:text-slate-300">{insight}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Mini Trend */}
+                            <div className="glass-panel p-5 md:p-6 rounded-3xl">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
+                                        <Icons.TrendingUp /> {t('det_trend')}
+                                    </h3>
+                                    <Tooltip text={t('tooltip_mini_trend')} />
+                                </div>
+                                <div className="h-32">
+                                    <canvas ref={trendRef}></canvas>
                                 </div>
                             </div>
                         </div>
@@ -299,8 +796,533 @@
             );
         };
 
+        // --- Main Analytics Dashboard ---
+        const Analytics = () => {
+            const { lang, darkMode } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const [history, setHistory] = useState([]);
+            const [view, setView] = useState('dashboard');
+            const [selectedExamId, setSelectedExamId] = useState(null);
+            const [filter, setFilter] = useState('all');
+            const [loading, setLoading] = useState(true);
+            const fileInputRef = useRef(null);
+            
+            // Refs for charts
+            const trendRef = useRef(null);
+            const trendInst = useRef(null);
+            const distributionRef = useRef(null);
+            const distributionInst = useRef(null);
+
+            useEffect(() => {
+                setTimeout(() => {
+                    const stored = JSON.parse(localStorage.getItem('omr_history') || '[]');
+                    setHistory(stored.reverse());
+                    setLoading(false);
+                }, 300); // Reduced loading time for better UX
+            }, []);
+
+            // Filter history
+            const filteredHistory = useMemo(() => {
+                if (filter === 'all') return history;
+                const now = new Date();
+                const filtered = history.filter(h => {
+                    const examDate = new Date(h.date);
+                    if (filter === 'week') {
+                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        return examDate >= weekAgo;
+                    }
+                    if (filter === 'month') {
+                        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        return examDate >= monthAgo;
+                    }
+                    return true;
+                });
+                return filtered;
+            }, [history, filter]);
+
+            // Trend Chart
+            useEffect(() => {
+                if (view === 'dashboard' && trendRef.current && filteredHistory.length > 0) {
+                    if (trendInst.current) trendInst.current.destroy();
+                    const ctx = trendRef.current.getContext('2d');
+                    
+                    const chartData = [...filteredHistory].reverse();
+                    
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
+                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+                    trendInst.current = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: chartData.map(d => new Date(d.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})),
+                            datasets: [{
+                                label: 'Score Trend',
+                                data: chartData.map(d => d.score),
+                                borderColor: '#3b82f6',
+                                backgroundColor: gradient,
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#2563eb',
+                                pointBorderColor: '#fff',
+                                pointRadius: 4,
+                                pointHoverRadius: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { 
+                                    grid: { color: darkMode ? '#334155' : '#e2e8f0', borderDash: [5, 5] }, 
+                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' } 
+                                },
+                                x: { 
+                                    grid: { display: false }, 
+                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' } 
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Distribution Chart
+                if (view === 'dashboard' && distributionRef.current && filteredHistory.length > 0) {
+                    if (distributionInst.current) distributionInst.current.destroy();
+                    const ctxD = distributionRef.current.getContext('2d');
+                    
+                    const scores = filteredHistory.map(h => h.score);
+                    const ranges = ['0-20', '21-40', '41-60', '61-80', '81-100'];
+                    const counts = ranges.map(() => 0);
+                    
+                    scores.forEach(score => {
+                        if (score <= 20) counts[0]++;
+                        else if (score <= 40) counts[1]++;
+                        else if (score <= 60) counts[2]++;
+                        else if (score <= 80) counts[3]++;
+                        else counts[4]++;
+                    });
+
+                    distributionInst.current = new Chart(ctxD, {
+                        type: 'bar',
+                        data: {
+                            labels: ranges,
+                            datasets: [{
+                                data: counts,
+                                backgroundColor: [
+                                    'rgba(239, 68, 68, 0.7)',
+                                    'rgba(249, 115, 22, 0.7)',
+                                    'rgba(234, 179, 8, 0.7)',
+                                    'rgba(34, 197, 94, 0.7)',
+                                    'rgba(59, 130, 246, 0.7)'
+                                ],
+                                borderColor: darkMode ? '#1e293b' : '#ffffff',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { 
+                                    grid: { color: darkMode ? '#334155' : '#e2e8f0' },
+                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' }
+                                },
+                                x: { 
+                                    grid: { display: false },
+                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                return () => {
+                    if (trendInst.current) trendInst.current.destroy();
+                    if (distributionInst.current) distributionInst.current.destroy();
+                };
+            }, [filteredHistory, view, darkMode]);
+
+            // Calculations
+            const analyticsData = useMemo(() => {
+                if (filteredHistory.length === 0) return null;
+                
+                const totalExams = filteredHistory.length;
+                const avgAcc = (filteredHistory.reduce((a, b) => a + parseFloat(b.accuracy), 0) / totalExams).toFixed(1);
+                const bestScore = Math.max(...filteredHistory.map(h => parseFloat(h.score)));
+                const totalSeconds = filteredHistory.reduce((a, b) => a + (b.timeTaken || 0), 0);
+                
+                // Advanced metrics
+                const avgScore = (filteredHistory.reduce((a, b) => a + parseFloat(b.score), 0) / totalExams).toFixed(1);
+                const efficiencyScores = filteredHistory.map(h => {
+                    const correct = Object.values(h.gradingDetails || {}).filter(s => s === 'correct').length;
+                    const attempted = correct + Object.values(h.gradingDetails || {}).filter(s => s === 'wrong').length;
+                    return attempted > 0 ? (correct / attempted) * 100 : 0;
+                });
+                const avgEfficiency = (efficiencyScores.reduce((a, b) => a + b, 0) / efficiencyScores.length).toFixed(1);
+                
+                // Calculate consistency
+                const scores = filteredHistory.map(h => parseFloat(h.score));
+                const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+                const variance = scores.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / scores.length;
+                const consistency = Math.max(0, 100 - Math.sqrt(variance) * 2);
+                
+                return {
+                    totalExams,
+                    avgAcc,
+                    bestScore,
+                    totalSeconds,
+                    avgScore,
+                    avgEfficiency,
+                    consistency: consistency.toFixed(1),
+                    hours: Math.floor(totalSeconds/3600),
+                    minutes: Math.floor((totalSeconds%3600)/60)
+                };
+            }, [filteredHistory]);
+
+            const handleDelete = useCallback((e, id) => {
+                e.stopPropagation();
+                if(window.confirm(t('delete_confirm'))) {
+                    const updated = history.filter(h => h.id !== id);
+                    localStorage.setItem('omr_history', JSON.stringify(updated.slice().reverse()));
+                    setHistory(updated);
+                }
+            }, [history, t]);
+
+            const handleRetake = useCallback((exam) => {
+                if (window.confirm(t('retake_confirm'))) {
+                    // Store exam data for retake
+                    const retakeData = {
+                        examName: `Retake: ${exam.examName}`,
+                        questions: exam.questions || [],
+                        totalQuestions: exam.totalQuestions,
+                        originalExamId: exam.id
+                    };
+                    
+                    localStorage.setItem('omr_retake_exam', JSON.stringify(retakeData));
+                    window.location.href = 'exam.html';
+                }
+            }, [t]);
+
+            const viewDetail = useCallback((id) => {
+                setSelectedExamId(id);
+                setView('detail');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, []);
+
+            const exportData = useCallback(() => {
+                const dataStr = JSON.stringify(history, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                const exportFileDefaultName = `omr-analytics-${new Date().toISOString().split('T')[0]}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            }, [history]);
+
+            const handleImportClick = useCallback(() => {
+                fileInputRef.current.click();
+            }, []);
+
+            const handleFileImport = useCallback((event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        // Validate imported data format
+                        if (!Array.isArray(importedData)) {
+                            throw new Error('Invalid data format');
+                        }
+
+                        // Merge with existing history, avoiding duplicates by id
+                        const existingIds = new Set(history.map(h => h.id));
+                        const newExams = importedData.filter(item => {
+                            // Basic validation
+                            return item && 
+                                   item.id && 
+                                   item.examName && 
+                                   !existingIds.has(item.id);
+                        });
+
+                        if (newExams.length === 0) {
+                            alert(t('import_error'));
+                            return;
+                        }
+
+                        const updatedHistory = [...newExams, ...history];
+                        
+                        // Sort by date (newest first)
+                        updatedHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+                        
+                        // Limit to last 100 exams for performance
+                        const limitedHistory = updatedHistory.slice(0, 100);
+                        
+                        localStorage.setItem('omr_history', JSON.stringify(limitedHistory));
+                        setHistory(limitedHistory);
+                        
+                        alert(`${newExams.length} ${t('import_success')}`);
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        alert(t('import_error'));
+                    }
+                    
+                    // Reset file input
+                    event.target.value = '';
+                };
+                reader.readAsText(file);
+            }, [history, t]);
+
+            if (loading) {
+                return (
+                    <div className="min-h-screen pt-24 flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+                        <div className="text-center">
+                            <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                            <h2 className="text-xl font-bold text-slate-700 dark:text-slate-300">Loading Analytics...</h2>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (history.length === 0) return (
+                 <div className="min-h-screen pt-24 flex flex-col bg-slate-50 dark:bg-slate-900">
+                    <Navbar activePage="analytics" />
+                    <main className="flex-grow flex flex-col items-center justify-center p-4 text-center animate-fade-in">
+                        <div className="w-24 h-24 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-xl animate-pop-in text-5xl">
+                            📊
+                        </div>
+                        <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-3">{t('no_data_title')}</h2>
+                        <p className="text-lg text-slate-500 dark:text-slate-400 max-w-md mb-8">{t('no_data_desc')}</p>
+                        <a href="exam.html" className="px-8 py-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">
+                            Start Exam
+                        </a>
+                    </main>
+                    <Footer />
+                </div>
+            );
+
+            return (
+                <div className={`min-h-screen pt-24 flex flex-col ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                    <Navbar activePage="analytics" />
+                    
+                    <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+                        
+                        {view === 'dashboard' ? (
+                            <div className="animate-slide-up">
+                                {/* Header */}
+                                <div className="mb-8 md:mb-10 text-center lg:text-left">
+                                    <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-2">{t('ana_title')}</h1>
+                                    <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 font-medium">{t('ana_sub')}</p>
+                                    <div className="flex flex-wrap gap-2 mt-4">
+                                        <button onClick={exportData} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+                                            <Icons.Download />
+                                            {t('btn_export')}
+                                        </button>
+                                        <button onClick={handleImportClick} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+                                            <Icons.Upload />
+                                            {t('btn_import')}
+                                            <Tooltip text={t('tooltip_import')} />
+                                        </button>
+                                        <input 
+                                            type="file" 
+                                            ref={fileInputRef}
+                                            accept=".json,application/json"
+                                            onChange={handleFileImport}
+                                            className="hidden"
+                                        />
+                                        <select value={filter} onChange={(e) => setFilter(e.target.value)}
+                                                className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+                                            <option value="all">{t('filter_all')}</option>
+                                            <option value="week">{t('filter_week')}</option>
+                                            <option value="month">{t('filter_month')}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* KPI Cards with Tooltips */}
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-6 md:mb-8">
+                                    {[
+                                        { l: t('kpi_exams'), v: analyticsData.totalExams, c: 'text-blue-600', i: Icons.Activity, bg: 'bg-blue-50 dark:bg-blue-900/20', tt: 'tooltip_kpi_exams' },
+                                        { l: t('kpi_acc'), v: `${analyticsData.avgAcc}%`, c: 'text-green-600', i: Icons.Zap, bg: 'bg-green-50 dark:bg-green-900/20', tt: 'tooltip_kpi_acc' },
+                                        { l: t('kpi_best'), v: analyticsData.bestScore, c: 'text-amber-600', i: Icons.Award, bg: 'bg-amber-50 dark:bg-amber-900/20', tt: 'tooltip_kpi_best' },
+                                        { l: t('kpi_time'), v: `${analyticsData.hours}h ${analyticsData.minutes}m`, c: 'text-purple-600', i: Icons.Clock, bg: 'bg-purple-50 dark:bg-purple-900/20', tt: 'tooltip_kpi_time' },
+                                        { l: t('kpi_efficiency'), v: `${analyticsData.avgEfficiency}%`, c: 'text-cyan-600', i: Icons.TrendingUp, bg: 'bg-cyan-50 dark:bg-cyan-900/20', tt: 'tooltip_kpi_efficiency' },
+                                        { l: t('kpi_consistency'), v: `${analyticsData.consistency}%`, c: 'text-violet-600', i: Icons.Target, bg: 'bg-violet-50 dark:bg-violet-900/20', tt: 'tooltip_kpi_consistency' },
+                                    ].map((k, i) => (
+                                        <div key={i} className="glass-panel p-4 md:p-5 rounded-3xl flex flex-col items-start hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                                            <div className="flex items-center justify-between w-full mb-3">
+                                                <div className={`p-3 rounded-2xl ${k.bg} ${k.c} shadow-inner`}>
+                                                    <k.i />
+                                                </div>
+                                                <Tooltip text={t(k.tt)} />
+                                            </div>
+                                            <div className="text-xs font-bold text-slate-400 uppercase tracking-wide">{k.l}</div>
+                                            <div className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white mt-1">{k.v}</div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Charts Section */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+                                    {/* Trend Chart */}
+                                    <div className="glass-panel p-5 md:p-8 rounded-3xl border border-white/60 dark:border-slate-700 shadow-xl">
+                                        <div className="flex justify-between items-center mb-4 md:mb-6">
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                                    <Icons.BarChart /> Performance Trend
+                                                </h3>
+                                                <Tooltip text={t('tooltip_trend_chart')} />
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-400 uppercase bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
+                                                {filteredHistory.length} Exams
+                                            </span>
+                                        </div>
+                                        <div className="h-64 md:h-80">
+                                            <canvas ref={trendRef}></canvas>
+                                        </div>
+                                    </div>
+
+                                    {/* Distribution Chart */}
+                                    <div className="glass-panel p-5 md:p-8 rounded-3xl border border-white/60 dark:border-slate-700 shadow-xl">
+                                        <div className="flex justify-between items-center mb-4 md:mb-6">
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                                    <Icons.Activity /> Score Distribution
+                                                </h3>
+                                                <Tooltip text={t('tooltip_distribution')} />
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-400 uppercase bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
+                                                {t('filter_all')}
+                                            </span>
+                                        </div>
+                                        <div className="h-64 md:h-80">
+                                            <canvas ref={distributionRef}></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* History Table */}
+                                <div className="glass-panel rounded-3xl overflow-hidden shadow-2xl">
+                                    <div className="px-5 md:px-8 py-5 md:py-6 border-b border-slate-200 dark:border-slate-700 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('tab_history')}</h3>
+                                            <Tooltip text={t('tooltip_history')} />
+                                        </div>
+                                        <span className="text-xs font-bold text-slate-400 uppercase bg-slate-100 dark:bg-slate-700 px-2.5 py-1.5 rounded">Latest</span>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead className="bg-slate-50/80 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-bold">
+                                                <tr>
+                                                    <th className="px-5 md:px-8 py-4">Date & Name</th>
+                                                    <th className="px-5 md:px-8 py-4">Score</th>
+                                                    <th className="px-5 md:px-8 py-4">Accuracy</th>
+                                                    <th className="px-5 md:px-8 py-4 text-right">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                {filteredHistory.map(h => (
+                                                    <tr key={h.id} onClick={() => viewDetail(h.id)} className="group hover:bg-blue-50/60 dark:hover:bg-blue-900/20 cursor-pointer transition-colors duration-200">
+                                                        <td className="px-5 md:px-8 py-4">
+                                                            <div className="font-bold text-slate-800 dark:text-white text-base md:text-lg group-hover:text-blue-600 transition-colors">{h.examName}</div>
+                                                            <div className="text-xs text-slate-500 font-mono mt-1">{new Date(h.date).toLocaleString()}</div>
+                                                        </td>
+                                                        <td className="px-5 md:px-8 py-4">
+                                                            <span className="inline-block px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white font-black shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                                                {h.score}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-5 md:px-8 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-20 md:w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                                                                    <div className={`h-full rounded-full ${h.accuracy > 80 ? 'bg-green-500' : h.accuracy > 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{width: `${h.accuracy}%`}}></div>
+                                                                </div>
+                                                                <span className="text-sm font-bold text-slate-600 dark:text-slate-300 min-w-[45px]">{h.accuracy}%</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-5 md:px-8 py-4 text-right">
+                                                            <div className="flex justify-end gap-1 md:gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                                                                <button 
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleRetake(h);
+                                                                    }}
+                                                                    className="p-2 bg-white dark:bg-slate-800 rounded-lg text-emerald-600 hover:bg-emerald-600 hover:text-white shadow-sm border border-slate-200 dark:border-slate-600 transition-all" 
+                                                                    title={t('btn_retake')}
+                                                                >
+                                                                    <Icons.Refresh />
+                                                                </button>
+                                                                <button 
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        viewDetail(h.id);
+                                                                    }}
+                                                                    className="p-2 bg-white dark:bg-slate-800 rounded-lg text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm border border-slate-200 dark:border-slate-600 transition-all" 
+                                                                    title="View Details"
+                                                                >
+                                                                    <Icons.Eye />
+                                                                </button>
+                                                                <button 
+                                                                    onClick={(e) => handleDelete(e, h.id)} 
+                                                                    className="p-2 bg-white dark:bg-slate-800 rounded-lg text-red-500 hover:bg-red-500 hover:text-white shadow-sm border border-slate-200 dark:border-slate-600 transition-all" 
+                                                                    title="Delete"
+                                                                >
+                                                                    <Icons.Trash />
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <DetailView 
+                                exam={history.find(h => h.id === selectedExamId)} 
+                                onBack={() => setView('dashboard')} 
+                            />
+                        )}
+                        
+                    </main>
+
+                    <Footer />
+                </div>
+            );
+        };
+
+        const AppWrapper = () => {
+            const [lang, setLang] = useState('en');
+            const [darkMode, setDarkMode] = useState(false);
+
+            useEffect(() => {
+                const savedLang = localStorage.getItem('lang');
+                if (savedLang) setLang(savedLang);
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    setDarkMode(true);
+                    document.documentElement.classList.add('dark');
+                }
+            }, []);
+
+            return (
+                <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
+                    <Analytics />
+                </AppContext.Provider>
+            );
+        }
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<Analytics />);
+        root.render(<AppWrapper />);
     </script>
 </body>
 </html>

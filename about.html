@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - OMR Master Pro</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        bangla: ['Hind Siliguri', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        popIn: { '0%': { opacity: '0', transform: 'scale(0.9)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-20px)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-attachment: fixed;
+            background: radial-gradient(circle at top left, #f8fafc, #e2e8f0); 
+        }
+        .dark body {
+            background: radial-gradient(circle at top left, #0f172a, #1e293b);
+        }
+        
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .dark .nav-glass {
+            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+        }
+
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-blue-500 selection:text-white">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, createContext, useContext } = React;
+
+        // --- Translations Dictionary ---
+        const translations = {
+            en: {
+                app_name: "OMR Master",
+                pro: "PRO",
+                dashboard: "Dashboard",
+                active_session: "Active Session",
+                analytics: "Analytics",
+                about: "About",
+                report: "Report Issues",
+                guideline: "Guidelines",
+                contact: "Contact",
+                about_page_title: "About OMR Master Pro",
+                about_page_subtitle: "Revolutionizing self-assessment with intelligent OMR technology",
+                about_website_title: "About the Platform",
+                about_website_desc: "OMR Master Pro is an advanced web-based Optical Mark Recognition system designed to transform how students and professionals practice for competitive examinations. Our platform simulates real-world exam environments with precision and provides detailed analytics to track progress.",
+                mission_title: "Our Mission",
+                mission_desc: "To democratize access to high-quality exam preparation tools by providing an intuitive, feature-rich platform that bridges the gap between traditional paper-based practice and digital assessment.",
+                features_title: "Key Features",
+                feature1: "Real-time OMR Evaluation",
+                feature2: "Split-screen PDF Support",
+                feature3: "Advanced Analytics Dashboard",
+                feature4: "Custom Exam Configuration",
+                feature5: "Multi-language Support",
+                feature6: "Offline Capability",
+                team_title: "Development Team",
+                aim_title: "Project Vision",
+                aim_desc: "To create a comprehensive self-assessment ecosystem that adapts to individual learning patterns, provides actionable insights, and helps millions achieve their academic and professional goals through smart practice.",
+                tech_title: "Technology Stack",
+                tech_desc: "Built with modern web technologies including React, Tailwind CSS, and LocalStorage API for offline functionality. Our architecture ensures fast, reliable performance across all devices.",
+                back_to_dashboard: "Back to Dashboard",
+                developed_by: "Designed & Developed by",
+                contact_us: "Get in Touch"
+            },
+            bn: {
+                app_name: "ওএমআর মাস্টার",
+                pro: "প্রো",
+                dashboard: "ড্যাশবোর্ড",
+                active_session: "চলমান সESSION",
+                analytics: "বিশ্লেষণ",
+                about: "আমাদের সম্পর্কে",
+                report: "সমস্যা জানান",
+                guideline: "নির্দেশাবলী",
+                contact: "যোগাযোগ",
+                about_page_title: "ওএমআর মাস্টার প্রো সম্পর্কে",
+                about_page_subtitle: "বুদ্ধিমান ওএমআর প্রযুক্তির মাধ্যমে স্ব-মূল্যায়নে বিপ্লব",
+                about_website_title: "প্ল্যাটফর্ম সম্পর্কে",
+                about_website_desc: "ওএমআর মাস্টার প্রো একটি উন্নত ওয়েব-ভিত্তিক অপটিক্যাল মার্ক রিকগনিশন সিস্টেম যা প্রতিযোগিতামূলক পরীক্ষার জন্য শিক্ষার্থী এবং পেশাদারদের অনুশীলনের পদ্ধতিকে রূপান্তরিত করতে নকশা করা হয়েছে।",
+                mission_title: "আমাদের লক্ষ্য",
+                mission_desc: "উচ্চ-মানের পরীক্ষার প্রস্তুতির সরঞ্জামগুলিতে প্রবেশাধিকার গণতান্ত্রিক করতে একটি স্বজ্ঞাত, বৈশিষ্ট্যসমৃদ্ধ প্ল্যাটফর্ম সরবরাহ করে যা ঐতিহ্যবাহী কাগজ-ভিত্তিক অনুশীলন এবং ডিজিটাল মূল্যায়নের মধ্যে ব্যবধান দূর করে।",
+                features_title: "প্রধান বৈশিষ্ট্য",
+                feature1: "রিয়েল-টাইম ওএমআর মূল্যায়ন",
+                feature2: "স্প্লিট-স্ক্রিন পিডিএফ সমর্থন",
+                feature3: "উন্নত বিশ্লেষণ ড্যাশবোর্ড",
+                feature4: "কাস্টম পরীক্ষা কনফিগারেশন",
+                feature5: "বহু-ভাষা সমর্থন",
+                feature6: "অফলাইন ক্ষমতা",
+                team_title: "ডেভেলপমেন্ট টিম",
+                aim_title: "প্রকল্পের ভিশন",
+                aim_desc: "একটি ব্যাপক স্ব-মূল্যায়ন ইকোসিস্টেম তৈরি করা যা ব্যক্তিগত শিক্ষার ধরণগুলির সাথে খাপ খায়, কার্যকরী অন্তর্দৃষ্টি প্রদান করে এবং স্মার্ট অনুশীলনের মাধ্যমে লক্ষ লক্ষ মানুষকে তাদের একাডেমিক এবং পেশাদার লক্ষ্য অর্জনে সহায়তা করে।",
+                tech_title: "প্রযুক্তি স্ট্যাক",
+                tech_desc: "আধুনিক ওয়েব প্রযুক্তি ব্যবহার করে তৈরি করা হয়েছে যার মধ্যে রয়েছে React, Tailwind CSS এবং অফলাইন কার্যকারিতার জন্য LocalStorage API।",
+                back_to_dashboard: "ড্যাশবোর্ডে ফিরুন",
+                developed_by: "ডিজাইন ও ডেভেলপমেন্টে",
+                contact_us: "যোগাযোগ করুন"
+            }
+        };
+
+        // --- Icons (Lucide) ---
+        const Icons = {
+            Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Play: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+            BarChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>,
+            Settings: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+            Sun: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+            Moon: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+            Globe: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+            Info: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+            Flag: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+            Mail: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+            Book: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+            Target: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+            Users: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            Cpu: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>,
+            Award: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+            ArrowLeft: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        };
+
+        const AppContext = createContext();
+
+        const Modal = ({ title, isOpen, onClose, children }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
+                    <div className="relative w-full max-w-lg glass-panel rounded-2xl p-6 shadow-2xl animate-pop-in border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                                {title}
+                            </h3>
+                            <button onClick={onClose} className="p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                        <div className="text-slate-600 dark:text-slate-300">
+                            {children}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Navbar = ({ activePage, triggerModal }) => {
+            const { lang, setLang, darkMode, setDarkMode } = useContext(AppContext);
+            const [isOpen, setIsOpen] = useState(false);
+            const [sessionActive, setSessionActive] = useState(false);
+            const t = (k) => translations[lang][k];
+
+            useEffect(() => {
+                const session = localStorage.getItem('omr_current_session');
+                if (session) setSessionActive(true);
+            }, []);
+
+            const toggleTheme = () => {
+                setDarkMode(!darkMode);
+                document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', !darkMode ? 'dark' : 'light');
+            };
+
+            const toggleLang = () => {
+                const newLang = lang === 'en' ? 'bn' : 'en';
+                setLang(newLang);
+                localStorage.setItem('lang', newLang);
+            };
+
+            const links = [
+                { name: t('dashboard'), href: 'index.html', icon: Icons.Home, active: activePage === 'home' },
+                { name: t('active_session'), href: 'exam.html', icon: Icons.Play, active: activePage === 'exam', hidden: !sessionActive },
+                { name: t('analytics'), href: 'analytics.html', icon: Icons.BarChart, active: activePage === 'analytics' },
+                { name: t('about'), href: 'about.html', icon: Icons.Info, active: activePage === 'about' },
+            ];
+
+            const secondaryLinks = [
+                { name: 'Guidelines', icon: Icons.Book, action: () => triggerModal('guideline') },
+                { name: 'Report Issues', icon: Icons.Flag, action: () => triggerModal('report') },
+                { name: 'Contact', icon: Icons.Mail, action: () => triggerModal('contact') },
+            ];
+
+            return (
+                <nav className="fixed top-0 inset-x-0 z-50 nav-glass transition-all duration-300 shadow-sm">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-20">
+                            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.location.href='index.html'}>
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 transition-transform group-hover:scale-105 group-hover:rotate-3">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                                </div>
+                                <div className={lang === 'bn' ? 'font-bangla' : ''}>
+                                    <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight leading-none">{t('app_name')}</h1>
+                                    <span className="text-[10px] font-bold tracking-widest text-blue-600 dark:text-blue-400 uppercase">{t('pro')}</span>
+                                </div>
+                            </div>
+                            <div className="hidden lg:flex items-center gap-2">
+                                <div className="flex items-center gap-1 mr-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                                    {links.map(link => !link.hidden && (
+                                        <a key={link.name} href={link.href} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${link.active ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}>
+                                            <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                        </a>
+                                    ))}
+                                </div>
+                                {secondaryLinks.map((item, idx) => (
+                                    <button key={idx} onClick={item.action} title={item.name} className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                                        <item.icon />
+                                    </button>
+                                ))}
+                                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                                <button onClick={toggleLang} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:scale-105 transition-transform">
+                                    <Icons.Globe /> {lang === 'en' ? 'BN' : 'EN'}
+                                </button>
+                                <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:rotate-12 transition-transform">
+                                    {darkMode ? <Icons.Sun /> : <Icons.Moon />}
+                                </button>
+                            </div>
+                            <div className="lg:hidden flex items-center gap-3">
+                                <button onClick={toggleLang} className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{lang === 'en' ? 'BN' : 'EN'}</button>
+                                <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-300">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
+                                <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {isOpen && (
+                        <div className="lg:hidden border-t border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-xl">
+                            <div className="p-4 space-y-2">
+                                {links.map(link => !link.hidden && (
+                                    <a key={link.name} href={link.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium ${link.active ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'}`}>
+                                        <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                    </a>
+                                ))}
+                                <hr className="border-slate-100 dark:border-slate-800 my-2" />
+                                {secondaryLinks.map((item, idx) => (
+                                    <button key={idx} onClick={() => { item.action(); setIsOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
+                                        <item.icon /> <span>{item.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </nav>
+            );
+        };
+
+        const Footer = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const currentYear = new Date().getFullYear();
+            return (
+                <footer className="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
+                    <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center justify-center gap-2 text-center">
+                        <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
+                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
+                            Urfa Hasan Fattah
+                        </div>
+                        <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                            {t('developed_by')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {currentYear} All Rights Reserved.
+                        </p>
+                    </div>
+                </footer>
+            );
+        };
+
+        const About = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const [activeModal, setActiveModal] = useState(null);
+
+            const features = [
+                { icon: Icons.Target, title: t('feature1'), desc: lang === 'en' ? 'Instant scoring and detailed answer analysis' : 'তাৎক্ষণিক স্কোরিং এবং বিশদ উত্তর বিশ্লেষণ' },
+                { icon: Icons.Book, title: t('feature2'), desc: lang === 'en' ? 'View question papers while answering in split-view' : 'স্প্লিট-ভিউতে প্রশ্নপত্র দেখার সময় উত্তর দিন' },
+                { icon: Icons.BarChart, title: t('feature3'), desc: lang === 'en' ? 'Track performance trends and identify weak areas' : 'কর্মক্ষমতার প্রবণতা ট্র্যাক করুন এবং দুর্বল অঞ্চলগুলি সনাক্ত করুন' },
+                { icon: Icons.Settings, title: t('feature4'), desc: lang === 'en' ? 'Create exams with custom parameters and rules' : 'কাস্টম প্যারামিটার এবং নিয়ম সহ পরীক্ষা তৈরি করুন' },
+                { icon: Icons.Globe, title: t('feature5'), desc: lang === 'en' ? 'Full interface support in English and Bengali' : 'ইংরেজি এবং বাংলা ভাষায় সম্পূর্ণ ইন্টারফেস সমর্থন' },
+                { icon: Icons.Cpu, title: t('feature6'), desc: lang === 'en' ? 'Works without internet after initial load' : 'প্রাথমিক লোডের পরে ইন্টারনেট ছাড়াই কাজ করে' },
+            ];
+
+            const team = [
+                { name: 'Urfa Hasan Fattah', role: lang === 'en' ? 'Lead Developer & UI Designer' : 'লিড ডেভেলপার এবং ইউআই ডিজাইনার', bio: lang === 'en' ? 'Full-stack developer passionate about educational technology' : 'শিক্ষামূলক প্রযুক্তি সম্পর্কে আগ্রহী ফুল-স্ট্যাক ডেভেলপার' },
+                { name: 'Contributors', role: lang === 'en' ? 'Open Source Community' : 'ওপেন সোর্স কমিউনিটি', bio: lang === 'en' ? 'Dedicated developers and testers improving the platform' : 'প্ল্যাটফর্ম উন্নত করার জন্য নিবেদিত ডেভেলপার এবং পরীক্ষক' },
+            ];
+
+            return (
+                <div className={`min-h-screen pt-24 flex flex-col ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                    <Navbar activePage="about" triggerModal={setActiveModal} />
+
+                    <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
+                        
+                        {/* Hero Header */}
+                        <div className="text-center mb-12 animate-fade-in relative">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                            <h1 className="relative text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
+                                {t('about_page_title')}
+                            </h1>
+                            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+                                {t('about_page_subtitle')}
+                            </p>
+                        </div>
+
+                        {/* Back Button */}
+                        <div className="mb-8">
+                            <button onClick={() => window.location.href='index.html'} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-medium">
+                                <Icons.ArrowLeft /> {t('back_to_dashboard')}
+                            </button>
+                        </div>
+
+                        {/* About Website Section */}
+                        <div className="glass-panel rounded-3xl p-6 md:p-8 mb-8 shadow-xl animate-slide-up border border-white/60 dark:border-slate-700">
+                            <div className="flex items-start gap-4 mb-6">
+                                <div className="p-3 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl">
+                                    <Icons.Info />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('about_website_title')}</h2>
+                                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                                        {t('about_website_desc')}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Mission & Vision Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                            {/* Mission */}
+                            <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700 animate-slide-up" style={{animationDelay: '0.1s'}}>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2.5 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 rounded-xl">
+                                        <Icons.Target />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('mission_title')}</h3>
+                                </div>
+                                <p className="text-slate-600 dark:text-slate-300">
+                                    {t('mission_desc')}
+                                </p>
+                            </div>
+
+                            {/* Vision */}
+                            <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700 animate-slide-up" style={{animationDelay: '0.2s'}}>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2.5 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-xl">
+                                        <Icons.Award />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('aim_title')}</h3>
+                                </div>
+                                <p className="text-slate-600 dark:text-slate-300">
+                                    {t('aim_desc')}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Features Grid */}
+                        <div className="glass-panel rounded-3xl p-6 md:p-8 mb-8 shadow-xl border border-white/60 dark:border-slate-700">
+                            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-3">
+                                <Icons.Settings className="text-blue-500" /> {t('features_title')}
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {features.map((feature, index) => (
+                                    <div key={index} className="bg-white/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow animate-slide-up" style={{animationDelay: `${0.1 + index * 0.05}s`}}>
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className="p-2 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg">
+                                                <feature.icon />
+                                            </div>
+                                            <h4 className="font-bold text-slate-800 dark:text-white">{feature.title}</h4>
+                                        </div>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400">{feature.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Team & Technology */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                            {/* Team Section */}
+                            <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700">
+                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-3">
+                                    <Icons.Users className="text-green-500" /> {t('team_title')}
+                                </h2>
+                                <div className="space-y-6">
+                                    {team.map((member, index) => (
+                                        <div key={index} className="flex items-start gap-4 p-4 rounded-xl bg-white/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                                                {member.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-slate-800 dark:text-white">{member.name}</h4>
+                                                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-1">{member.role}</p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">{member.bio}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Technology Section */}
+                            <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700">
+                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-3">
+                                    <Icons.Cpu className="text-orange-500" /> {t('tech_title')}
+                                </h2>
+                                <p className="text-slate-600 dark:text-slate-300 mb-6">
+                                    {t('tech_desc')}
+                                </p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {['React', 'Tailwind CSS', 'JavaScript', 'LocalStorage', 'Babel', 'Lucide Icons'].map((tech, index) => (
+                                        <div key={index} className="bg-white/50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-100 dark:border-slate-700 text-center">
+                                            <span className="font-medium text-slate-700 dark:text-slate-300">{tech}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Call to Action */}
+                        <div className="glass-panel rounded-3xl p-8 mb-8 shadow-xl border border-white/60 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-center">
+                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">{t('contact_us')}</h3>
+                            <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-2xl mx-auto">
+                                {lang === 'en' ? 'Have questions, suggestions, or want to contribute? We\'d love to hear from you.' : 'প্রশ্ন, পরামর্শ আছে, বা অবদান রাখতে চান? আমরা আপনার কাছ থেকে শুনতে আগ্রহী।'}
+                            </p>
+                            <button onClick={() => setActiveModal('contact')} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition hover:scale-105">
+                                {t('contact')}
+                            </button>
+                        </div>
+                    </main>
+
+                    <Footer />
+
+                    {/* Modals */}
+                    <Modal title="Contact Us" isOpen={activeModal === 'contact'} onClose={() => setActiveModal(null)}>
+                        <div className="space-y-3">
+                            <p className="text-sm text-slate-600 dark:text-slate-300">
+                                {lang === 'en' ? 'For support, enterprise inquiries, or feedback:' : 'সাহায্য, এন্টারপ্রাইজ জিজ্ঞাসা, বা প্রতিক্রিয়ার জন্য:'}
+                            </p>
+                            <a href="mailto:support@omrmaster.com" className="flex items-center gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium hover:bg-blue-100 transition">
+                                <Icons.Mail /> support@omrmaster.com
+                            </a>
+                        </div>
+                    </Modal>
+                    
+                    <Modal title="Report an Issue" isOpen={activeModal === 'report'} onClose={() => setActiveModal(null)}>
+                         <form className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1 dark:text-slate-300">Issue Type</label>
+                                <select className="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white p-2 border">
+                                    <option>Bug</option>
+                                    <option>Feature Request</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 dark:text-slate-300">Description</label>
+                                <textarea className="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white p-2 border" rows="3"></textarea>
+                            </div>
+                            <button type="button" onClick={() => setActiveModal(null)} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold transition">Submit Report</button>
+                         </form>
+                    </Modal>
+
+                    <Modal title="Usage Guidelines" isOpen={activeModal === 'guideline'} onClose={() => setActiveModal(null)}>
+                        <ul className="list-disc pl-5 space-y-2 text-sm">
+                            <li>Ensure you have a stable internet connection if loading external PDFs.</li>
+                            <li>Do not refresh the page during an active exam session.</li>
+                            <li>Use the flags to mark questions for review.</li>
+                            <li>Analytics are stored locally in your browser. Clearing cache will delete history.</li>
+                        </ul>
+                    </Modal>
+                </div>
+            );
+        };
+
+        const AppWrapper = () => {
+            const [lang, setLang] = useState('en');
+            const [darkMode, setDarkMode] = useState(false);
+
+            useEffect(() => {
+                const savedLang = localStorage.getItem('lang');
+                if (savedLang) setLang(savedLang);
+
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    setDarkMode(true);
+                    document.documentElement.classList.add('dark');
+                }
+            }, []);
+
+            return (
+                <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
+                    <About />
+                </AppContext.Provider>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AppWrapper />);
+    </script>
+</body>
+</html>
