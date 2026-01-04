@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - OMR Master Pro</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        bangla: ['Hind Siliguri', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        popIn: { '0%': { opacity: '0', transform: 'scale(0.9)' }, '100%': { opacity: '1', transform: 'scale(1)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-attachment: fixed;
+            background: radial-gradient(circle at top left, #f8fafc, #e2e8f0); 
+        }
+        .dark body {
+            background: radial-gradient(circle at top left, #0f172a, #1e293b);
+        }
+        
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .dark .nav-glass {
+            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+        }
+
+        /* Tawk.to Customization Override (Optional) */
+        /* You can adjust widget position in Tawk.to dashboard, but this ensures it doesn't overlap footer */
+        #tawk-12345 { bottom: 20px !important; }
+    </style>
+</head>
+<body class="text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-blue-500 selection:text-white">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, createContext, useContext, useRef } = React;
+
+        // --- Translations ---
+        const translations = {
+            en: {
+                app_name: "OMR Master",
+                pro: "PRO",
+                dashboard: "Dashboard",
+                active_session: "Active Session",
+                analytics: "Analytics",
+                about: "About",
+                report: "Report Issues",
+                guideline: "Guidelines",
+                contact: "Contact",
+                donation: "Donation",
+                footer_credit: "Designed & Developed by",
+                footer_rights: "All Rights Reserved.",
+                
+                contact_hero_title: "Get in Touch",
+                contact_hero_sub: "We're here to help. Reach out to us directly or via social media.",
+                lbl_name: "Your Name",
+                lbl_email: "Email Address",
+                lbl_subject: "Subject",
+                lbl_message: "Message",
+                btn_send: "Send Message",
+                btn_sending: "Sending...",
+                social_heading: "Connect with us",
+                social_sub: "Real-time support via your favorite apps",
+                success_msg: "Message sent successfully! We will get back to you soon.",
+                
+                lbl_direct_email: "Email Us",
+                lbl_direct_call: "Call / WhatsApp",
+                copied: "Copied!",
+                click_copy: "Click to Copy"
+            },
+            bn: {
+                app_name: "ওএমআর মাস্টার",
+                pro: "প্রো",
+                dashboard: "ড্যাশবোর্ড",
+                active_session: "চলমান সেশন",
+                analytics: "বিশ্লেষণ",
+                about: "আমাদের সম্পর্কে",
+                report: "সমস্যা জানান",
+                guideline: "নির্দেশাবলী",
+                contact: "যোগাযোগ",
+                donation: "অনুদান",
+                footer_credit: "ডিজাইন ও ডেভেলপমেন্টে",
+                footer_rights: "সর্বস্বত্ব সংরক্ষিত।",
+
+                contact_hero_title: "যোগাযোগ করুন",
+                contact_hero_sub: "আপনার যেকোনো প্রয়োজনে আমরা পাশে আছি। সরাসরি বা সোশ্যাল মিডিয়ায় যোগাযোগ করুন।",
+                lbl_name: "আপনার নাম",
+                lbl_email: "ইমেইল অ্যাড্রেস",
+                lbl_subject: "বিষয়",
+                lbl_message: "মেসেজ",
+                btn_send: "মেসেজ পাঠান",
+                btn_sending: "পাঠানো হচ্ছে...",
+                social_heading: "সোশ্যাল মিডিয়া",
+                social_sub: "আপনার পছন্দের অ্যাপের মাধ্যমে সরাসরি যোগাযোগ করুন",
+                success_msg: "মেসেজ সফলভাবে পাঠানো হয়েছে! আমরা শীঘ্রই যোগাযোগ করব।",
+
+                lbl_direct_email: "ইমেইল করুন",
+                lbl_direct_call: "কল / হোয়াটস অ্যাপ",
+                copied: "কপি হয়েছে!",
+                click_copy: "কপি করতে ক্লিক করুন"
+            }
+        };
+
+        // --- Icons ---
+        const Icons = {
+            Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Play: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+            BarChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>,
+            Sun: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+            Moon: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+            Globe: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+            Info: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+            Flag: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+            Mail: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+            Book: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+            Heart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+            Send: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+            Facebook: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>,
+            Instagram: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>,
+            MessageCircle: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>,
+            Phone: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+            Check: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+            Copy: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        };
+
+        const AppContext = createContext();
+
+        const Navbar = ({ activePage }) => {
+            const { lang, setLang, darkMode, setDarkMode } = useContext(AppContext);
+            const [isOpen, setIsOpen] = useState(false);
+            const [sessionActive, setSessionActive] = useState(false);
+            const t = (k) => translations[lang][k];
+
+            useEffect(() => {
+                const session = localStorage.getItem('omr_current_session');
+                if (session) setSessionActive(true);
+            }, []);
+
+            const toggleTheme = () => {
+                setDarkMode(!darkMode);
+                document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', !darkMode ? 'dark' : 'light');
+            };
+
+            const toggleLang = () => {
+                const newLang = lang === 'en' ? 'bn' : 'en';
+                setLang(newLang);
+                localStorage.setItem('lang', newLang);
+            };
+
+            const links = [
+                { name: t('dashboard'), href: 'index.html', icon: Icons.Home, active: activePage === 'home' },
+                { name: t('active_session'), href: 'exam.html', icon: Icons.Play, active: activePage === 'exam', hidden: !sessionActive },
+                { name: t('analytics'), href: 'analytics.html', icon: Icons.BarChart, active: activePage === 'analytics' },
+            ];
+
+            const secondaryLinks = [
+                { name: t('about'), icon: Icons.Info, href: 'about.html' },
+                { name: t('guideline'), icon: Icons.Book, href: 'guidelines.html' },
+                { name: t('report'), icon: Icons.Flag, href: 'report.html' },
+                { name: t('contact'), icon: Icons.Mail, href: 'contact.html', active: activePage === 'contact' },
+                { name: t('donation'), icon: Icons.Heart, href: 'donate.html' },
+            ];
+
+            return (
+                <nav className="fixed top-0 inset-x-0 z-50 nav-glass transition-all duration-300 shadow-sm">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-20">
+                            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.location.href='index.html'}>
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 transition-transform group-hover:scale-105 group-hover:rotate-3">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                                </div>
+                                <div className={lang === 'bn' ? 'font-bangla' : ''}>
+                                    <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight leading-none">{t('app_name')}</h1>
+                                    <span className="text-[10px] font-bold tracking-widest text-blue-600 dark:text-blue-400 uppercase">{t('pro')}</span>
+                                </div>
+                            </div>
+                            <div className="hidden lg:flex items-center gap-2">
+                                <div className="flex items-center gap-1 mr-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                                    {links.map(link => !link.hidden && (
+                                        <a key={link.name} href={link.href} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${link.active ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}>
+                                            <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                        </a>
+                                    ))}
+                                </div>
+                                {secondaryLinks.map((item, idx) => (
+                                    <a key={idx} href={item.href} title={item.name} className={`p-2.5 rounded-xl transition-colors ${item.active ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                                        <item.icon />
+                                    </a>
+                                ))}
+                                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                                <button onClick={toggleLang} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:scale-105 transition-transform">
+                                    <Icons.Globe /> {lang === 'en' ? 'BN' : 'EN'}
+                                </button>
+                                <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:rotate-12 transition-transform">
+                                    {darkMode ? <Icons.Sun /> : <Icons.Moon />}
+                                </button>
+                            </div>
+                            <div className="lg:hidden flex items-center gap-3">
+                                <button onClick={toggleLang} className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{lang === 'en' ? 'BN' : 'EN'}</button>
+                                <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-300">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
+                                <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {isOpen && (
+                        <div className="lg:hidden border-t border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-xl">
+                            <div className="p-4 space-y-2">
+                                {links.map(link => !link.hidden && (
+                                    <a key={link.name} href={link.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium ${link.active ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'}`}>
+                                        <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                    </a>
+                                ))}
+                                <hr className="border-slate-100 dark:border-slate-800 my-2" />
+                                {secondaryLinks.map((item, idx) => (
+                                    <a key={idx} href={item.href} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium ${item.active ? 'text-blue-600 bg-blue-50' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                                        <item.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{item.name}</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </nav>
+            );
+        };
+
+        const Footer = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const currentYear = new Date().getFullYear();
+            return (
+                <footer className="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
+                    <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center justify-center gap-4 text-center">
+                        <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
+                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
+                            Urfa Hasan Fattah
+                        </div>
+                        <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                            {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {currentYear} {t('footer_rights')}
+                        </p>
+                        <a 
+                            href="donate.html" 
+                            className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold rounded-xl shadow-lg shadow-pink-500/20 hover:shadow-xl hover:shadow-pink-500/30 transition-all duration-300 hover:scale-105"
+                        >
+                            <Icons.Heart className="w-5 h-5" />
+                            <span className={lang === 'bn' ? 'font-bangla' : ''}>{t('donation')}</span>
+                        </a>
+                    </div>
+                </footer>
+            );
+        };
+
+        const Contact = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            
+            const [status, setStatus] = useState('idle');
+            const [copiedField, setCopiedField] = useState(null);
+
+            // CONTACT DETAILS
+            const contactInfo = {
+                phone: "01933407672",
+                email: "uhfabdulfattah@gmail.com",
+                facebook: "https://www.facebook.com/mhf.urfa.hasan.fattah",
+                whatsapp_link: "https://wa.me/8801933407672",
+                telegram_link: "https://t.me/+8801933407672"
+            };
+
+            const handleSend = (e) => {
+                e.preventDefault();
+                setStatus('sending');
+                setTimeout(() => {
+                    setStatus('success');
+                    setTimeout(() => setStatus('idle'), 3000);
+                }, 1500);
+            };
+
+            const copyToClipboard = (text, field) => {
+                navigator.clipboard.writeText(text);
+                setCopiedField(field);
+                setTimeout(() => setCopiedField(null), 2000);
+            };
+
+            const socialLinks = [
+                { name: 'Facebook', icon: Icons.Facebook, color: 'hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2]', link: contactInfo.facebook },
+                { name: 'WhatsApp', icon: Icons.MessageCircle, color: 'hover:bg-[#25D366] hover:text-white hover:border-[#25D366]', link: contactInfo.whatsapp_link },
+                { name: 'Telegram', icon: Icons.Send, color: 'hover:bg-[#0088cc] hover:text-white hover:border-[#0088cc]', link: contactInfo.telegram_link },
+                // Placeholder for future Instagram link
+                { name: 'Instagram', icon: Icons.Instagram, color: 'hover:bg-gradient-to-tr hover:from-[#fd5949] hover:to-[#d6249f] hover:text-white hover:border-pink-500', link: '#' }
+            ];
+
+            return (
+                <div className={`min-h-screen pt-24 flex flex-col ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                    <Navbar activePage="contact" />
+
+                    <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
+                        
+                        {/* Hero Section */}
+                        <div className="text-center mb-12 animate-fade-in relative">
+                            <div className="absolute top-10 left-1/2 -translate-x-1/2 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                            <h1 className="relative text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+                                {t('contact_hero_title')}
+                            </h1>
+                            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+                                {t('contact_hero_sub')}
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            
+                            {/* Left Column: Contact Info & Socials */}
+                            <div className="lg:col-span-1 space-y-6 animate-slide-up" style={{animationDelay: '0.1s'}}>
+                                {/* Social Card */}
+                                <div className="glass-panel p-6 rounded-3xl shadow-lg dark:shadow-slate-900/20">
+                                    <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t('social_heading')}</h3>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">{t('social_sub')}</p>
+                                    
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {socialLinks.map((social, idx) => (
+                                            <a key={idx} href={social.link} target="_blank" rel="noopener noreferrer" 
+                                               className={`flex items-center justify-center gap-2 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 transition-all duration-300 group ${social.color} hover:scale-105`}>
+                                                <social.icon />
+                                                <span className="font-semibold text-xs sm:text-sm">{social.name}</span>
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Direct Contact Card with Copy Functionality */}
+                                <div className="glass-panel p-6 rounded-3xl shadow-lg relative overflow-hidden">
+                                    <div className="space-y-6">
+                                        
+                                        {/* Email Item */}
+                                        <div className="flex items-start gap-4 group cursor-pointer" onClick={() => copyToClipboard(contactInfo.email, 'email')}>
+                                            <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                                                <Icons.Mail />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-center">
+                                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('lbl_direct_email')}</div>
+                                                    <span className={`text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full transition-opacity ${copiedField === 'email' ? 'opacity-100' : 'opacity-0'}`}>{t('copied')}</span>
+                                                </div>
+                                                <div className="text-sm sm:text-lg font-bold text-slate-800 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" title={contactInfo.email}>
+                                                    {contactInfo.email}
+                                                </div>
+                                                <div className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mt-1">
+                                                    <Icons.Copy /> {t('click_copy')}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="w-full h-px bg-slate-200 dark:bg-slate-700"></div>
+
+                                        {/* Phone Item */}
+                                        <div className="flex items-start gap-4 group cursor-pointer" onClick={() => copyToClipboard(contactInfo.phone, 'phone')}>
+                                            <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">
+                                                <Icons.Phone />
+                                            </div>
+                                            <div className="flex-1">
+                                                 <div className="flex justify-between items-center">
+                                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('lbl_direct_call')}</div>
+                                                    <span className={`text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full transition-opacity ${copiedField === 'phone' ? 'opacity-100' : 'opacity-0'}`}>{t('copied')}</span>
+                                                </div>
+                                                <div className="text-lg font-bold text-slate-800 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                                                    {contactInfo.phone}
+                                                </div>
+                                                <div className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mt-1">
+                                                    <Icons.Copy /> {t('click_copy')}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Column: Mail Form */}
+                            <div className="lg:col-span-2 animate-slide-up" style={{animationDelay: '0.2s'}}>
+                                <div className="glass-panel p-8 rounded-3xl shadow-xl border border-white/60 dark:border-slate-700 h-full relative overflow-hidden">
+                                    
+                                    {/* Success Overlay */}
+                                    {status === 'success' && (
+                                        <div className="absolute inset-0 z-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 animate-fade-in">
+                                            <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
+                                                <Icons.Check />
+                                            </div>
+                                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Thank You!</h3>
+                                            <p className="text-slate-600 dark:text-slate-300">{t('success_msg')}</p>
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleSend} className="space-y-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {/* Name Input */}
+                                            <div className="relative group">
+                                                <input 
+                                                    required type="text" id="name" placeholder=" "
+                                                    className="peer w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 text-base font-medium text-slate-800 dark:text-white placeholder-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all"
+                                                />
+                                                <label htmlFor="name" 
+                                                    className="absolute left-4 top-3.5 text-slate-500 dark:text-slate-400 text-base transition-all 
+                                                    peer-placeholder-shown:text-slate-500 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base cursor-text
+                                                    peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-white peer-focus:dark:bg-slate-900 peer-focus:px-2 peer-focus:text-blue-500 peer-focus:font-bold
+                                                    peer-not-placeholder-shown:-top-2.5 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:bg-white peer-not-placeholder-shown:dark:bg-slate-900 peer-not-placeholder-shown:px-2 peer-not-placeholder-shown:text-blue-500">
+                                                    {t('lbl_name')}
+                                                </label>
+                                            </div>
+
+                                            {/* Email Input */}
+                                            <div className="relative group">
+                                                <input 
+                                                    required type="email" id="email" placeholder=" "
+                                                    className="peer w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 text-base font-medium text-slate-800 dark:text-white placeholder-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all"
+                                                />
+                                                <label htmlFor="email" 
+                                                    className="absolute left-4 top-3.5 text-slate-500 dark:text-slate-400 text-base transition-all 
+                                                    peer-placeholder-shown:text-slate-500 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base cursor-text
+                                                    peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-white peer-focus:dark:bg-slate-900 peer-focus:px-2 peer-focus:text-blue-500 peer-focus:font-bold
+                                                    peer-not-placeholder-shown:-top-2.5 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:bg-white peer-not-placeholder-shown:dark:bg-slate-900 peer-not-placeholder-shown:px-2 peer-not-placeholder-shown:text-blue-500">
+                                                    {t('lbl_email')}
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        {/* Subject Input */}
+                                        <div className="relative group">
+                                            <input 
+                                                required type="text" id="subject" placeholder=" "
+                                                className="peer w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 text-base font-medium text-slate-800 dark:text-white placeholder-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all"
+                                            />
+                                            <label htmlFor="subject" 
+                                                className="absolute left-4 top-3.5 text-slate-500 dark:text-slate-400 text-base transition-all 
+                                                peer-placeholder-shown:text-slate-500 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base cursor-text
+                                                peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-white peer-focus:dark:bg-slate-900 peer-focus:px-2 peer-focus:text-blue-500 peer-focus:font-bold
+                                                peer-not-placeholder-shown:-top-2.5 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:bg-white peer-not-placeholder-shown:dark:bg-slate-900 peer-not-placeholder-shown:px-2 peer-not-placeholder-shown:text-blue-500">
+                                                {t('lbl_subject')}
+                                            </label>
+                                        </div>
+
+                                        {/* Message Textarea */}
+                                        <div className="relative group">
+                                            <textarea 
+                                                required id="message" rows="5" placeholder=" "
+                                                className="peer w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 text-base font-medium text-slate-800 dark:text-white placeholder-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all resize-none"
+                                            ></textarea>
+                                            <label htmlFor="message" 
+                                                className="absolute left-4 top-3.5 text-slate-500 dark:text-slate-400 text-base transition-all 
+                                                peer-placeholder-shown:text-slate-500 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base cursor-text
+                                                peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-white peer-focus:dark:bg-slate-900 peer-focus:px-2 peer-focus:text-blue-500 peer-focus:font-bold
+                                                peer-not-placeholder-shown:-top-2.5 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:bg-white peer-not-placeholder-shown:dark:bg-slate-900 peer-not-placeholder-shown:px-2 peer-not-placeholder-shown:text-blue-500">
+                                                {t('lbl_message')}
+                                            </label>
+                                        </div>
+
+                                        <button 
+                                            type="submit" 
+                                            disabled={status === 'sending'}
+                                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 transform transition hover:scale-[1.01] flex items-center justify-center gap-2"
+                                        >
+                                            {status === 'sending' ? (
+                                                <>
+                                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                    {t('btn_sending')}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Icons.Send /> {t('btn_send')}
+                                                </>
+                                            )}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                        </div>
+                    </main>
+
+                    <Footer />
+                </div>
+            );
+        };
+
+        const AppWrapper = () => {
+            const [lang, setLang] = useState('en');
+            const [darkMode, setDarkMode] = useState(false);
+
+            useEffect(() => {
+                const savedLang = localStorage.getItem('lang');
+                if (savedLang) setLang(savedLang);
+
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    setDarkMode(true);
+                    document.documentElement.classList.add('dark');
+                }
+            }, []);
+
+            return (
+                <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
+                    <Contact />
+                </AppContext.Provider>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AppWrapper />);
+    </script>
+
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/695a53fb6232c4197e6e663e/1je4dg3tc';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+</body>
+</html>
