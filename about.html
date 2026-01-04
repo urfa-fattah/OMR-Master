@@ -24,15 +24,20 @@
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.5s ease-out',
-                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
                         'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                         'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        popIn: { '0%': { opacity: '0', transform: 'scale(0.9)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
-                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-20px)' } }
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        popIn: { '0%': { opacity: '0', transform: 'scale(0.95)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-15px)' } }
+                    },
+                    colors: {
+                        primary: '#4F46E5', // Indigo 600
+                        secondary: '#2563EB', // Blue 600
                     }
                 }
             }
@@ -50,44 +55,42 @@
         
         /* Glassmorphism Utilities */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
         }
         .dark .glass-panel {
             background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
 
         .nav-glass {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
         }
         .dark .nav-glass {
-            background: rgba(15, 23, 42, 0.85);
-            border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+            background: rgba(15, 23, 42, 0.8);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.6);
         }
 
-        /* Hide scrollbar for clean look */
-        ::-webkit-scrollbar { width: 8px; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Gradient text */
-        .gradient-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .profile-img-shadow {
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
         }
     </style>
 </head>
-<body class="text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-blue-500 selection:text-white">
+<body class="text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-indigo-500 selection:text-white">
     
     <div id="root"></div>
 
@@ -103,9 +106,6 @@
                 active_session: "Active Session",
                 analytics: "Analytics",
                 about: "About",
-                report: "Report Issues",
-                guideline: "Guidelines",
-                contact: "Contact",
                 about_page_title: "About OMR Master Pro",
                 about_page_subtitle: "Revolutionizing self-assessment with intelligent OMR technology",
                 about_website_title: "About the Platform",
@@ -126,18 +126,21 @@
                 tech_desc: "Built with modern web technologies including React, Tailwind CSS, and LocalStorage API for offline functionality. Our architecture ensures fast, reliable performance across all devices.",
                 back_to_dashboard: "Back to Dashboard",
                 developed_by: "Designed & Developed by",
-                contact_us: "Get in Touch"
+                contact_us: "Get in Touch",
+                contact: "Contact",
+                guideline: "Guidelines",
+                report: "Report Issues",
+                view_profile: "View Profile",
+                skills: "Technical Skills",
+                connect: "Connect"
             },
             bn: {
                 app_name: "ওএমআর মাস্টার",
                 pro: "প্রো",
                 dashboard: "ড্যাশবোর্ড",
-                active_session: "চলমান সESSION",
+                active_session: "চলমান সেশন",
                 analytics: "বিশ্লেষণ",
                 about: "আমাদের সম্পর্কে",
-                report: "সমস্যা জানান",
-                guideline: "নির্দেশাবলী",
-                contact: "যোগাযোগ",
                 about_page_title: "ওএমআর মাস্টার প্রো সম্পর্কে",
                 about_page_subtitle: "বুদ্ধিমান ওএমআর প্রযুক্তির মাধ্যমে স্ব-মূল্যায়নে বিপ্লব",
                 about_website_title: "প্ল্যাটফর্ম সম্পর্কে",
@@ -158,9 +161,46 @@
                 tech_desc: "আধুনিক ওয়েব প্রযুক্তি ব্যবহার করে তৈরি করা হয়েছে যার মধ্যে রয়েছে React, Tailwind CSS এবং অফলাইন কার্যকারিতার জন্য LocalStorage API।",
                 back_to_dashboard: "ড্যাশবোর্ডে ফিরুন",
                 developed_by: "ডিজাইন ও ডেভেলপমেন্টে",
-                contact_us: "যোগাযোগ করুন"
+                contact_us: "যোগাযোগ করুন",
+                contact: "যোগাযোগ",
+                guideline: "নির্দেশাবলী",
+                report: "সমস্যা জানান",
+                view_profile: "প্রোফাইল দেখুন",
+                skills: "প্রযুক্তিগত দক্ষতা",
+                connect: "সংযোগ করুন"
             }
         };
+
+        // --- Developers Data ---
+        // Note: Images are placeholders. Replace src with actual image paths.
+        const developersData = [
+            {
+                id: 'urfa',
+                name: 'Urfa Hasan Fattah',
+                role: 'Founder & Lead Developer',
+                subRole: 'Front-End Architect',
+                bio_en: "The visionary mind behind OMR Master Pro. Passionate about leveraging web technologies to solve educational challenges. He specializes in creating intuitive user interfaces and scalable frontend architectures.",
+                bio_bn: "ওএমআর মাস্টার প্রো-এর প্রতিষ্ঠাতা। শিক্ষাগত চ্যালেঞ্জ সমাধানের জন্য ওয়েব প্রযুক্তি ব্যবহার করতে আগ্রহী। তিনি স্বজ্ঞাত ইউজার ইন্টারফেস এবং স্কেলেবল ফ্রন্টএন্ড আর্কিটেকচার তৈরিতে বিশেষজ্ঞ।",
+                image: 'Fattah.jpg', 
+                github: 'urfa-fattah',
+                linkedin: '#',
+                email: 'mailto:uhfabdulfattah@gmail.com',
+                skills: ['React.js', 'Tailwind CSS', 'JavaScript (ES6+)', 'UI/UX Design', 'State Management', 'Web Performance']
+            },
+            {
+                id: 'rifat',
+                name: 'Rifatuzzaman Rifat',
+                role: 'Co-Founder',
+                subRole: 'Frontend Developer',
+                bio_en: "A dedicated Co-Founder focused on performance optimization and responsive design. Rifat ensures the platform runs smoothly across all devices and contributes key features to the core engine.",
+                bio_bn: "একজন নিবেদিত সহ-প্রতিষ্ঠাতা যিনি পারফরম্যান্স অপ্টিমাইজেশন এবং রেসপন্সিভ ডিজাইনে মনোযোগী। রিফাত নিশ্চিত করেন যে প্ল্যাটফর্মটি সমস্ত ডিভাইসে মসৃণভাবে চলে।",
+                image: 'Rifat.jpg',
+                github: 'rifatuzzaman-rifat',
+                linkedin: '#',
+                email: 'mailto:rifat@omrmaster.com',
+                skills: ['HTML5 & CSS3', 'React.js', 'Git Version Control', 'Responsive Design', 'Web Accessibility', 'Problem Solving']
+            }
+        ];
 
         // --- Icons (Lucide) ---
         const Icons = {
@@ -179,34 +219,30 @@
             Users: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
             Cpu: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>,
             Award: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
-            ArrowLeft: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            ArrowLeft: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
+            Github: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>,
+            Linkedin: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
         };
 
         const AppContext = createContext();
 
-        const Modal = ({ title, isOpen, onClose, children }) => {
+        // Generic Modal
+        const Modal = ({ isOpen, onClose, children }) => {
             if (!isOpen) return null;
             return (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
-                    <div className="relative w-full max-w-lg glass-panel rounded-2xl p-6 shadow-2xl animate-pop-in border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-                                {title}
-                            </h3>
-                            <button onClick={onClose} className="p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                            </button>
-                        </div>
-                        <div className="text-slate-600 dark:text-slate-300">
-                            {children}
-                        </div>
+                    <div className="relative w-full max-w-lg glass-panel rounded-2xl p-6 shadow-2xl animate-pop-in border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90 max-h-[90vh] overflow-y-auto">
+                        <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition z-10">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                        {children}
                     </div>
                 </div>
             );
         };
 
-        const Navbar = ({ activePage, triggerModal }) => {
+        const Navbar = ({ activePage }) => {
             const { lang, setLang, darkMode, setDarkMode } = useContext(AppContext);
             const [isOpen, setIsOpen] = useState(false);
             const [sessionActive, setSessionActive] = useState(false);
@@ -236,10 +272,11 @@
                 { name: t('about'), href: 'about.html', icon: Icons.Info, active: activePage === 'about' },
             ];
 
+            // Updated Secondary Links to point to separate HTML files
             const secondaryLinks = [
-                { name: 'Guidelines', icon: Icons.Book, action: () => triggerModal('guideline') },
-                { name: 'Report Issues', icon: Icons.Flag, action: () => triggerModal('report') },
-                { name: 'Contact', icon: Icons.Mail, action: () => triggerModal('contact') },
+                { name: t('guideline'), icon: Icons.Book, href: 'guidelines.html' },
+                { name: t('report'), icon: Icons.Flag, href: 'report-issues.html' },
+                { name: t('contact'), icon: Icons.Mail, href: 'contact.html' },
             ];
 
             return (
@@ -264,9 +301,9 @@
                                     ))}
                                 </div>
                                 {secondaryLinks.map((item, idx) => (
-                                    <button key={idx} onClick={item.action} title={item.name} className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                                    <a key={idx} href={item.href} title={item.name} className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
                                         <item.icon />
-                                    </button>
+                                    </a>
                                 ))}
                                 <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
                                 <button onClick={toggleLang} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:scale-105 transition-transform">
@@ -295,9 +332,9 @@
                                 ))}
                                 <hr className="border-slate-100 dark:border-slate-800 my-2" />
                                 {secondaryLinks.map((item, idx) => (
-                                    <button key={idx} onClick={() => { item.action(); setIsOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
+                                    <a key={idx} href={item.href} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
                                         <item.icon /> <span>{item.name}</span>
-                                    </button>
+                                    </a>
                                 ))}
                             </div>
                         </div>
@@ -314,11 +351,11 @@
                 <footer className="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
                     <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center justify-center gap-2 text-center">
                         <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
-                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
-                            Urfa Hasan Fattah
+                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UR</span>
+                            Urfa Hasan Fattah & Rifat
                         </div>
                         <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
-                            {t('developed_by')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {currentYear} All Rights Reserved.
+                            {t('developed_by')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah & Rifatuzzaman Rifat </span>. &copy; {currentYear} All Rights Reserved.
                         </p>
                     </div>
                 </footer>
@@ -328,7 +365,7 @@
         const About = () => {
             const { lang } = useContext(AppContext);
             const t = (k) => translations[lang][k];
-            const [activeModal, setActiveModal] = useState(null);
+            const [selectedDev, setSelectedDev] = useState(null);
 
             const features = [
                 { icon: Icons.Target, title: t('feature1'), desc: lang === 'en' ? 'Instant scoring and detailed answer analysis' : 'তাৎক্ষণিক স্কোরিং এবং বিশদ উত্তর বিশ্লেষণ' },
@@ -339,20 +376,15 @@
                 { icon: Icons.Cpu, title: t('feature6'), desc: lang === 'en' ? 'Works without internet after initial load' : 'প্রাথমিক লোডের পরে ইন্টারনেট ছাড়াই কাজ করে' },
             ];
 
-            const team = [
-                { name: 'Urfa Hasan Fattah', role: lang === 'en' ? 'Lead Developer & UI Designer' : 'লিড ডেভেলপার এবং ইউআই ডিজাইনার', bio: lang === 'en' ? 'Full-stack developer passionate about educational technology' : 'শিক্ষামূলক প্রযুক্তি সম্পর্কে আগ্রহী ফুল-স্ট্যাক ডেভেলপার' },
-                { name: 'Contributors', role: lang === 'en' ? 'Open Source Community' : 'ওপেন সোর্স কমিউনিটি', bio: lang === 'en' ? 'Dedicated developers and testers improving the platform' : 'প্ল্যাটফর্ম উন্নত করার জন্য নিবেদিত ডেভেলপার এবং পরীক্ষক' },
-            ];
-
             return (
                 <div className={`min-h-screen pt-24 flex flex-col ${lang === 'bn' ? 'font-bangla' : ''}`}>
-                    <Navbar activePage="about" triggerModal={setActiveModal} />
+                    <Navbar activePage="about" />
 
                     <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
                         
                         {/* Hero Header */}
                         <div className="text-center mb-12 animate-fade-in relative">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl pointer-events-none animate-pulse-slow"></div>
                             <h1 className="relative text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
                                 {t('about_page_title')}
                             </h1>
@@ -363,7 +395,7 @@
 
                         {/* Back Button */}
                         <div className="mb-8">
-                            <button onClick={() => window.location.href='index.html'} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-medium">
+                            <button onClick={() => window.location.href='index.html'} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-medium shadow-sm hover:shadow">
                                 <Icons.ArrowLeft /> {t('back_to_dashboard')}
                             </button>
                         </div>
@@ -371,7 +403,7 @@
                         {/* About Website Section */}
                         <div className="glass-panel rounded-3xl p-6 md:p-8 mb-8 shadow-xl animate-slide-up border border-white/60 dark:border-slate-700">
                             <div className="flex items-start gap-4 mb-6">
-                                <div className="p-3 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl">
+                                <div className="p-3 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 text-blue-600 dark:text-blue-400 rounded-2xl shadow-inner">
                                     <Icons.Info />
                                 </div>
                                 <div>
@@ -386,7 +418,7 @@
                         {/* Mission & Vision Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                             {/* Mission */}
-                            <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700 animate-slide-up" style={{animationDelay: '0.1s'}}>
+                            <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700 animate-slide-up hover:translate-y-[-5px] transition-transform duration-300" style={{animationDelay: '0.1s'}}>
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="p-2.5 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 rounded-xl">
                                         <Icons.Target />
@@ -399,7 +431,7 @@
                             </div>
 
                             {/* Vision */}
-                            <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700 animate-slide-up" style={{animationDelay: '0.2s'}}>
+                            <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700 animate-slide-up hover:translate-y-[-5px] transition-transform duration-300" style={{animationDelay: '0.2s'}}>
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="p-2.5 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-xl">
                                         <Icons.Award />
@@ -419,7 +451,7 @@
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {features.map((feature, index) => (
-                                    <div key={index} className="bg-white/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow animate-slide-up" style={{animationDelay: `${0.1 + index * 0.05}s`}}>
+                                    <div key={index} className="bg-white/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-lg hover:bg-white/80 dark:hover:bg-slate-800/60 transition-all animate-slide-up" style={{animationDelay: `${0.1 + index * 0.05}s`}}>
                                         <div className="flex items-center gap-3 mb-3">
                                             <div className="p-2 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg">
                                                 <feature.icon />
@@ -434,21 +466,32 @@
 
                         {/* Team & Technology */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                            {/* Team Section */}
+                            
+                            {/* UPDATED Team Section */}
                             <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700">
                                 <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-3">
-                                    <Icons.Users className="text-green-500" /> {t('team_title')}
+                                    <Icons.Users className="text-indigo-500" /> {t('team_title')}
                                 </h2>
-                                <div className="space-y-6">
-                                    {team.map((member, index) => (
-                                        <div key={index} className="flex items-start gap-4 p-4 rounded-xl bg-white/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700">
-                                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
-                                                {member.name.charAt(0)}
+                                <div className="space-y-4">
+                                    {developersData.map((dev) => (
+                                        <div 
+                                            key={dev.id} 
+                                            onClick={() => setSelectedDev(dev)}
+                                            className="group cursor-pointer flex items-center gap-5 p-4 rounded-2xl bg-white/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]"
+                                        >
+                                            <div className="relative">
+                                                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white dark:border-slate-600 shadow-md group-hover:border-blue-500 transition-colors">
+                                                    <img src={dev.image} alt={dev.name} className="w-full h-full object-cover" />
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-800 dark:text-white">{member.name}</h4>
-                                                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-1">{member.role}</p>
-                                                <p className="text-sm text-slate-600 dark:text-slate-400">{member.bio}</p>
+                                            <div className="flex-grow">
+                                                <h4 className="font-bold text-slate-800 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                    {dev.name}
+                                                </h4>
+                                                <p className="text-sm text-indigo-600 dark:text-indigo-400 font-medium">{dev.role}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                                                    {t('view_profile')} <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                                </p>
                                             </div>
                                         </div>
                                     ))}
@@ -456,17 +499,17 @@
                             </div>
 
                             {/* Technology Section */}
-                            <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700">
+                            <div className="glass-panel rounded-3xl p-6 shadow-xl border border-white/60 dark:border-slate-700 flex flex-col">
                                 <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-3">
                                     <Icons.Cpu className="text-orange-500" /> {t('tech_title')}
                                 </h2>
-                                <p className="text-slate-600 dark:text-slate-300 mb-6">
+                                <p className="text-slate-600 dark:text-slate-300 mb-6 flex-grow">
                                     {t('tech_desc')}
                                 </p>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {['React', 'Tailwind CSS', 'JavaScript', 'LocalStorage', 'Babel', 'Lucide Icons'].map((tech, index) => (
-                                        <div key={index} className="bg-white/50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-100 dark:border-slate-700 text-center">
-                                            <span className="font-medium text-slate-700 dark:text-slate-300">{tech}</span>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {['React', 'Tailwind', 'JavaScript', 'LocalStorage', 'Babel', 'Lucide'].map((tech, index) => (
+                                        <div key={index} className="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 text-center hover:bg-white dark:hover:bg-slate-700 transition-colors shadow-sm">
+                                            <span className="font-semibold text-xs text-slate-600 dark:text-slate-300 uppercase tracking-wide">{tech}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -479,51 +522,57 @@
                             <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-2xl mx-auto">
                                 {lang === 'en' ? 'Have questions, suggestions, or want to contribute? We\'d love to hear from you.' : 'প্রশ্ন, পরামর্শ আছে, বা অবদান রাখতে চান? আমরা আপনার কাছ থেকে শুনতে আগ্রহী।'}
                             </p>
-                            <button onClick={() => setActiveModal('contact')} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition hover:scale-105">
-                                {t('contact')}
-                            </button>
+                            <a href="contact.html" className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition hover:scale-105">
+                                <Icons.Mail size={18} /> {t('contact')}
+                            </a>
                         </div>
                     </main>
 
                     <Footer />
 
-                    {/* Modals */}
-                    <Modal title="Contact Us" isOpen={activeModal === 'contact'} onClose={() => setActiveModal(null)}>
-                        <div className="space-y-3">
-                            <p className="text-sm text-slate-600 dark:text-slate-300">
-                                {lang === 'en' ? 'For support, enterprise inquiries, or feedback:' : 'সাহায্য, এন্টারপ্রাইজ জিজ্ঞাসা, বা প্রতিক্রিয়ার জন্য:'}
-                            </p>
-                            <a href="mailto:support@omrmaster.com" className="flex items-center gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium hover:bg-blue-100 transition">
-                                <Icons.Mail /> support@omrmaster.com
-                            </a>
-                        </div>
-                    </Modal>
-                    
-                    <Modal title="Report an Issue" isOpen={activeModal === 'report'} onClose={() => setActiveModal(null)}>
-                         <form className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-1 dark:text-slate-300">Issue Type</label>
-                                <select className="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white p-2 border">
-                                    <option>Bug</option>
-                                    <option>Feature Request</option>
-                                </select>
+                    {/* Developer Details Modal */}
+                    <Modal isOpen={!!selectedDev} onClose={() => setSelectedDev(null)}>
+                        {selectedDev && (
+                            <div className="text-center pt-2">
+                                <div className="relative inline-block mb-4">
+                                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-slate-700 shadow-2xl mx-auto profile-img-shadow">
+                                        <img src={selectedDev.image} alt={selectedDev.name} className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="absolute bottom-1 right-1 bg-blue-500 text-white p-1.5 rounded-full border-2 border-white dark:border-slate-800">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </div>
+                                </div>
+                                
+                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">{selectedDev.name}</h2>
+                                <p className="text-indigo-600 dark:text-indigo-400 font-semibold mb-4">{selectedDev.role} <span className="text-slate-400">|</span> {selectedDev.subRole}</p>
+                                
+                                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6 px-4">
+                                    {lang === 'bn' ? selectedDev.bio_bn : selectedDev.bio_en}
+                                </p>
+
+                                <div className="mb-6">
+                                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">{t('skills')}</h4>
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        {selectedDev.skills.map((skill, idx) => (
+                                            <span key={idx} className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium border border-slate-200 dark:border-slate-700">
+                                                {skill}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                    <a href={`https://github.com/${selectedDev.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-700 transition-colors text-sm font-medium">
+                                        <Icons.Github /> GitHub
+                                    </a>
+                                    <a href={selectedDev.email} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm font-medium">
+                                        <Icons.Mail /> {t('connect')}
+                                    </a>
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1 dark:text-slate-300">Description</label>
-                                <textarea className="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white p-2 border" rows="3"></textarea>
-                            </div>
-                            <button type="button" onClick={() => setActiveModal(null)} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold transition">Submit Report</button>
-                         </form>
+                        )}
                     </Modal>
 
-                    <Modal title="Usage Guidelines" isOpen={activeModal === 'guideline'} onClose={() => setActiveModal(null)}>
-                        <ul className="list-disc pl-5 space-y-2 text-sm">
-                            <li>Ensure you have a stable internet connection if loading external PDFs.</li>
-                            <li>Do not refresh the page during an active exam session.</li>
-                            <li>Use the flags to mark questions for review.</li>
-                            <li>Analytics are stored locally in your browser. Clearing cache will delete history.</li>
-                        </ul>
-                    </Modal>
                 </div>
             );
         };
