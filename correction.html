@@ -3,52 +3,734 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMR Master Pro - Correction</title>
+    <title>OMR Master Pro - Correction & Results</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        bangla: ['Hind Siliguri', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        popIn: { '0%': { opacity: '0', transform: 'scale(0.9)' }, '100%': { opacity: '1', transform: 'scale(1)' } }
+                    }
                 }
             }
         }
     </script>
+
     <style>
-        body { background: #f8fafc; }
-        .slide-up { animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        body {
+            background-attachment: fixed;
+            background: radial-gradient(circle at top left, #f8fafc, #e2e8f0); 
+        }
+        .dark body {
+            background: radial-gradient(circle at top left, #0f172a, #1e293b);
+        }
+        
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .dark .nav-glass {
+            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Progress Circle */
+        .progress-ring {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.5s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Question Status Colors */
+        .question-correct {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .question-wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .question-skipped {
+            border-color: #94a3b8;
+            background: rgba(148, 163, 184, 0.1);
+        }
+        
+        .dark .question-correct {
+            background: rgba(16, 185, 129, 0.2);
+        }
+        
+        .dark .question-wrong {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .dark .question-skipped {
+            background: rgba(148, 163, 184, 0.2);
+        }
     </style>
 </head>
-<body>
+<body class="text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, createContext, useContext } = React;
 
-        const Correction = () => {
+        // --- Translations ---
+        const translations = {
+            en: {
+                app_name: "OMR Master", pro: "PRO", dashboard: "Dashboard", active_session: "Active Session",
+                analytics: "Analytics", about: "About", report: "Report Issues", guideline: "Guidelines", contact: "Contact",
+                footer_credit: "Designed & Developed by", footer_rights: "All Rights Reserved.",
+                // Correction Specific
+                correction_title: "Exam Correction & Results",
+                exam_name: "Exam Name",
+                total_questions: "Total Questions",
+                attempted: "Attempted",
+                correct: "Correct",
+                wrong: "Wrong",
+                skipped: "Skipped",
+                score: "Score",
+                accuracy: "Accuracy",
+                time_taken: "Time Taken",
+                status: "Status",
+                mark_correct: "Mark Correct",
+                mark_wrong: "Mark Wrong",
+                mark_skipped: "Mark Skipped",
+                finalize_results: "Finalize Results",
+                saving_progress: "Saving progress...",
+                loading_results: "Loading results...",
+                keyboard_shortcuts: "Keyboard Shortcuts",
+                use_arrow_keys: "Use ← for Wrong, → for Correct",
+                auto_grade: "Auto-Grade",
+                auto_grade_desc: "Automatically grade same questions for this exam title",
+                save_template: "Save as Template",
+                template_saved: "Template Saved",
+                apply_template: "Apply Template",
+                no_template: "No template found",
+                question: "Question",
+                your_answer: "Your Answer",
+                correct_answer: "Correct Answer",
+                status_correct: "Correct",
+                status_wrong: "Wrong",
+                status_skipped: "Skipped",
+                quick_grade: "Quick Grade",
+                all_correct: "Mark All Correct",
+                all_wrong: "Mark All Wrong",
+                reset_grading: "Reset Grading",
+                performance: "Performance",
+                details: "Details",
+                save_and_continue: "Save & Continue",
+                // Stats
+                positive_marks: "+ Marks",
+                negative_marks: "- Marks",
+                net_score: "Net Score",
+                percentage: "Percentage",
+                time_per_question: "Time per Question",
+                // Navigation
+                previous: "Previous",
+                next: "Next",
+                complete_all: "Complete All Grading",
+                // Messages
+                confirm_finalize: "Are you sure you want to finalize results? This cannot be undone.",
+                auto_grade_applied: "Auto-grade applied to {count} questions",
+                template_applied: "Template applied successfully",
+                all_graded: "All questions graded!",
+                // New for answer entry
+                enter_correct_answers: "Enter Correct Answers",
+                save_correct_answers: "Save Correct Answers",
+                correct_answer_saved: "Correct answers saved for auto-correction",
+                auto_correction: "Auto-Correction",
+                view_history: "View History",
+                history: "History"
+            },
+            bn: {
+                app_name: "ওএমআর মাস্টার", pro: "প্রো", dashboard: "ড্যাশবোর্ড", active_session: "চলমান সেশন",
+                analytics: "বিশ্লেষণ", about: "আমাদের সম্পর্কে", report: "সমস্যা জানান", guideline: "নির্দেশাবলী", contact: "যোগাযোগ",
+                footer_credit: "ডিজাইন ও ডেভেলপমেন্টে", footer_rights: "সর্বস্বত্ব সংরক্ষিত।",
+                // Correction Specific
+                correction_title: "পরীক্ষা মূল্যায়ন ও ফলাফল",
+                exam_name: "পরীক্ষার নাম",
+                total_questions: "মোট প্রশ্ন",
+                attempted: "উত্তর দেওয়া",
+                correct: "সঠিক",
+                wrong: "ভুল",
+                skipped: "উত্তরহীন",
+                score: "স্কোর",
+                accuracy: "সঠিকতা",
+                time_taken: "ব্যয়িত সময়",
+                status: "স্ট্যাটাস",
+                mark_correct: "সঠিক চিহ্নিত করুন",
+                mark_wrong: "ভুল চিহ্নিত করুন",
+                mark_skipped: "উত্তরহীন চিহ্নিত করুন",
+                finalize_results: "ফলাফল চূড়ান্ত করুন",
+                saving_progress: "প্রগতি সংরক্ষণ করা হচ্ছে...",
+                loading_results: "ফলাফল লোড হচ্ছে...",
+                keyboard_shortcuts: "কীবোর্ড শর্টকাট",
+                use_arrow_keys: "ভুলের জন্য ←, সঠিকের জন্য → ব্যবহার করুন",
+                auto_grade: "স্বয়ংক্রিয় গ্রেড",
+                auto_grade_desc: "এই পরীক্ষার জন্য একই প্রশ্ন স্বয়ংক্রিয়ভাবে গ্রেড করুন",
+                save_template: "টেমপ্লেট হিসেবে সংরক্ষণ করুন",
+                template_saved: "টেমপ্লেট সংরক্ষিত",
+                apply_template: "টেমপ্লেট প্রয়োগ করুন",
+                no_template: "কোনো টেমপ্লেট পাওয়া যায়নি",
+                question: "প্রশ্ন",
+                your_answer: "আপনার উত্তর",
+                correct_answer: "সঠিক উত্তর",
+                status_correct: "সঠিক",
+                status_wrong: "ভুল",
+                status_skipped: "উত্তরহীন",
+                quick_grade: "দ্রুত গ্রেড",
+                all_correct: "সব সঠিক করুন",
+                all_wrong: "সব ভুল করুন",
+                reset_grading: "গ্রেডিং রিসেট করুন",
+                performance: "কর্মক্ষমতা",
+                details: "বিস্তারিত",
+                save_and_continue: "সংরক্ষণ করুন এবং চলুন",
+                // Stats
+                positive_marks: "+ মার্কস",
+                negative_marks: "- মার্কস",
+                net_score: "নেট স্কোর",
+                percentage: "শতাংশ",
+                time_per_question: "প্রতি প্রশ্নে সময়",
+                // Navigation
+                previous: "পূর্ববর্তী",
+                next: "পরবর্তী",
+                complete_all: "সব গ্রেডিং সম্পূর্ণ করুন",
+                // Messages
+                confirm_finalize: "আপনি কি নিশ্চিত যে আপনি ফলাফল চূড়ান্ত করতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না।",
+                auto_grade_applied: "{count}টি প্রশ্নে স্বয়ংক্রিয় গ্রেড প্রয়োগ করা হয়েছে",
+                template_applied: "টেমপ্লেট সফলভাবে প্রয়োগ করা হয়েছে",
+                all_graded: "সব প্রশ্ন গ্রেড করা হয়েছে!",
+                // New for answer entry
+                enter_correct_answers: "সঠিক উত্তর লিখুন",
+                save_correct_answers: "সঠিক উত্তর সংরক্ষণ করুন",
+                correct_answer_saved: "স্বয়ংক্রিয় সংশোধনের জন্য সঠিক উত্তর সংরক্ষিত",
+                auto_correction: "স্বয়ংক্রিয় সংশোধন",
+                view_history: "ইতিহাস দেখুন",
+                history: "ইতিহাস"
+            }
+        };
+
+        // --- Icons ---
+        const Icons = {
+            Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Play: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+            BarChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>,
+            Sun: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+            Moon: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+            Globe: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+            CheckCircle: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+            XCircle: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,
+            Circle: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg>,
+            Book: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+            Flag: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+            Mail: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+            Clock: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+            AlertCircle: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+            X: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+            ChevronLeft: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
+            ChevronRight: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+            Save: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
+            Refresh: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>,
+            Zap: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+            Database: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
+            Award: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+            Check: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+            ArrowRight: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+            History: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        };
+
+        const AppContext = createContext();
+
+        // --- Circular Progress Component ---
+        const CircularProgress = ({ percentage, size = 80, strokeWidth = 8, label = null }) => {
+            const radius = (size - strokeWidth) / 2;
+            const circumference = 2 * Math.PI * radius;
+            const strokeDashoffset = circumference - (percentage / 100) * circumference;
+            
+            const getColor = () => {
+                if (percentage >= 80) return '#10b981';
+                if (percentage >= 60) return '#f59e0b';
+                return '#ef4444';
+            };
+
+            return (
+                <div className="relative" style={{ width: size, height: size }}>
+                    <svg className="progress-ring" width={size} height={size}>
+                        <circle
+                            cx={size / 2}
+                            cy={size / 2}
+                            r={radius}
+                            stroke="#e2e8f0"
+                            strokeWidth={strokeWidth}
+                            fill="transparent"
+                            className="dark:stroke-slate-700"
+                        />
+                        <circle
+                            cx={size / 2}
+                            cy={size / 2}
+                            r={radius}
+                            stroke={getColor()}
+                            strokeWidth={strokeWidth}
+                            fill="transparent"
+                            strokeDasharray={circumference}
+                            strokeDashoffset={strokeDashoffset}
+                            strokeLinecap="round"
+                            className="progress-ring__circle transition-all duration-1000"
+                            style={{ strokeDashoffset }}
+                        />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center">
+                            <div className="font-bold text-lg" style={{ color: getColor() }}>
+                                {percentage.toFixed(0)}%
+                            </div>
+                            {label && <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{label}</div>}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Navbar ---
+        const Navbar = ({ activePage }) => {
+            const { lang, setLang, darkMode, setDarkMode } = useContext(AppContext);
+            const [sessionActive, setSessionActive] = useState(false);
+            const [isOpen, setIsOpen] = useState(false);
+            const t = (k) => translations[lang][k];
+
+            useEffect(() => {
+                const session = localStorage.getItem('omr_current_session');
+                if (session) setSessionActive(true);
+            }, []);
+
+            const toggleTheme = () => {
+                setDarkMode(!darkMode);
+                document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', !darkMode ? 'dark' : 'light');
+            };
+
+            const toggleLang = () => {
+                const newLang = lang === 'en' ? 'bn' : 'en';
+                setLang(newLang);
+                localStorage.setItem('lang', newLang);
+            };
+
+            const links = [
+                { name: t('dashboard'), href: 'index.html', icon: Icons.Home, active: activePage === 'home' },
+                { name: t('active_session'), href: 'exam.html', icon: Icons.Play, active: activePage === 'exam', hidden: !sessionActive },
+                { name: t('analytics'), href: 'analytics.html', icon: Icons.BarChart, active: activePage === 'analytics' },
+            ];
+
+            const secondaryLinks = [
+                { name: t('about'), icon: Icons.Book, href: 'about.html' },
+                { name: t('guideline'), icon: Icons.Flag, href: 'guidelines.html' },
+                { name: t('report'), icon: Icons.AlertCircle, href: 'report.html' },
+                { name: t('contact'), icon: Icons.Mail, href: 'contact.html' },
+            ];
+
+            return (
+                <nav className="fixed top-0 inset-x-0 z-50 nav-glass transition-all duration-300 shadow-sm">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-20">
+                            {/* Logo */}
+                            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.location.href='index.html'}>
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 transition-transform group-hover:scale-105 group-hover:rotate-3">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                                </div>
+                                <div className={lang === 'bn' ? 'font-bangla' : ''}>
+                                    <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight leading-none">{t('app_name')}</h1>
+                                    <span className="text-[10px] font-bold tracking-widest text-blue-600 dark:text-blue-400 uppercase">{t('pro')}</span>
+                                </div>
+                            </div>
+
+                            {/* Desktop Navigation */}
+                            <div className="hidden lg:flex items-center gap-2">
+                                <div className="flex items-center gap-1 mr-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                                    {links.map(link => !link.hidden && (
+                                        <a key={link.name} href={link.href} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${link.active ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}>
+                                            <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                        </a>
+                                    ))}
+                                </div>
+                                
+                                {secondaryLinks.map((item, idx) => (
+                                    <a key={idx} href={item.href} title={item.name} className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                                        <item.icon />
+                                    </a>
+                                ))}
+                                
+                                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                                
+                                <button onClick={toggleLang} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:scale-105 transition-transform">
+                                    <Icons.Globe /> {lang === 'en' ? 'BN' : 'EN'}
+                                </button>
+                                
+                                <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:rotate-12 transition-transform">
+                                    {darkMode ? <Icons.Sun /> : <Icons.Moon />}
+                                </button>
+                            </div>
+
+                            {/* Mobile Navigation */}
+                            <div className="lg:hidden flex items-center gap-3">
+                                <button onClick={toggleLang} className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{lang === 'en' ? 'BN' : 'EN'}</button>
+                                <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-300">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
+                                <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Mobile Menu */}
+                    {isOpen && (
+                        <div className="lg:hidden border-t border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-xl">
+                            <div className="p-4 space-y-2">
+                                {links.map(link => !link.hidden && (
+                                    <a key={link.name} href={link.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium ${link.active ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'}`}>
+                                        <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                    </a>
+                                ))}
+                                <hr className="border-slate-100 dark:border-slate-800 my-2" />
+                                {secondaryLinks.map((item, idx) => (
+                                    <a key={idx} href={item.href} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
+                                        <item.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{item.name}</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </nav>
+            );
+        };
+
+        // --- Footer ---
+        const Footer = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            return (
+                <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
+                    <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col items-center justify-center gap-2 text-center">
+                        <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
+                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
+                            Urfa Hasan Fattah
+                        </div>
+                        <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                            {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {new Date().getFullYear()} {t('footer_rights')}
+                        </p>
+                    </div>
+                </footer>
+            );
+        };
+
+        // --- Correct Answer Input Component ---
+        const CorrectAnswerInput = ({ questionNumber, correctAnswer, onChange, config }) => {
+            const options = ['A', 'B', 'C', 'D', 'E'].slice(0, config.optionsCount);
+            
+            return (
+                <div className="glass-panel p-4 rounded-2xl">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center font-bold text-slate-800 dark:text-white">
+                            {questionNumber}
+                        </div>
+                        
+                        <div className="flex-1">
+                            <div className="text-sm text-slate-500 dark:text-slate-400 mb-2">Correct Answer:</div>
+                            <div className="flex gap-2">
+                                {options.map(opt => (
+                                    <button
+                                        key={opt}
+                                        onClick={() => onChange(questionNumber, opt)}
+                                        className={`w-10 h-10 rounded-full text-base font-bold flex items-center justify-center border-2 ${
+                                            correctAnswer === opt 
+                                            ? 'bg-gradient-to-br from-green-500 to-emerald-500 border-green-500 text-white shadow-lg' 
+                                            : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-green-400 dark:hover:border-green-500'
+                                        }`}
+                                    >
+                                        {opt}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        {correctAnswer && (
+                            <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center">
+                                ✓
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Stats Panel Component ---
+        const StatsPanel = ({ stats, config }) => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            
+            const accuracy = stats.correct > 0 ? (stats.correct / (stats.correct + stats.wrong) * 100) : 0;
+            const percentage = (stats.score / (config.questionCount * config.positiveMarks)) * 100;
+            const timePerQuestion = stats.timeTaken / config.questionCount;
+
+            return (
+                <div className="glass-panel rounded-2xl p-6 shadow-lg">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                        <Icons.BarChart /> {t('performance')}
+                    </h3>
+                    
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.score.toFixed(2)}</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">{t('score')}</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.correct}</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">{t('correct')}</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.wrong}</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">{t('wrong')}</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-slate-600 dark:text-slate-400">{stats.skipped}</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">{t('skipped')}</div>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div className="flex flex-col items-center">
+                            <CircularProgress percentage={accuracy} size={60} />
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mt-2">{t('accuracy')}</div>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <CircularProgress percentage={percentage} size={60} />
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mt-2">{t('percentage')}</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-xl font-bold text-slate-800 dark:text-white">
+                                {Math.floor(stats.timeTaken / 60)}:{(stats.timeTaken % 60).toString().padStart(2, '0')}
+                            </div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">{t('time_taken')}</div>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+                        <div className="flex justify-between mb-1">
+                            <span>{t('positive_marks')}: +{config.positiveMarks}</span>
+                            <span className="font-bold text-green-600">+{(stats.correct * config.positiveMarks).toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                            <span>{t('negative_marks')}: -{config.negativeMarks}</span>
+                            <span className="font-bold text-red-600">-{(stats.wrong * config.negativeMarks).toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between font-bold text-slate-800 dark:text-white">
+                            <span>{t('net_score')}:</span>
+                            <span>{stats.score.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Question Card Component ---
+        const QuestionCard = ({ 
+            questionNumber, 
+            userAnswer, 
+            status, 
+            onStatusChange, 
+            isCurrent, 
+            onClick,
+            config
+        }) => {
+            const options = ['A', 'B', 'C', 'D', 'E'].slice(0, config.optionsCount);
+            
+            const getStatusColor = () => {
+                switch(status) {
+                    case 'correct': return 'bg-green-500 text-white';
+                    case 'wrong': return 'bg-red-500 text-white';
+                    case 'skipped': return 'bg-slate-400 text-white';
+                    default: return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400';
+                }
+            };
+
+            return (
+                <div 
+                    id={`q-${questionNumber}`}
+                    className={`
+                        glass-panel p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer hover:shadow-lg
+                        ${status === 'correct' ? 'question-correct' : 
+                          status === 'wrong' ? 'question-wrong' : 
+                          status === 'skipped' ? 'question-skipped' : ''}
+                        ${isCurrent ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
+                    `}
+                    onClick={onClick}
+                >
+                    <div className="flex items-start gap-3">
+                        {/* Question Number and Status */}
+                        <div className="flex flex-col items-center">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${getStatusColor()}`}>
+                                {questionNumber}
+                            </div>
+                            <div className="mt-2 text-xs font-bold text-slate-500 dark:text-slate-400">
+                                {status === 'correct' ? '✓' : status === 'wrong' ? '✗' : status === 'skipped' ? '-' : '?'}
+                            </div>
+                        </div>
+
+                        {/* User's Answer */}
+                        <div className="flex-1">
+                            <div className="mb-2">
+                                <span className="text-sm text-slate-500 dark:text-slate-400">Your Answer:</span>
+                                {userAnswer ? (
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="text-lg font-bold text-slate-800 dark:text-white">{userAnswer}</span>
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                                            status === 'correct' ? 'bg-green-100 text-green-600' :
+                                            status === 'wrong' ? 'bg-red-100 text-red-600' :
+                                            'bg-slate-100 text-slate-600'
+                                        }`}>
+                                            {status === 'correct' ? '✓' : status === 'wrong' ? '✗' : '?'}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-slate-400 italic font-medium mt-1">Not Attempted</div>
+                                )}
+                            </div>
+
+                            {/* Options Bubbles */}
+                            <div className="flex gap-1">
+                                {options.map(opt => (
+                                    <div 
+                                        key={opt}
+                                        className={`
+                                            w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center border
+                                            ${userAnswer === opt 
+                                                ? status === 'correct' 
+                                                    ? 'bg-green-500 text-white border-green-500' 
+                                                    : status === 'wrong'
+                                                    ? 'bg-red-500 text-white border-red-500'
+                                                    : 'bg-gradient-to-br from-blue-500 to-indigo-500 border-blue-500 text-white shadow-md'
+                                                : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400'}
+                                        `}
+                                    >
+                                        {opt}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Status Actions */}
+                        <div className="flex flex-col gap-1">
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onStatusChange('correct');
+                                }}
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center ${status === 'correct' ? 'bg-green-500 text-white' : 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'}`}
+                            >
+                                ✓
+                            </button>
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onStatusChange('wrong');
+                                }}
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center ${status === 'wrong' ? 'bg-red-500 text-white' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'}`}
+                            >
+                                ✗
+                            </button>
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onStatusChange('skipped');
+                                }}
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center ${status === 'skipped' ? 'bg-slate-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}
+                            >
+                                -
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Main Correction Component ---
+        const CorrectionInterface = () => {
+            const { lang, darkMode } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            
             const [data, setData] = useState(null);
-            const [grading, setGrading] = useState({}); // { qId: 'correct' | 'wrong' | 'skipped' }
-            const [stats, setStats] = useState({ correct: 0, wrong: 0, skipped: 0, score: 0 });
+            const [grading, setGrading] = useState({});
+            const [currentQuestion, setCurrentQuestion] = useState(1);
+            const [correctAnswers, setCorrectAnswers] = useState({});
+            const [activeTab, setActiveTab] = useState('grading'); // 'grading' or 'answers'
+            const [stats, setStats] = useState({ 
+                correct: 0, 
+                wrong: 0, 
+                skipped: 0, 
+                score: 0,
+                timeTaken: 0 
+            });
 
-            // Load Temp Data
+            // 1. Load Temp Data and Correct Answers
             useEffect(() => {
                 const temp = localStorage.getItem('omr_temp_grading');
                 if (!temp) {
-                    alert("No active grading session found.");
+                    alert("No grading data found. Redirecting to dashboard.");
                     window.location.href = 'index.html';
                     return;
                 }
+                
                 const parsed = JSON.parse(temp);
                 setData(parsed);
+                setStats(prev => ({ ...prev, timeTaken: parsed.timeTaken }));
                 
                 // Initialize Skipped Questions automatically
                 const initialGrading = {};
@@ -60,49 +742,182 @@
                         skippedCount++;
                     }
                 }
+                
                 setGrading(initialGrading);
                 setStats(prev => ({ ...prev, skipped: skippedCount }));
+                
+                // Load correct answers if they exist
+                const templates = JSON.parse(localStorage.getItem('omr_correction_templates') || '{}');
+                const examTemplate = templates[parsed.config.examName];
+                
+                if (examTemplate && examTemplate.correctAnswers) {
+                    setCorrectAnswers(examTemplate.correctAnswers);
+                    
+                    // Auto-apply grading if template exists
+                    const newGrading = { ...initialGrading };
+                    Object.keys(parsed.answers).forEach(qNum => {
+                        if (examTemplate.correctAnswers[qNum]) {
+                            if (parsed.answers[qNum] === examTemplate.correctAnswers[qNum]) {
+                                newGrading[qNum] = 'correct';
+                            } else {
+                                newGrading[qNum] = 'wrong';
+                            }
+                        }
+                    });
+                    
+                    setGrading(newGrading);
+                }
             }, []);
 
-            // Keyboard Navigation for Rapid Grading
-            useEffect(() => {
-                const handleKey = (e) => {
-                    if (!data) return;
-                    // Find first ungraded question that was attempted
-                    const pendingQs = Object.keys(data.answers).filter(q => !grading[q]).map(Number).sort((a,b) => a-b);
-                    
-                    if (pendingQs.length > 0) {
-                        const currentQ = pendingQs[0];
-                        if (e.key === 'ArrowRight') handleGrade(currentQ, 'correct');
-                        if (e.key === 'ArrowLeft') handleGrade(currentQ, 'wrong');
-                    }
-                };
-                window.addEventListener('keydown', handleKey);
-                return () => window.removeEventListener('keydown', handleKey);
-            }, [data, grading]);
-
-            // Real-time Score Calculation
+            // 2. Real-time Score Calculation
             useEffect(() => {
                 if (!data) return;
-                let c = 0, w = 0;
-                Object.values(grading).forEach(status => {
-                    if (status === 'correct') c++;
-                    if (status === 'wrong') w++;
+                
+                let correct = 0;
+                let wrong = 0;
+                let skipped = 0;
+                
+                Object.entries(grading).forEach(([qNum, status]) => {
+                    if (status === 'correct') correct++;
+                    else if (status === 'wrong') wrong++;
+                    else if (status === 'skipped') skipped++;
                 });
                 
-                const rawScore = (c * data.config.positiveMarks) - (w * data.config.negativeMarks);
-                setStats(prev => ({ ...prev, correct: c, wrong: w, score: rawScore.toFixed(2) }));
-            }, [grading]);
+                const rawScore = (correct * data.config.positiveMarks) - (wrong * data.config.negativeMarks);
+                
+                setStats(prev => ({ 
+                    ...prev, 
+                    correct, 
+                    wrong, 
+                    skipped,
+                    score: parseFloat(rawScore.toFixed(2))
+                }));
+            }, [grading, data]);
 
+            // 3. Keyboard Navigation for Grading
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (!data || activeTab !== 'grading') return;
+                    
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            if (grading[currentQuestion] !== 'wrong') {
+                                handleGrade(currentQuestion, 'wrong');
+                            }
+                            break;
+                        case 'ArrowRight':
+                            if (grading[currentQuestion] !== 'correct') {
+                                handleGrade(currentQuestion, 'correct');
+                            }
+                            break;
+                        case 'ArrowUp':
+                            navigateQuestion(-1);
+                            break;
+                        case 'ArrowDown':
+                            navigateQuestion(1);
+                            break;
+                        case ' ':
+                            e.preventDefault();
+                            if (grading[currentQuestion] !== 'skipped') {
+                                handleGrade(currentQuestion, 'skipped');
+                            }
+                            break;
+                    }
+                };
+                
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [data, grading, currentQuestion, activeTab]);
+
+            // Handlers
             const handleGrade = (qNum, status) => {
                 setGrading(prev => ({ ...prev, [qNum]: status }));
+            };
+
+            const navigateQuestion = (direction) => {
+                const newQuestion = currentQuestion + direction;
+                if (newQuestion >= 1 && newQuestion <= data?.config.questionCount) {
+                    setCurrentQuestion(newQuestion);
+                    
+                    // Scroll to question
+                    const element = document.getElementById(`q-${newQuestion}`);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            };
+
+            const handleCorrectAnswerChange = (qNum, answer) => {
+                setCorrectAnswers(prev => ({ ...prev, [qNum]: answer }));
+            };
+
+            const saveCorrectAnswers = () => {
+                if (!data || Object.keys(correctAnswers).length === 0) {
+                    alert("Please enter correct answers first.");
+                    return;
+                }
+
+                const template = {
+                    examName: data.config.examName,
+                    correctAnswers: correctAnswers,
+                    createdAt: new Date().toISOString(),
+                    questionCount: data.config.questionCount,
+                    optionsCount: data.config.optionsCount,
+                    config: data.config
+                };
                 
-                // Auto-scroll logic could be added here
-                const nextEl = document.getElementById(`q-${parseInt(qNum) + 1}`);
-                if (nextEl) nextEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const templates = JSON.parse(localStorage.getItem('omr_correction_templates') || '{}');
+                templates[data.config.examName] = template;
+                localStorage.setItem('omr_correction_templates', JSON.stringify(templates));
+                
+                alert(t('correct_answer_saved'));
+            };
+
+            const autoGradeFromCorrectAnswers = () => {
+                if (!data || Object.keys(correctAnswers).length === 0) {
+                    alert("No correct answers saved. Please enter them first.");
+                    return;
+                }
+
+                const newGrading = { ...grading };
+                let autoGradedCount = 0;
+
+                for (let i = 1; i <= data.config.questionCount; i++) {
+                    const userAnswer = data.answers[i];
+                    const correctAnswer = correctAnswers[i];
+                    
+                    if (correctAnswer) {
+                        if (userAnswer) {
+                            if (userAnswer === correctAnswer) {
+                                newGrading[i] = 'correct';
+                            } else {
+                                newGrading[i] = 'wrong';
+                            }
+                            autoGradedCount++;
+                        } else {
+                            newGrading[i] = 'skipped';
+                        }
+                    }
+                }
+
+                setGrading(newGrading);
+                alert(`Auto-graded ${autoGradedCount} questions from saved correct answers.`);
             };
 
             const finalizeResults = () => {
+                if (!data) return;
+                
+                if (!confirm(t('confirm_finalize'))) return;
+                
+                const attemptedCount = Object.keys(data.answers).length;
+                const gradedCount = Object.keys(grading).filter(q => grading[q] !== 'skipped').length;
+                
+                if (gradedCount < attemptedCount) {
+                    if (!confirm(`${t('complete_all')}? ${attemptedCount - gradedCount} questions remain.`)) {
+                        return;
+                    }
+                }
+                
                 const finalResult = {
                     id: Date.now(),
                     examName: data.config.examName,
@@ -111,119 +926,352 @@
                     accuracy: stats.correct > 0 ? ((stats.correct / (stats.correct + stats.wrong)) * 100).toFixed(1) : 0,
                     timeTaken: data.timeTaken,
                     totalQuestions: data.config.questionCount,
-                    gradingDetails: grading, // Save exactly which Q was correct/wrong
-                    userAnswers: data.answers // Save user inputs
+                    correct: stats.correct,
+                    wrong: stats.wrong,
+                    skipped: stats.skipped,
+                    gradingDetails: grading,
+                    userAnswers: data.answers,
+                    config: data.config,
+                    isRetake: data.isRetake || false,
+                    previousScore: data.previousScore || null
                 };
 
-                // Push to History
+                // Save to History
                 const history = JSON.parse(localStorage.getItem('omr_history') || '[]');
                 history.push(finalResult);
                 localStorage.setItem('omr_history', JSON.stringify(history));
 
                 // Cleanup
                 localStorage.removeItem('omr_temp_grading');
+                localStorage.removeItem('omr_correction_progress');
+                
                 window.location.href = 'analytics.html';
             };
 
-            if (!data) return <div className="p-10 text-center">Loading Correction Suite...</div>;
+            const quickGradeAll = (status) => {
+                if (!data) return;
+                
+                const newGrading = { ...grading };
+                Object.keys(data.answers).forEach(qNum => {
+                    if (data.answers[qNum]) {
+                        newGrading[qNum] = status;
+                    }
+                });
+                
+                setGrading(newGrading);
+            };
 
+            if (!data) return (
+                <div className="flex h-screen items-center justify-center">
+                    <div className="text-center">
+                        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
+                            <Icons.Award className="text-white text-2xl" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('loading_results')}</h2>
+                        <p className="text-slate-500 dark:text-slate-400">Loading correction data...</p>
+                    </div>
+                </div>
+            );
+
+            const { config } = data;
             const attemptedCount = Object.keys(data.answers).length;
-            const gradedCount = Object.keys(grading).length - stats.skipped; // Exclude auto-skipped from manual count
+            const gradedCount = Object.keys(grading).filter(q => grading[q] !== 'skipped').length;
             const isComplete = gradedCount === attemptedCount;
+            const correctAnswersCount = Object.keys(correctAnswers).length;
 
             return (
-                <div className="min-h-screen pb-24">
-                    {/* Header */}
-                    <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
-                        <div className="max-w-4xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div>
-                                <h1 className="text-xl font-bold text-slate-800">Correction: {data.config.examName}</h1>
-                                <p className="text-sm text-slate-500">
-                                    Use <span className="bg-slate-100 px-1 rounded border">← Wrong</span> and <span className="bg-slate-100 px-1 rounded border">Right →</span> keys for speed.
-                                </p>
-                            </div>
-                            <div className="flex gap-4 text-sm font-medium">
-                                <div className="px-4 py-2 bg-green-50 text-green-700 rounded-lg">Score: {stats.score}</div>
-                                <div className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg">Graded: {gradedCount}/{attemptedCount}</div>
-                            </div>
-                        </div>
-                    </div>
+                <div className="min-h-screen flex flex-col">
+                    <Navbar activePage="correction" />
 
-                    {/* Question List */}
-                    <div className="max-w-3xl mx-auto px-4 mt-8 space-y-4">
-                        {Array.from({ length: data.config.questionCount }, (_, i) => i + 1).map(qNum => {
-                            const userAnswer = data.answers[qNum];
-                            const status = grading[qNum];
-                            
-                            // Visual Styles based on status
-                            let borderClass = 'border-slate-200';
-                            let bgClass = 'bg-white';
-                            if (status === 'correct') { borderClass = 'border-green-500 ring-1 ring-green-500'; bgClass = 'bg-green-50/30'; }
-                            if (status === 'wrong') { borderClass = 'border-red-500 ring-1 ring-red-500'; bgClass = 'bg-red-50/30'; }
-                            if (!userAnswer) { bgClass = 'bg-slate-50 opacity-60'; }
-
-                            return (
-                                <div key={qNum} id={`q-${qNum}`} className={`p-4 rounded-xl border transition-all ${borderClass} ${bgClass} flex items-center justify-between`}>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm">
-                                            {qNum}
+                    <main className="flex-grow pt-20">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            {/* Header */}
+                            <div className="glass-panel rounded-2xl p-6 mb-6 shadow-lg">
+                                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                                    <div className="flex-1">
+                                        <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
+                                            {t('correction_title')}
+                                        </h1>
+                                        <p className="text-slate-600 dark:text-slate-400">
+                                            {config.examName} • {config.questionCount} {t('total_questions')} • {attemptedCount} {t('attempted')}
+                                        </p>
+                                        <div className="flex items-center gap-2 mt-2 text-sm text-slate-500 dark:text-slate-400">
+                                            <Icons.Zap /> {t('use_arrow_keys')}
                                         </div>
-                                        <div>
-                                            {userAnswer ? (
-                                                <div className="flex items-baseline gap-2">
-                                                    <span className="text-slate-500 text-sm">You marked:</span>
-                                                    <span className="text-xl font-bold text-slate-800">{userAnswer}</span>
+                                    </div>
+                                    
+                                    <div className="flex flex-wrap gap-2">
+                                        <button 
+                                            onClick={() => window.location.href = 'analytics.html'}
+                                            className="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white flex items-center gap-2"
+                                        >
+                                            <Icons.History /> {t('view_history')}
+                                        </button>
+                                        
+                                        <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl">
+                                            <div className={`w-2 h-2 rounded-full ${isComplete ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+                                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                {gradedCount}/{attemptedCount} {t('graded')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Tabs */}
+                            <div className="glass-panel rounded-2xl p-2 mb-6 shadow-lg">
+                                <div className="flex">
+                                    <button
+                                        onClick={() => setActiveTab('grading')}
+                                        className={`flex-1 px-4 py-3 rounded-xl font-bold transition-colors ${activeTab === 'grading' ? 'bg-blue-500 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                    >
+                                        {t('correction_title')}
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('answers')}
+                                        className={`flex-1 px-4 py-3 rounded-xl font-bold transition-colors ${activeTab === 'answers' ? 'bg-green-500 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                    >
+                                        {t('enter_correct_answers')}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {activeTab === 'grading' ? (
+                                /* Grading Tab */
+                                <div className="flex flex-col lg:flex-row gap-6">
+                                    {/* Left Column - Stats & Controls */}
+                                    <div className="lg:w-1/3">
+                                        <StatsPanel stats={stats} config={config} />
+                                        
+                                        {/* Quick Actions */}
+                                        <div className="glass-panel rounded-2xl p-4 mt-4 shadow-lg">
+                                            <h3 className="font-bold text-slate-800 dark:text-white mb-3">{t('quick_grade')}</h3>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button 
+                                                    onClick={() => quickGradeAll('correct')}
+                                                    className="px-3 py-2 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800/50 transition"
+                                                >
+                                                    {t('all_correct')}
+                                                </button>
+                                                <button 
+                                                    onClick={() => quickGradeAll('wrong')}
+                                                    className="px-3 py-2 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800/50 transition"
+                                                >
+                                                    {t('all_wrong')}
+                                                </button>
+                                                <button 
+                                                    onClick={autoGradeFromCorrectAnswers}
+                                                    className="px-3 py-2 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50 transition col-span-2"
+                                                >
+                                                    {t('auto_correction')}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Navigation */}
+                                        <div className="glass-panel rounded-2xl p-4 mt-4 shadow-lg">
+                                            <div className="flex justify-between items-center">
+                                                <button 
+                                                    onClick={() => navigateQuestion(-1)}
+                                                    disabled={currentQuestion === 1}
+                                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl ${currentQuestion === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                                                >
+                                                    <Icons.ChevronLeft /> {t('previous')}
+                                                </button>
+                                                
+                                                <div className="text-center">
+                                                    <div className="text-sm text-slate-500 dark:text-slate-400">{t('question')}</div>
+                                                    <div className="font-bold text-xl text-slate-800 dark:text-white">
+                                                        {currentQuestion} / {config.questionCount}
+                                                    </div>
                                                 </div>
-                                            ) : (
-                                                <span className="text-slate-400 italic font-medium">Not Attempted</span>
-                                            )}
+                                                
+                                                <button 
+                                                    onClick={() => navigateQuestion(1)}
+                                                    disabled={currentQuestion === config.questionCount}
+                                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl ${currentQuestion === config.questionCount ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                                                >
+                                                    {t('next')} <Icons.ChevronRight />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* Action Buttons */}
-                                    {userAnswer && (
-                                        <div className="flex gap-2">
-                                            <button 
-                                                onClick={() => handleGrade(qNum, 'wrong')}
-                                                className={`p-2 rounded-lg transition-colors ${status === 'wrong' ? 'bg-red-600 text-white shadow-lg' : 'bg-white border hover:bg-red-50 text-red-500'}`}
-                                            >
-                                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                                            </button>
-                                            <button 
-                                                onClick={() => handleGrade(qNum, 'correct')}
-                                                className={`p-2 rounded-lg transition-colors ${status === 'correct' ? 'bg-green-600 text-white shadow-lg' : 'bg-white border hover:bg-green-50 text-green-500'}`}
-                                            >
-                                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                            </button>
+                                    {/* Right Column - Questions Grid */}
+                                    <div className="lg:w-2/3">
+                                        <div className="glass-panel rounded-2xl p-4 shadow-lg">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h3 className="font-bold text-slate-800 dark:text-white">
+                                                    {t('question')} {t('details')} ({gradedCount}/{attemptedCount} {t('graded')})
+                                                </h3>
+                                                <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                    {t('score')}: <span className="font-bold text-blue-600 dark:text-blue-400">{stats.score.toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="exam-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto p-2">
+                                                {Array.from({ length: config.questionCount }, (_, i) => i + 1).map(qNum => (
+                                                    <QuestionCard
+                                                        key={qNum}
+                                                        questionNumber={qNum}
+                                                        userAnswer={data.answers[qNum]}
+                                                        status={grading[qNum] || 'pending'}
+                                                        onStatusChange={(status) => handleGrade(qNum, status)}
+                                                        isCurrent={currentQuestion === qNum}
+                                                        onClick={() => setCurrentQuestion(qNum)}
+                                                        config={config}
+                                                    />
+                                                ))}
+                                            </div>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
-                            );
-                        })}
-                    </div>
+                            ) : (
+                                /* Correct Answers Tab */
+                                <div className="flex flex-col lg:flex-row gap-6">
+                                    {/* Instructions */}
+                                    <div className="lg:w-1/3">
+                                        <div className="glass-panel rounded-2xl p-6 shadow-lg">
+                                            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                                                <Icons.Database /> {t('auto_correction')}
+                                            </h3>
+                                            
+                                            <div className="space-y-4">
+                                                <p className="text-slate-600 dark:text-slate-400">
+                                                    Enter the correct answers for all questions below. These will be saved and used for automatic correction when the same exam is taken again.
+                                                </p>
+                                                
+                                                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                                                    <h4 className="font-bold text-blue-600 dark:text-blue-400 mb-2">Benefits:</h4>
+                                                    <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
+                                                        <li>• Auto-grade future attempts instantly</li>
+                                                        <li>• Track performance across multiple attempts</li>
+                                                        <li>• Save time on manual grading</li>
+                                                    </ul>
+                                                </div>
+                                                
+                                                <div className="flex flex-col gap-2">
+                                                    <button 
+                                                        onClick={saveCorrectAnswers}
+                                                        className="w-full px-4 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold flex items-center justify-center gap-2"
+                                                    >
+                                                        <Icons.Save /> {t('save_correct_answers')}
+                                                    </button>
+                                                    
+                                                    <button 
+                                                        onClick={() => setActiveTab('grading')}
+                                                        className="w-full px-4 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold"
+                                                    >
+                                                        {t('back_to_grading')}
+                                                    </button>
+                                                </div>
+                                                
+                                                <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <span>Progress:</span>
+                                                        <span className="font-bold text-blue-600 dark:text-blue-400">{correctAnswersCount}/{config.questionCount}</span>
+                                                    </div>
+                                                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                                        <div 
+                                                            className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300"
+                                                            style={{ width: `${(correctAnswersCount / config.questionCount) * 100}%` }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                    {/* Footer Action */}
-                    <div className="fixed bottom-0 w-full bg-white/80 backdrop-blur border-t border-slate-200 p-4">
-                        <div className="max-w-3xl mx-auto">
-                            <button 
-                                onClick={finalizeResults}
-                                disabled={!isComplete}
-                                className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all transform ${
-                                    isComplete 
-                                    ? 'bg-blue-600 text-white hover:scale-[1.01] hover:shadow-blue-500/30' 
-                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                                }`}
-                            >
-                                {isComplete ? `Finalize Results (Score: ${stats.score})` : `Grade all attempted questions to finish`}
-                            </button>
+                                    {/* Correct Answers Grid */}
+                                    <div className="lg:w-2/3">
+                                        <div className="glass-panel rounded-2xl p-4 shadow-lg">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h3 className="font-bold text-slate-800 dark:text-white">
+                                                    {t('enter_correct_answers')} ({correctAnswersCount}/{config.questionCount})
+                                                </h3>
+                                                <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                    Select the correct option for each question
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto p-2">
+                                                {Array.from({ length: config.questionCount }, (_, i) => i + 1).map(qNum => (
+                                                    <CorrectAnswerInput
+                                                        key={qNum}
+                                                        questionNumber={qNum}
+                                                        correctAnswer={correctAnswers[qNum]}
+                                                        onChange={handleCorrectAnswerChange}
+                                                        config={config}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Finalize Button (only in grading tab) */}
+                            {activeTab === 'grading' && (
+                                <div className="glass-panel rounded-2xl p-4 mt-6 shadow-lg sticky bottom-4">
+                                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                                        <div className="text-slate-600 dark:text-slate-400 text-sm">
+                                            {isComplete ? (
+                                                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                                                    <Icons.CheckCircle /> {t('all_graded')}
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                                                    <Icons.AlertCircle /> {attemptedCount - gradedCount} {t('questions')} {t('remaining')}
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        <button 
+                                            onClick={finalizeResults}
+                                            className={`w-full sm:w-auto px-8 py-3 rounded-xl font-bold text-lg shadow-lg transition-all transform flex items-center justify-center gap-2 ${
+                                                isComplete 
+                                                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-105 hover:shadow-green-500/30' 
+                                                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                                            }`}
+                                        >
+                                            <Icons.ArrowRight />
+                                            {isComplete ? `${t('finalize_results')} (${stats.score.toFixed(2)})` : t('complete_all')}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    </main>
+
+                    <Footer />
                 </div>
             );
         };
 
+        // --- App Wrapper ---
+        const AppWrapper = () => {
+            const [lang, setLang] = useState('en');
+            const [darkMode, setDarkMode] = useState(false);
+
+            useEffect(() => {
+                const savedLang = localStorage.getItem('lang');
+                if (savedLang) setLang(savedLang);
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    setDarkMode(true);
+                    document.documentElement.classList.add('dark');
+                }
+            }, []);
+
+            return (
+                <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
+                    <CorrectionInterface />
+                </AppContext.Provider>
+            );
+        };
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<Correction />);
+        root.render(<AppWrapper />);
     </script>
 </body>
 </html>
