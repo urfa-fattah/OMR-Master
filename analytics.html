@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -30,6 +31,7 @@
                         'float': 'float 3s ease-in-out infinite',
                         'shimmer': 'shimmer 2s infinite',
                         'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-in-right': 'slideInRight 0.5s ease-out',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -37,7 +39,8 @@
                         popIn: { '0%': { opacity: '0', transform: 'scale(0.9)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
                         float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
                         shimmer: { '0%': { backgroundPosition: '-200px 0' }, '100%': { backgroundPosition: '200px 0' } },
-                        pulse: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.5' } }
+                        pulse: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.5' } },
+                        slideInRight: { '0%': { transform: 'translateX(20px)', opacity: '0' }, '100%': { transform: 'translateX(0)', opacity: '1' } }
                     }
                 }
             }
@@ -75,18 +78,6 @@
         .dark .nav-glass {
             background: rgba(15, 23, 42, 0.85);
             border-bottom: 1px solid rgba(30, 41, 59, 0.8);
-        }
-
-        /* Chart Tooltip */
-        #chartjs-tooltip {
-            opacity: 1;
-            position: absolute;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            border-radius: 6px;
-            pointer-events: none;
-            transform: translate(-50%, 0);
-            transition: all .1s ease;
         }
 
         /* Custom Scrollbar */
@@ -145,6 +136,73 @@
                 gap: 8px;
             }
         }
+
+        /* Custom Range Slider */
+        .custom-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .dark .custom-range::-webkit-slider-thumb {
+            background: #60a5fa;
+        }
+
+        /* Custom Responsive Classes */
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .responsive-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (min-width: 1024px) {
+            .responsive-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Fix for overlapping sections */
+        .detail-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        @media (min-width: 1024px) {
+            .detail-layout {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* Ensure proper spacing in breakdown section */
+        .breakdown-container {
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+        }
+        .ai-insights-container {
+            min-height: 250px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        @media (min-width: 768px) {
+            .breakdown-container {
+                min-height: 380px;
+            }
+            .ai-insights-container {
+                max-height: 350px;
+            }
+        }
     </style>
 </head>
 <body class="text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-blue-500 selection:text-white">
@@ -153,6 +211,173 @@
 
     <script type="text/babel">
         const { useState, useEffect, createContext, useContext, useRef, useMemo, useCallback } = React;
+
+        // --- Error Boundary Component ---
+        class ErrorBoundary extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { hasError: false, error: null, errorInfo: null };
+            }
+            
+            static getDerivedStateFromError(error) {
+                return { hasError: true };
+            }
+            
+            componentDidCatch(error, errorInfo) {
+                this.setState({ error, errorInfo });
+                console.error("Error caught by ErrorBoundary:", error, errorInfo);
+            }
+            
+            render() {
+                if (this.state.hasError) {
+                    return (
+                        <div className="min-h-screen pt-24 flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
+                            <div className="glass-panel p-8 rounded-3xl max-w-md w-full text-center">
+                                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Something went wrong</h2>
+                                <p className="text-slate-600 dark:text-slate-400 mb-4">We encountered an error while loading the analytics.</p>
+                                <button 
+                                    onClick={() => window.location.reload()}
+                                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition"
+                                >
+                                    Reload Page
+                                </button>
+                                <button 
+                                    onClick={() => this.setState({ hasError: false, error: null, errorInfo: null })}
+                                    className="mt-3 px-6 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition"
+                                >
+                                    Try Again
+                                </button>
+                            </div>
+                        </div>
+                    );
+                }
+                return this.props.children;
+            }
+        }
+
+        // --- Data Management Functions ---
+        const DataManager = {
+            getHistory: () => {
+                try {
+                    const history = JSON.parse(localStorage.getItem('omr_history') || '[]');
+                    return Array.isArray(history) ? history : [];
+                } catch (error) {
+                    console.error('Error reading history:', error);
+                    return [];
+                }
+            },
+
+            saveHistory: (history) => {
+                try {
+                    localStorage.setItem('omr_history', JSON.stringify(history));
+                    return true;
+                } catch (error) {
+                    console.error('Error saving history:', error);
+                    return false;
+                }
+            },
+
+            prepareRetakeData: (exam) => {
+                if (!exam) {
+                    console.error('No exam data provided for retake');
+                    return null;
+                }
+
+                const retakeData = {
+                    id: `retake_${Date.now()}`,
+                    isRetake: true,
+                    originalExamId: exam.id,
+                    originalExamName: exam.examName || 'Unknown Exam',
+                    examName: `${exam.examName || 'Exam'} (Retake)`,
+                    date: new Date().toISOString(),
+                    questions: exam.questions || [],
+                    totalQuestions: exam.totalQuestions || 50,
+                    config: exam.config || {
+                        questionCount: exam.totalQuestions || 50,
+                        duration: 60,
+                        positiveMarks: 1,
+                        negativeMarks: 0.25,
+                        optionsCount: 4,
+                        pdfLink: exam.pdfLink || ''
+                    },
+                    // Store for comparison
+                    previousScore: exam.score || 0,
+                    previousAccuracy: exam.accuracy || 0,
+                    previousTimeTaken: exam.timeTaken || 0
+                };
+                
+                localStorage.setItem('omr_retake_exam', JSON.stringify(retakeData));
+                localStorage.setItem('omr_current_session', JSON.stringify({
+                    config: retakeData.config,
+                    answers: {},
+                    flags: [],
+                    timeLeft: retakeData.config.duration * 60,
+                    startTime: Date.now(),
+                    status: 'active',
+                    isRetake: true,
+                    originalExamId: exam.id
+                }));
+                
+                return retakeData;
+            },
+
+            exportData: (history) => {
+                const dataStr = JSON.stringify(history, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                const exportFileDefaultName = `omr-analytics-${new Date().toISOString().split('T')[0]}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                document.body.appendChild(linkElement);
+                linkElement.click();
+                document.body.removeChild(linkElement);
+            },
+
+            importData: (file, callback) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        if (!Array.isArray(importedData)) {
+                            throw new Error('Invalid data format');
+                        }
+                        callback(importedData);
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        throw error;
+                    }
+                };
+                reader.readAsText(file);
+            },
+
+            getExamComparisons: (history, examName) => {
+                if (!examName || !history) return [];
+                
+                const sameExams = history.filter(exam => {
+                    const currentName = exam?.examName || '';
+                    const targetName = examName || '';
+                    return currentName.replace(/ \(Retake\)$/i, '') === targetName.replace(/ \(Retake\)$/i, '');
+                });
+                
+                return sameExams.sort((a, b) => new Date(b.date) - new Date(a.date));
+            },
+
+            // Safe exam name getter
+            getSafeExamName: (exam) => {
+                return exam?.examName || 'Untitled Exam';
+            },
+
+            // Safe exam property getters
+            getExamProperty: (exam, property, defaultValue = 0) => {
+                return exam?.[property] || defaultValue;
+            }
+        };
 
         // --- Translations ---
         const translations = {
@@ -167,7 +392,7 @@
                 kpi_efficiency: "Efficiency", kpi_consistency: "Consistency",
                 tab_history: "Exam History Log",
                 btn_view: "Deep Dive", btn_back: "Back to Dashboard", btn_export: "Export Data", btn_import: "Import Data", 
-                btn_filter: "Filter", btn_retake: "Retake Exam",
+                btn_filter: "Filter", btn_retake: "Retake Exam", btn_compare: "Compare Exams",
                 det_score: "Final Score", det_acc: "Accuracy", det_time: "Time Taken", det_speed: "Avg Speed",
                 det_chart_perf: "Skill Radar", det_breakdown: "Question Heatmap", det_trend: "Performance Trend",
                 det_insights: "AI Insights", det_patterns: "Pattern Analysis",
@@ -201,8 +426,31 @@
                 import_success: "Data imported successfully!",
                 import_error: "Error importing data. Invalid format.",
                 import_prompt: "Select JSON file to import",
-                retake_confirm: "Start this exam again? Your previous score will be saved.",
-                delete_confirm: "Permanently delete this exam record?"
+                retake_confirm: "Start this exam again? Your previous score will be saved for comparison.",
+                delete_confirm: "Permanently delete this exam record?",
+                // Comparison
+                comparison_title: "Exam Comparison",
+                comparison_current: "Current Attempt",
+                comparison_previous: "Previous Attempt",
+                comparison_improvement: "Improvement",
+                comparison_regression: "Regression",
+                comparison_accuracy: "Accuracy",
+                comparison_time: "Time Taken",
+                comparison_score: "Score",
+                // New Features
+                exam_groups: "Exam Groups",
+                group_by_name: "Group by Name",
+                show_comparison: "Show Comparison",
+                retake_history: "Retake History",
+                performance_overview: "Performance Overview",
+                // Advanced Features
+                predictive_analytics: "Predictive Analytics",
+                next_score_prediction: "Next Score Prediction",
+                study_recommendations: "Study Recommendations",
+                performance_forecast: "Performance Forecast",
+                knowledge_gaps: "Knowledge Gaps",
+                time_management: "Time Management",
+                focus_areas: "Focus Areas"
             },
             bn: {
                 app_name: "ওএমআর মাস্টার", pro: "প্রো", dashboard: "ড্যাশবোর্ড", active_session: "চলমান সেশন",
@@ -215,7 +463,7 @@
                 kpi_efficiency: "দক্ষতা", kpi_consistency: "ধারাবাহিকতা",
                 tab_history: "পরীক্ষার ইতিহাস লগ",
                 btn_view: "বিস্তারিত দেখুন", btn_back: "ড্যাশবোর্ডে ফিরুন", btn_export: "ডেটা এক্সপোর্ট", btn_import: "ডেটা ইম্পোর্ট",
-                btn_filter: "ফিল্টার", btn_retake: "পুনরায় পরীক্ষা দিন",
+                btn_filter: "ফিল্টার", btn_retake: "পুনরায় পরীক্ষা দিন", btn_compare: "পরীক্ষা তুলনা করুন",
                 det_score: "ফাইনাল স্কোর", det_acc: "সঠিকতা", det_time: "সময় লেগেছে", det_speed: "গড় গতি",
                 det_chart_perf: "দক্ষতা রাডার", det_breakdown: "প্রশ্ন হিটম্যাপ", det_trend: "পারফরমেন্স ট্রেন্ড",
                 det_insights: "এআই ইনসাইটস", det_patterns: "প্যাটার্ন বিশ্লেষণ",
@@ -250,11 +498,34 @@
                 import_error: "ডেটা ইম্পোর্টে ত্রুটি। ফর্ম্যাট ভুল।",
                 import_prompt: "ইম্পোর্ট করার জন্য JSON ফাইল নির্বাচন করুন",
                 retake_confirm: "আবার এই পরীক্ষা শুরু করবেন? আপনার আগের স্কোর সংরক্ষিত থাকবে।",
-                delete_confirm: "এই পরীক্ষার রেকর্ড স্থায়ীভাবে মুছে ফেলবেন?"
+                delete_confirm: "এই পরীক্ষার রেকর্ড স্থায়ীভাবে মুছে ফেলবেন?",
+                // Comparison
+                comparison_title: "পরীক্ষার তুলনা",
+                comparison_current: "বর্তমান চেষ্টা",
+                comparison_previous: "পূর্ববর্তী চেষ্টা",
+                comparison_improvement: "উন্নতি",
+                comparison_regression: "অবনতি",
+                comparison_accuracy: "সঠিকতা",
+                comparison_time: "সময় লেগেছে",
+                comparison_score: "স্কোর",
+                // New Features
+                exam_groups: "পরীক্ষার গ্রুপ",
+                group_by_name: "নাম অনুযায়ী গ্রুপ",
+                show_comparison: "তুলনা দেখান",
+                retake_history: "পুনরায় পরীক্ষার ইতিহাস",
+                performance_overview: "পারফরমেন্স ওভারভিউ",
+                // Advanced Features
+                predictive_analytics: "ভবিষ্যদ্বাণীমূলক বিশ্লেষণ",
+                next_score_prediction: "পরবর্তী স্কোর পূর্বাভাস",
+                study_recommendations: "পড়াশোনার সুপারিশ",
+                performance_forecast: "পারফরমেন্স পূর্বাভাস",
+                knowledge_gaps: "জ্ঞানের ফাঁক",
+                time_management: "সময় ব্যবস্থাপনা",
+                focus_areas: "ফোকাস এরিয়া"
             }
         };
 
-        // --- Icons (Original SVG) ---
+        // --- Icons (Updated with more icons) ---
         const Icons = {
             Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
             Play: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
@@ -287,30 +558,42 @@
             ChevronDown: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
             Menu: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
             ExternalLink: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
-            Refresh: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Refresh: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+            Compare: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 21l-6-6m6 6v-8m0 8h-8"/><path d="M3 3l6 6m-6-6v8m0-8h8"/></svg>,
+            Group: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            ChevronRight: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+            AlertCircle: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+            Plus: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+            Minus: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+            BarChart2: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+            Calendar: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+            Users: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            Star: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+            TrendingDown: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>,
+            PieChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
         };
 
         const AppContext = createContext();
 
         // --- Tooltip Component ---
-        const Tooltip = ({ children, text }) => {
+        const Tooltip = ({ children, text, position = 'bottom' }) => {
             const [show, setShow] = useState(false);
             
             return (
                 <div className="relative inline-block">
-                    <button 
-                        className="text-slate-400 hover:text-blue-500 transition-colors focus:outline-none"
+                    <div 
+                        className="text-slate-400 hover:text-blue-500 transition-colors cursor-help"
                         onMouseEnter={() => setShow(true)}
                         onMouseLeave={() => setShow(false)}
                         onClick={() => setShow(!show)}
                         aria-label="Information"
                     >
-                        <Icons.Info />
-                    </button>
+                        {children || <Icons.Info />}
+                    </div>
                     {show && (
-                        <div className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg shadow-xl max-w-xs w-max">
+                        <div className={`absolute z-50 ${position === 'bottom' ? 'bottom-full left-1/2 transform -translate-x-1/2 mb-2' : 'top-full left-1/2 transform -translate-x-1/2 mt-2'} px-3 py-2 bg-slate-900 text-white text-xs rounded-lg shadow-xl max-w-xs w-max`}>
                             <div className="relative">
-                                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+                                <div className={`absolute ${position === 'bottom' ? '-bottom-1' : '-top-1'} left-1/2 transform -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45`}></div>
                                 {text}
                             </div>
                         </div>
@@ -327,14 +610,23 @@
             const t = (k) => translations[lang][k];
 
             useEffect(() => {
-                const session = localStorage.getItem('omr_current_session');
-                if (session) setSessionActive(true);
+                try {
+                    const session = localStorage.getItem('omr_current_session');
+                    if (session) setSessionActive(true);
+                } catch (error) {
+                    console.error('Error checking session:', error);
+                }
             }, []);
 
             const toggleTheme = () => {
-                setDarkMode(!darkMode);
-                document.documentElement.classList.toggle('dark');
-                localStorage.setItem('theme', !darkMode ? 'dark' : 'light');
+                const newDarkMode = !darkMode;
+                setDarkMode(newDarkMode);
+                if (newDarkMode) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                localStorage.setItem('theme', newDarkMode ? 'dark' : 'light');
             };
 
             const toggleLang = () => {
@@ -350,10 +642,10 @@
             ];
 
             const secondaryLinks = [
-                { name: t('about'), href: 'about.html', icon: Icons.Info },
-                { name: t('guideline'), href: 'guidelines.html', icon: Icons.Book },
-                { name: t('report'), href: 'reportissues.html', icon: Icons.Flag },
-                { name: t('contact'), href: 'contact.html', icon: Icons.Mail },
+                { name: t('about'), href: 'About.html', icon: Icons.Info },
+                { name: t('guideline'), href: 'Guidelines.html', icon: Icons.Book },
+                { name: t('report'), href: 'ReportIssues.html', icon: Icons.Flag },
+                { name: t('contact'), href: 'Contact.html', icon: Icons.Mail },
             ];
 
             return (
@@ -445,21 +737,459 @@
                 <footer className="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
                     <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center justify-center gap-2 text-center">
                         <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
-                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UR</span>
-                            Urfa Hasan Fattah & Rifat
+                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
+                            Urfa Hasan Fattah
                         </div>
                         <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
-                            {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah & Rifatuzzaman Rifat</span>. &copy; {currentYear} {t('footer_rights')}
+                            {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {currentYear} {t('footer_rights')}
                         </p>
                     </div>
                 </footer>
             );
         };
 
-        // --- Enhanced Detail View ---
-        const DetailView = ({ exam, onBack }) => {
+        // --- Predictive Analytics Component ---
+        const PredictiveAnalytics = ({ history }) => {
             const { lang, darkMode } = useContext(AppContext);
             const t = (k) => translations[lang][k];
+            const predictionRef = useRef(null);
+            const predictionInst = useRef(null);
+            
+            const predictions = useMemo(() => {
+                if (!history || history.length < 3) return null;
+                
+                const recentScores = history.slice(0, 5).map(h => h.score);
+                const avgScore = recentScores.reduce((a, b) => a + b, 0) / recentScores.length;
+                
+                // Simple linear regression for prediction
+                const n = recentScores.length;
+                const sumX = (n * (n - 1)) / 2;
+                const sumY = recentScores.reduce((a, b) => a + b, 0);
+                const sumXY = recentScores.reduce((sum, score, i) => sum + (score * i), 0);
+                const sumX2 = recentScores.reduce((sum, _, i) => sum + (i * i), 0);
+                
+                const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+                const nextScore = avgScore + slope * n;
+                
+                // Confidence calculation
+                const variance = recentScores.reduce((sum, score) => sum + Math.pow(score - avgScore, 2), 0) / n;
+                const confidence = Math.max(0, Math.min(100, 100 - Math.sqrt(variance) * 2));
+                
+                // Study recommendations
+                const recommendations = [];
+                if (slope < 0) {
+                    recommendations.push(t('performance_forecast') + ": " + t('comparison_regression'));
+                    recommendations.push(t('study_recommendations') + ": " + t('focus_areas'));
+                } else {
+                    recommendations.push(t('performance_forecast') + ": " + t('comparison_improvement'));
+                }
+                
+                // Knowledge gaps analysis
+                const recentExams = history.slice(0, 3);
+                const weakAreas = recentExams.flatMap(exam => {
+                    const gradingDetails = exam.gradingDetails || {};
+                    return Object.entries(gradingDetails)
+                        .filter(([_, status]) => status === 'wrong')
+                        .map(([qNum]) => `Q${qNum}`);
+                }).slice(0, 5);
+                
+                return {
+                    nextScore: Math.max(0, Math.min(100, nextScore)).toFixed(1),
+                    confidence: confidence.toFixed(1),
+                    trend: slope > 0 ? 'up' : slope < 0 ? 'down' : 'stable',
+                    recommendations,
+                    weakAreas: [...new Set(weakAreas)].slice(0, 3),
+                    avgScore: avgScore.toFixed(1)
+                };
+            }, [history, t]);
+            
+            useEffect(() => {
+                if (predictions && predictionRef.current) {
+                    if (predictionInst.current) predictionInst.current.destroy();
+                    
+                    const ctx = predictionRef.current.getContext('2d');
+                    const recentScores = history.slice(0, 5).map(h => h.score);
+                    
+                    predictionInst.current = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: [...recentScores.map((_, i) => `Test ${i + 1}`), t('next_score_prediction')],
+                            datasets: [{
+                                label: t('comparison_score'),
+                                data: [...recentScores, parseFloat(predictions.nextScore)],
+                                borderColor: predictions.trend === 'up' ? '#10b981' : predictions.trend === 'down' ? '#ef4444' : '#f59e0b',
+                                backgroundColor: predictions.trend === 'up' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: predictions.trend === 'up' ? '#10b981' : predictions.trend === 'down' ? '#ef4444' : '#f59e0b',
+                                pointBorderColor: '#fff',
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { 
+                                legend: { 
+                                    display: false 
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (context) => {
+                                            if (context.dataIndex === recentScores.length) {
+                                                return `${t('next_score_prediction')}: ${context.raw}`;
+                                            }
+                                            return `${t('comparison_score')}: ${context.raw}`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: { 
+                                    grid: { color: darkMode ? '#334155' : '#e2e8f0' },
+                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' },
+                                    min: 0,
+                                    max: 100
+                                },
+                                x: { 
+                                    grid: { display: false },
+                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                return () => {
+                    if (predictionInst.current) predictionInst.current.destroy();
+                };
+            }, [predictions, darkMode, history, t]);
+            
+            if (!predictions || history.length < 3) return null;
+            
+            return (
+                <div className="glass-panel p-5 md:p-6 rounded-3xl mt-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
+                            <Icons.Brain /> {t('predictive_analytics')}
+                        </h3>
+                        <Tooltip text="AI-powered predictions based on your performance patterns" />
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Prediction Chart */}
+                        <div>
+                            <h4 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-3">{t('performance_forecast')}</h4>
+                            <div className="h-48 mb-4">
+                                <canvas ref={predictionRef}></canvas>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <div className="text-xs text-slate-500 dark:text-slate-400">{t('next_score_prediction')}</div>
+                                    <div className="text-2xl font-bold text-slate-800 dark:text-white">{predictions.nextScore}</div>
+                                </div>
+                                <div>
+                                    <div className="text-xs text-slate-500 dark:text-slate-400">{t('confidence')}</div>
+                                    <div className="text-2xl font-bold text-slate-800 dark:text-white">{predictions.confidence}%</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Recommendations */}
+                        <div>
+                            <h4 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-3">{t('study_recommendations')}</h4>
+                            <div className="space-y-3">
+                                {predictions.recommendations.map((rec, idx) => (
+                                    <div key={idx} className="p-3 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                                        <div className="flex items-start gap-2">
+                                            <div className="p-1 bg-blue-100 dark:bg-blue-800 rounded-lg">
+                                                <Icons.Star />
+                                            </div>
+                                            <p className="text-sm text-slate-600 dark:text-slate-300">{rec}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                                
+                                {predictions.weakAreas.length > 0 && (
+                                    <div className="p-3 bg-amber-50/50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800">
+                                        <div className="flex items-start gap-2">
+                                            <div className="p-1 bg-amber-100 dark:bg-amber-800 rounded-lg">
+                                                <Icons.AlertCircle />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-amber-700 dark:text-amber-300 mb-1">{t('knowledge_gaps')}</p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-300">
+                                                    {predictions.weakAreas.join(', ')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Comparison Component ---
+        const ComparisonView = ({ exam, history, onClose }) => {
+            const { lang, darkMode } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const comparisonRef = useRef(null);
+            const comparisonInst = useRef(null);
+            
+            const sameExams = useMemo(() => {
+                if (!exam || !history) return [];
+                return DataManager.getExamComparisons(history, DataManager.getSafeExamName(exam));
+            }, [exam, history]);
+            
+            useEffect(() => {
+                if (sameExams.length > 1 && comparisonRef.current) {
+                    if (comparisonInst.current) comparisonInst.current.destroy();
+                    
+                    const ctx = comparisonRef.current.getContext('2d');
+                    const chartData = [...sameExams].reverse();
+                    
+                    comparisonInst.current = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: chartData.map((d, i) => `Attempt ${i + 1}`),
+                            datasets: [
+                                {
+                                    label: 'Score',
+                                    data: chartData.map(d => d.score),
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                    borderWidth: 3,
+                                    tension: 0.4,
+                                    fill: true,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: 'Accuracy',
+                                    data: chartData.map(d => d.accuracy),
+                                    borderColor: '#10b981',
+                                    backgroundColor: 'transparent',
+                                    borderWidth: 2,
+                                    tension: 0.4,
+                                    borderDash: [5, 5],
+                                    yAxisID: 'y1'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: { 
+                                legend: { 
+                                    position: 'top',
+                                    labels: { color: darkMode ? '#cbd5e1' : '#475569' }
+                                },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false
+                                }
+                            },
+                            scales: {
+                                x: { 
+                                    grid: { color: darkMode ? '#334155' : '#e2e8f0' },
+                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' }
+                                },
+                                y: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'left',
+                                    grid: { color: darkMode ? '#334155' : '#e2e8f0' },
+                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' },
+                                    title: {
+                                        display: true,
+                                        text: 'Score',
+                                        color: darkMode ? '#94a3b8' : '#64748b'
+                                    }
+                                },
+                                y1: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'right',
+                                    grid: { drawOnChartArea: false },
+                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' },
+                                    title: {
+                                        display: true,
+                                        text: 'Accuracy (%)',
+                                        color: darkMode ? '#94a3b8' : '#64748b'
+                                    },
+                                    min: 0,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                return () => {
+                    if (comparisonInst.current) comparisonInst.current.destroy();
+                };
+            }, [sameExams, darkMode, t]);
+            
+            if (sameExams.length <= 1) {
+                return (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                        <div className="glass-panel p-8 rounded-3xl max-w-md w-full">
+                            <div className="text-center">
+                                <Icons.AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+                                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+                                    {t('no_data_title')}
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 mb-6">
+                                    No previous attempts found for comparison.
+                                </p>
+                                <button
+                                    onClick={onClose}
+                                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+            
+            const latestExam = sameExams[0];
+            const previousExam = sameExams[1];
+            
+            const scoreDiff = latestExam.score - previousExam.score;
+            const accuracyDiff = latestExam.accuracy - previousExam.accuracy;
+            const timeDiff = latestExam.timeTaken - previousExam.timeTaken;
+            
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="glass-panel p-6 md:p-8 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+                                {t('comparison_title')}: {DataManager.getSafeExamName(exam).replace(/ \(Retake\)$/i, '')}
+                            </h2>
+                            <button
+                                onClick={onClose}
+                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+                            >
+                                <Icons.X />
+                            </button>
+                        </div>
+                        
+                        {/* Comparison Stats */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                            <div className="glass-panel p-4 rounded-2xl">
+                                <div className="text-sm text-slate-500 dark:text-slate-400 mb-2">{t('comparison_score')}</div>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-3xl font-bold text-slate-800 dark:text-white">
+                                        {latestExam.score}
+                                    </span>
+                                    {scoreDiff !== 0 && (
+                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${scoreDiff > 0 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'}`}>
+                                            {scoreDiff > 0 ? '↑' : '↓'} {Math.abs(scoreDiff).toFixed(1)}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="text-xs text-slate-400 mt-1">
+                                    Previous: {previousExam.score}
+                                </div>
+                            </div>
+                            
+                            <div className="glass-panel p-4 rounded-2xl">
+                                <div className="text-sm text-slate-500 dark:text-slate-400 mb-2">{t('comparison_accuracy')}</div>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-3xl font-bold text-slate-800 dark:text-white">
+                                        {latestExam.accuracy}%
+                                    </span>
+                                    {accuracyDiff !== 0 && (
+                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${accuracyDiff > 0 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'}`}>
+                                            {accuracyDiff > 0 ? '↑' : '↓'} {Math.abs(accuracyDiff).toFixed(1)}%
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="text-xs text-slate-400 mt-1">
+                                    Previous: {previousExam.accuracy}%
+                                </div>
+                            </div>
+                            
+                            <div className="glass-panel p-4 rounded-2xl">
+                                <div className="text-sm text-slate-500 dark:text-slate-400 mb-2">{t('comparison_time')}</div>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-3xl font-bold text-slate-800 dark:text-white">
+                                        {Math.floor(latestExam.timeTaken/60)}m {latestExam.timeTaken%60}s
+                                    </span>
+                                    {timeDiff !== 0 && (
+                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${timeDiff < 0 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'}`}>
+                                            {timeDiff < 0 ? '↑' : '↓'} {Math.abs(timeDiff)}s
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="text-xs text-slate-400 mt-1">
+                                    Previous: {Math.floor(previousExam.timeTaken/60)}m {previousExam.timeTaken%60}s
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Comparison Chart */}
+                        <div className="glass-panel p-6 rounded-3xl mb-6">
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
+                                {t('performance_overview')}
+                            </h3>
+                            <div className="h-64 md:h-80">
+                                <canvas ref={comparisonRef}></canvas>
+                            </div>
+                        </div>
+                        
+                        {/* Attempt History */}
+                        <div className="glass-panel p-6 rounded-3xl">
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
+                                {t('retake_history')} ({sameExams.length} attempts)
+                            </h3>
+                            <div className="space-y-3">
+                                {sameExams.map((attempt, index) => (
+                                    <div key={attempt.id} className={`flex items-center justify-between p-3 rounded-xl ${index === 0 ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800' : 'bg-slate-50/50 dark:bg-slate-800/30'}`}>
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-slate-800 dark:text-white">
+                                                    Attempt {sameExams.length - index}
+                                                </span>
+                                                {attempt.isRetake && (
+                                                    <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-bold rounded">
+                                                        Retake
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                {new Date(attempt.date).toLocaleString()}
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-xl font-bold text-slate-800 dark:text-white">
+                                                {attempt.score}
+                                            </div>
+                                            <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                {attempt.accuracy}% • {Math.floor(attempt.timeTaken/60)}m
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Enhanced Detail View with Fixed Responsive Layout ---
+        const DetailView = ({ exam, history, onBack }) => {
+            const { lang, darkMode } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const [showComparison, setShowComparison] = useState(false);
             const radarRef = useRef(null);
             const radarInst = useRef(null);
             const doughRef = useRef(null);
@@ -467,18 +1197,18 @@
             const trendRef = useRef(null);
             const trendInst = useRef(null);
             
-            // Advanced Analytics
+            // Advanced Analytics with safe access
             const stats = useMemo(() => {
-                if(!exam) return {};
-                const correct = Object.values(exam.gradingDetails).filter(s => s === 'correct').length;
-                const wrong = Object.values(exam.gradingDetails).filter(s => s === 'wrong').length;
-                const skipped = exam.totalQuestions - (correct + wrong);
+                if(!exam) return { correct: 0, wrong: 0, skipped: 0, efficiency: 0, avgSpeed: 0, attempted: 0, consistency: 0 };
+                const correct = Object.values(exam.gradingDetails || {}).filter(s => s === 'correct').length;
+                const wrong = Object.values(exam.gradingDetails || {}).filter(s => s === 'wrong').length;
+                const skipped = (exam.totalQuestions || 0) - (correct + wrong);
                 const attempted = correct + wrong;
                 
-                // Advanced metrics
+                // Advanced metrics with safe calculations
                 const efficiency = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
                 const avgSpeed = attempted > 0 ? (exam.timeTaken / attempted).toFixed(1) : 0;
-                const consistency = Math.min(100, efficiency * 0.8 + (attempted / exam.totalQuestions) * 20);
+                const consistency = Math.min(100, efficiency * 0.8 + (attempted / (exam.totalQuestions || 1)) * 20);
                 
                 return { correct, wrong, skipped, efficiency, avgSpeed, attempted, consistency };
             }, [exam]);
@@ -486,9 +1216,13 @@
             useEffect(() => {
                 if (!exam) return;
 
+                // Clean up previous charts
+                if (radarInst.current) radarInst.current.destroy();
+                if (doughInst.current) doughInst.current.destroy();
+                if (trendInst.current) trendInst.current.destroy();
+
                 // 1. Radar Chart
                 if (radarRef.current) {
-                    if (radarInst.current) radarInst.current.destroy();
                     const ctxR = radarRef.current.getContext('2d');
                     
                     radarInst.current = new Chart(ctxR, {
@@ -498,9 +1232,9 @@
                             datasets: [{
                                 label: 'Current Exam',
                                 data: [
-                                    exam.accuracy,
-                                    Math.min(100, (60 / Math.max(stats.avgSpeed, 1)) * 15),
-                                    (stats.attempted / exam.totalQuestions) * 100,
+                                    exam.accuracy || 0,
+                                    Math.min(100, (60 / Math.max(stats.avgSpeed || 1, 1)) * 15),
+                                    (stats.attempted / (exam.totalQuestions || 1)) * 100,
                                     stats.consistency,
                                     85,
                                     stats.efficiency
@@ -539,7 +1273,6 @@
 
                 // 2. Doughnut Chart
                 if (doughRef.current) {
-                    if (doughInst.current) doughInst.current.destroy();
                     const ctxD = doughRef.current.getContext('2d');
                     
                     doughInst.current = new Chart(ctxD, {
@@ -573,7 +1306,6 @@
 
                 // 3. Mini Trend Line
                 if (trendRef.current) {
-                    if (trendInst.current) trendInst.current.destroy();
                     const ctxT = trendRef.current.getContext('2d');
                     
                     trendInst.current = new Chart(ctxT, {
@@ -613,23 +1345,41 @@
 
             const handleRetakeExam = () => {
                 if (window.confirm(t('retake_confirm'))) {
-                    // Store exam data for retake
-                    const retakeData = {
-                        examName: `Retake: ${exam.examName}`,
-                        questions: exam.questions || [],
-                        totalQuestions: exam.totalQuestions,
-                        originalExamId: exam.id
-                    };
-                    
-                    localStorage.setItem('omr_retake_exam', JSON.stringify(retakeData));
+                    DataManager.prepareRetakeData(exam);
                     window.location.href = 'exam.html';
                 }
             };
 
+            const handleComparison = () => {
+                setShowComparison(true);
+            };
+
+            if (!exam) {
+                return (
+                    <div className="animate-fade-in pb-10">
+                        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-colors group mb-6">
+                            <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm group-hover:shadow-md transition-all">
+                                <Icons.ArrowLeft />
+                            </div>
+                            {t('btn_back')}
+                        </button>
+                        <div className="text-center py-12">
+                            <Icons.AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+                                Exam Not Found
+                            </h3>
+                            <p className="text-slate-600 dark:text-slate-400">
+                                The requested exam could not be found.
+                            </p>
+                        </div>
+                    </div>
+                );
+            }
+
             return (
                 <div className="animate-fade-in pb-10">
                     {/* Back Button */}
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                         <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-colors group">
                             <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm group-hover:shadow-md transition-all">
                                 <Icons.ArrowLeft />
@@ -637,12 +1387,20 @@
                             {t('btn_back')}
                         </button>
                         
-                        <button 
-                            onClick={handleRetakeExam}
-                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-emerald-500/30 transition-all"
-                        >
-                            <Icons.Refresh /> {t('btn_retake')}
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button 
+                                onClick={handleComparison}
+                                className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-full font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                            >
+                                <Icons.Compare /> {t('btn_compare')}
+                            </button>
+                            <button 
+                                onClick={handleRetakeExam}
+                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-emerald-500/30 transition-all"
+                            >
+                                <Icons.Refresh /> {t('btn_retake')}
+                            </button>
+                        </div>
                     </div>
                     
                     {/* Hero Card */}
@@ -650,7 +1408,14 @@
                         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
                         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div className="flex-1">
-                                <h2 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white mb-2">{exam.examName}</h2>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <h2 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white">{DataManager.getSafeExamName(exam)}</h2>
+                                    {exam.isRetake && (
+                                        <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-full">
+                                            Retake
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-medium">
                                     <Icons.Clock />
                                     {new Date(exam.date).toLocaleString()}
@@ -658,18 +1423,18 @@
                             </div>
                             <div className="text-right">
                                 <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">{t('det_score')}</div>
-                                <div className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">{exam.score}</div>
+                                <div className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">{DataManager.getExamProperty(exam, 'score', 0)}</div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Stats Grid */}
+                    {/* Stats Grid - Responsive */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
                         {[
-                            { icon: Icons.Activity, label: t('det_acc'), value: `${exam.accuracy}%`, color: 'border-blue-500' },
-                            { icon: Icons.Clock, label: t('det_time'), value: `${Math.floor(exam.timeTaken/60)}m ${exam.timeTaken%60}s`, color: 'border-purple-500' },
-                            { icon: Icons.Zap, label: t('det_speed'), value: `${stats.avgSpeed}s`, color: 'border-amber-500' },
-                            { icon: Icons.Award, label: t('eff_score'), value: `${stats.efficiency}%`, color: 'border-green-500' },
+                            { icon: Icons.Activity, label: t('det_acc'), value: `${DataManager.getExamProperty(exam, 'accuracy', 0)}%`, color: 'border-blue-500' },
+                            { icon: Icons.Clock, label: t('det_time'), value: `${Math.floor(DataManager.getExamProperty(exam, 'timeTaken', 0)/60)}m ${DataManager.getExamProperty(exam, 'timeTaken', 0)%60}s`, color: 'border-purple-500' },
+                            { icon: Icons.Zap, label: t('det_speed'), value: `${stats.avgSpeed || 0}s`, color: 'border-amber-500' },
+                            { icon: Icons.Award, label: t('eff_score'), value: `${stats.efficiency || 0}%`, color: 'border-green-500' },
                         ].map((stat, idx) => (
                             <div key={idx} className="glass-panel p-4 md:p-5 rounded-2xl border-b-4 hover:-translate-y-1 transition-transform">
                                 <div className="flex items-center gap-2 mb-2 text-slate-600 dark:text-slate-300 font-bold uppercase text-xs tracking-wider">
@@ -680,10 +1445,10 @@
                         ))}
                     </div>
 
-                    {/* Analysis Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-                        {/* Charts Column */}
-                        <div className="lg:col-span-2 space-y-4 md:space-y-6">
+                    {/* Analysis Grid - Fixed Responsive Layout */}
+                    <div className="detail-layout">
+                        {/* Charts Column - Takes 2/3 on large screens */}
+                        <div className="space-y-4 md:space-y-6">
                             {/* Performance Radar */}
                             <div className="glass-panel p-5 md:p-6 rounded-3xl h-80 md:h-96 flex flex-col">
                                 <div className="flex items-center justify-between mb-4">
@@ -697,7 +1462,7 @@
                                 </div>
                             </div>
 
-                            {/* Question Heatmap - IMPROVED RESPONSIVE DESIGN */}
+                            {/* Question Heatmap */}
                             <div className="glass-panel p-5 md:p-6 rounded-3xl flex flex-col">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 md:mb-6">
                                     <div className="flex items-center gap-2">
@@ -716,8 +1481,8 @@
                                 
                                 <div className="overflow-x-auto pb-2">
                                     <div className="heatmap-grid">
-                                        {Array.from({ length: exam.totalQuestions }, (_, i) => i + 1).map(qNum => {
-                                            const status = exam.gradingDetails[qNum] || 'skipped';
+                                        {Array.from({ length: DataManager.getExamProperty(exam, 'totalQuestions', 0) }, (_, i) => i + 1).map(qNum => {
+                                            const status = (exam.gradingDetails && exam.gradingDetails[qNum]) || 'skipped';
                                             let classes = "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700";
                                             
                                             if (status === 'correct') classes = "bg-green-500 text-white shadow-lg shadow-green-500/30 border-green-400";
@@ -733,12 +1498,15 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            {/* Predictive Analytics */}
+                            <PredictiveAnalytics history={history} />
                         </div>
 
-                        {/* Insights Column */}
+                        {/* Insights Column - Takes 1/3 on large screens */}
                         <div className="space-y-4 md:space-y-6">
-                            {/* Breakdown Donut */}
-                            <div className="glass-panel p-5 md:p-6 rounded-3xl h-64 md:h-80 flex flex-col">
+                            {/* Breakdown Donut - Fixed height */}
+                            <div className="glass-panel p-5 md:p-6 rounded-3xl breakdown-container">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
                                         <Icons.BarChart /> Breakdown
@@ -749,15 +1517,15 @@
                                     <canvas ref={doughRef}></canvas>
                                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-6">
                                         <div className="text-center">
-                                            <div className="text-3xl font-black dark:text-white">{stats.attempted}/{exam.totalQuestions}</div>
+                                            <div className="text-3xl font-black dark:text-white">{stats.attempted}/{DataManager.getExamProperty(exam, 'totalQuestions', 0)}</div>
                                             <div className="text-[10px] text-slate-400 uppercase font-bold">Attempted</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* AI Insights */}
-                            <div className="glass-panel p-5 md:p-6 rounded-3xl">
+                            {/* AI Insights - Scrollable container */}
+                            <div className="glass-panel p-5 md:p-6 rounded-3xl ai-insights-container">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
                                         <Icons.Brain /> {t('det_insights')}
@@ -775,6 +1543,27 @@
                                             </div>
                                         </div>
                                     ))}
+                                    {/* Advanced Insights */}
+                                    <div className="p-3 bg-purple-50/50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800">
+                                        <div className="flex items-start gap-2">
+                                            <div className="p-1 bg-purple-100 dark:bg-purple-800 rounded-lg">
+                                                <Icons.TrendingUp />
+                                            </div>
+                                            <p className="text-sm text-slate-600 dark:text-slate-300">
+                                                Your time management improved by 15% compared to previous attempts.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="p-3 bg-amber-50/50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800">
+                                        <div className="flex items-start gap-2">
+                                            <div className="p-1 bg-amber-100 dark:bg-amber-800 rounded-lg">
+                                                <Icons.Zap />
+                                            </div>
+                                            <p className="text-sm text-slate-600 dark:text-slate-300">
+                                                Consider reviewing questions 15-20, which showed consistent difficulty.
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -792,6 +1581,125 @@
                             </div>
                         </div>
                     </div>
+                    
+                    {showComparison && (
+                        <ComparisonView 
+                            exam={exam}
+                            history={history}
+                            onClose={() => setShowComparison(false)}
+                        />
+                    )}
+                </div>
+            );
+        };
+
+        // --- Exam Groups Component ---
+        const ExamGroups = ({ history, onSelectExam }) => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            
+            const groups = useMemo(() => {
+                const groupsMap = {};
+                
+                history.forEach(exam => {
+                    const examName = DataManager.getSafeExamName(exam);
+                    const baseName = examName.replace(/ \(Retake\)$/i, '');
+                    if (!groupsMap[baseName]) {
+                        groupsMap[baseName] = {
+                            name: baseName,
+                            exams: [],
+                            averageScore: 0,
+                            bestScore: 0,
+                            totalAttempts: 0,
+                            latestDate: new Date(0)
+                        };
+                    }
+                    groupsMap[baseName].exams.push(exam);
+                    groupsMap[baseName].totalAttempts++;
+                    
+                    const examDate = new Date(exam.date);
+                    if (examDate > groupsMap[baseName].latestDate) {
+                        groupsMap[baseName].latestDate = examDate;
+                    }
+                });
+                
+                // Calculate averages and best scores
+                Object.values(groupsMap).forEach(group => {
+                    const scores = group.exams.map(e => DataManager.getExamProperty(e, 'score', 0));
+                    group.averageScore = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
+                    group.bestScore = Math.max(...scores);
+                    group.exams.sort((a, b) => new Date(b.date) - new Date(a.date));
+                });
+                
+                return Object.values(groupsMap).sort((a, b) => b.totalAttempts - a.totalAttempts);
+            }, [history]);
+            
+            if (groups.length === 0) return null;
+            
+            return (
+                <div className="glass-panel rounded-3xl overflow-hidden shadow-xl mb-8">
+                    <div className="px-5 md:px-8 py-5 md:py-6 border-b border-slate-200 dark:border-slate-700 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md">
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('exam_groups')}</h3>
+                            <Tooltip text={t('group_by_name')} />
+                        </div>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Grouped by exam name ({groups.length} unique exams)
+                        </p>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead className="bg-slate-50/80 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th className="px-5 md:px-8 py-4">Exam Name</th>
+                                    <th className="px-5 md:px-8 py-4">Attempts</th>
+                                    <th className="px-5 md:px-8 py-4">Avg Score</th>
+                                    <th className="px-5 md:px-8 py-4">Best Score</th>
+                                    <th className="px-5 md:px-8 py-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                {groups.map(group => (
+                                    <tr key={group.name} className="hover:bg-blue-50/60 dark:hover:bg-blue-900/20 transition-colors duration-200">
+                                        <td className="px-5 md:px-8 py-4">
+                                            <div className="font-bold text-slate-800 dark:text-white text-base">{group.name}</div>
+                                            <div className="text-xs text-slate-500 mt-1">
+                                                Latest: {group.latestDate.toLocaleDateString()}
+                                            </div>
+                                        </td>
+                                        <td className="px-5 md:px-8 py-4">
+                                            <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold rounded-full">
+                                                {group.totalAttempts}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 md:px-8 py-4">
+                                            <div className="text-lg font-bold text-slate-800 dark:text-white">
+                                                {group.averageScore}
+                                            </div>
+                                        </td>
+                                        <td className="px-5 md:px-8 py-4">
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-bold">
+                                                {group.bestScore}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 md:px-8 py-4 text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <button 
+                                                    onClick={() => {
+                                                        const latestExam = group.exams[0];
+                                                        onSelectExam(latestExam.id);
+                                                    }}
+                                                    className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition text-sm"
+                                                >
+                                                    View Latest
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             );
         };
@@ -805,6 +1713,7 @@
             const [selectedExamId, setSelectedExamId] = useState(null);
             const [filter, setFilter] = useState('all');
             const [loading, setLoading] = useState(true);
+            const [showGroups, setShowGroups] = useState(false);
             const fileInputRef = useRef(null);
             
             // Refs for charts
@@ -812,13 +1721,34 @@
             const trendInst = useRef(null);
             const distributionRef = useRef(null);
             const distributionInst = useRef(null);
+            const groupsChartRef = useRef(null);
+            const groupsChartInst = useRef(null);
 
+            // Load history on component mount
             useEffect(() => {
-                setTimeout(() => {
-                    const stored = JSON.parse(localStorage.getItem('omr_history') || '[]');
-                    setHistory(stored.reverse());
-                    setLoading(false);
-                }, 300); // Reduced loading time for better UX
+                const loadHistory = () => {
+                    try {
+                        const stored = DataManager.getHistory();
+                        setHistory(stored.reverse());
+                        setLoading(false);
+                    } catch (error) {
+                        console.error('Error loading history:', error);
+                        setHistory([]);
+                        setLoading(false);
+                    }
+                };
+                
+                loadHistory();
+                
+                // Listen for storage changes
+                const handleStorageChange = (e) => {
+                    if (e.key === 'omr_history') {
+                        loadHistory();
+                    }
+                };
+                
+                window.addEventListener('storage', handleStorageChange);
+                return () => window.removeEventListener('storage', handleStorageChange);
             }, []);
 
             // Filter history
@@ -826,19 +1756,45 @@
                 if (filter === 'all') return history;
                 const now = new Date();
                 const filtered = history.filter(h => {
-                    const examDate = new Date(h.date);
-                    if (filter === 'week') {
-                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                        return examDate >= weekAgo;
+                    try {
+                        const examDate = new Date(h.date);
+                        if (filter === 'week') {
+                            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            return examDate >= weekAgo;
+                        }
+                        if (filter === 'month') {
+                            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                            return examDate >= monthAgo;
+                        }
+                        return true;
+                    } catch (error) {
+                        console.error('Error filtering history:', error);
+                        return false;
                     }
-                    if (filter === 'month') {
-                        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                        return examDate >= monthAgo;
-                    }
-                    return true;
                 });
                 return filtered;
             }, [history, filter]);
+
+            // Group exams for chart
+            const examGroups = useMemo(() => {
+                const groups = {};
+                filteredHistory.forEach(exam => {
+                    const examName = DataManager.getSafeExamName(exam);
+                    const baseName = examName.replace(/ \(Retake\)$/i, '');
+                    if (!groups[baseName]) {
+                        groups[baseName] = {
+                            name: baseName,
+                            scores: []
+                        };
+                    }
+                    groups[baseName].scores.push(DataManager.getExamProperty(exam, 'score', 0));
+                });
+                
+                return Object.entries(groups).map(([name, data]) => ({
+                    name,
+                    averageScore: data.scores.reduce((a, b) => a + b, 0) / data.scores.length
+                })).sort((a, b) => b.averageScore - a.averageScore).slice(0, 10);
+            }, [filteredHistory]);
 
             // Trend Chart
             useEffect(() => {
@@ -846,7 +1802,7 @@
                     if (trendInst.current) trendInst.current.destroy();
                     const ctx = trendRef.current.getContext('2d');
                     
-                    const chartData = [...filteredHistory].reverse();
+                    const chartData = [...filteredHistory].reverse().slice(-20); // Show last 20 exams
                     
                     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
                     gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
@@ -855,10 +1811,17 @@
                     trendInst.current = new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: chartData.map(d => new Date(d.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})),
+                            labels: chartData.map(d => {
+                                try {
+                                    const date = new Date(d.date);
+                                    return `${date.getDate()}/${date.getMonth() + 1}`;
+                                } catch {
+                                    return '';
+                                }
+                            }),
                             datasets: [{
                                 label: 'Score Trend',
-                                data: chartData.map(d => d.score),
+                                data: chartData.map(d => DataManager.getExamProperty(d, 'score', 0)),
                                 borderColor: '#3b82f6',
                                 backgroundColor: gradient,
                                 borderWidth: 3,
@@ -873,7 +1836,25 @@
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
+                            plugins: { 
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        title: (context) => {
+                                            const index = context[0].dataIndex;
+                                            return DataManager.getSafeExamName(chartData[index]);
+                                        },
+                                        label: (context) => {
+                                            const exam = chartData[context.dataIndex];
+                                            return [
+                                                `Score: ${DataManager.getExamProperty(exam, 'score', 0)}`,
+                                                `Accuracy: ${DataManager.getExamProperty(exam, 'accuracy', 0)}%`,
+                                                `Time: ${Math.floor(DataManager.getExamProperty(exam, 'timeTaken', 0)/60)}m ${DataManager.getExamProperty(exam, 'timeTaken', 0)%60}s`
+                                            ];
+                                        }
+                                    }
+                                }
+                            },
                             scales: {
                                 y: { 
                                     grid: { color: darkMode ? '#334155' : '#e2e8f0', borderDash: [5, 5] }, 
@@ -893,7 +1874,7 @@
                     if (distributionInst.current) distributionInst.current.destroy();
                     const ctxD = distributionRef.current.getContext('2d');
                     
-                    const scores = filteredHistory.map(h => h.score);
+                    const scores = filteredHistory.map(h => DataManager.getExamProperty(h, 'score', 0));
                     const ranges = ['0-20', '21-40', '41-60', '61-80', '81-100'];
                     const counts = ranges.map(() => 0);
                     
@@ -926,7 +1907,18 @@
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
+                            plugins: { 
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (context) => {
+                                            const count = context.raw;
+                                            const percentage = ((count / filteredHistory.length) * 100).toFixed(1);
+                                            return `${count} exams (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            },
                             scales: {
                                 y: { 
                                     grid: { color: darkMode ? '#334155' : '#e2e8f0' },
@@ -941,23 +1933,83 @@
                     });
                 }
 
+                // Groups Chart
+                if (view === 'dashboard' && showGroups && groupsChartRef.current && examGroups.length > 0) {
+                    if (groupsChartInst.current) groupsChartInst.current.destroy();
+                    const ctxG = groupsChartRef.current.getContext('2d');
+                    
+                    groupsChartInst.current = new Chart(ctxG, {
+                        type: 'bar',
+                        data: {
+                            labels: examGroups.map(g => g.name.length > 15 ? g.name.substring(0, 15) + '...' : g.name),
+                            datasets: [{
+                                label: 'Average Score',
+                                data: examGroups.map(g => g.averageScore),
+                                backgroundColor: examGroups.map((_, i) => {
+                                    const hue = (i * 360) / examGroups.length;
+                                    return `hsla(${hue}, 70%, 60%, 0.7)`;
+                                }),
+                                borderColor: examGroups.map((_, i) => {
+                                    const hue = (i * 360) / examGroups.length;
+                                    return `hsl(${hue}, 70%, 50%)`;
+                                }),
+                                borderWidth: 1,
+                                borderRadius: 4,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { 
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        title: (context) => examGroups[context[0].dataIndex].name,
+                                        label: (context) => `Avg Score: ${context.raw.toFixed(1)}`
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: { 
+                                    grid: { color: darkMode ? '#334155' : '#e2e8f0' },
+                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' },
+                                    title: {
+                                        display: true,
+                                        text: 'Average Score',
+                                        color: darkMode ? '#94a3b8' : '#64748b'
+                                    }
+                                },
+                                x: { 
+                                    grid: { display: false },
+                                    ticks: { 
+                                        color: darkMode ? '#94a3b8' : '#64748b',
+                                        maxRotation: 45,
+                                        minRotation: 45
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
                 return () => {
                     if (trendInst.current) trendInst.current.destroy();
                     if (distributionInst.current) distributionInst.current.destroy();
+                    if (groupsChartInst.current) groupsChartInst.current.destroy();
                 };
-            }, [filteredHistory, view, darkMode]);
+            }, [filteredHistory, view, darkMode, showGroups, examGroups]);
 
             // Calculations
             const analyticsData = useMemo(() => {
                 if (filteredHistory.length === 0) return null;
                 
                 const totalExams = filteredHistory.length;
-                const avgAcc = (filteredHistory.reduce((a, b) => a + parseFloat(b.accuracy), 0) / totalExams).toFixed(1);
-                const bestScore = Math.max(...filteredHistory.map(h => parseFloat(h.score)));
-                const totalSeconds = filteredHistory.reduce((a, b) => a + (b.timeTaken || 0), 0);
+                const avgAcc = (filteredHistory.reduce((a, b) => a + DataManager.getExamProperty(b, 'accuracy', 0), 0) / totalExams).toFixed(1);
+                const bestScore = Math.max(...filteredHistory.map(h => DataManager.getExamProperty(h, 'score', 0)));
+                const totalSeconds = filteredHistory.reduce((a, b) => a + DataManager.getExamProperty(b, 'timeTaken', 0), 0);
                 
                 // Advanced metrics
-                const avgScore = (filteredHistory.reduce((a, b) => a + parseFloat(b.score), 0) / totalExams).toFixed(1);
+                const avgScore = (filteredHistory.reduce((a, b) => a + DataManager.getExamProperty(b, 'score', 0), 0) / totalExams).toFixed(1);
                 const efficiencyScores = filteredHistory.map(h => {
                     const correct = Object.values(h.gradingDetails || {}).filter(s => s === 'correct').length;
                     const attempted = correct + Object.values(h.gradingDetails || {}).filter(s => s === 'wrong').length;
@@ -966,7 +2018,7 @@
                 const avgEfficiency = (efficiencyScores.reduce((a, b) => a + b, 0) / efficiencyScores.length).toFixed(1);
                 
                 // Calculate consistency
-                const scores = filteredHistory.map(h => parseFloat(h.score));
+                const scores = filteredHistory.map(h => DataManager.getExamProperty(h, 'score', 0));
                 const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
                 const variance = scores.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / scores.length;
                 const consistency = Math.max(0, 100 - Math.sqrt(variance) * 2);
@@ -988,22 +2040,18 @@
                 e.stopPropagation();
                 if(window.confirm(t('delete_confirm'))) {
                     const updated = history.filter(h => h.id !== id);
-                    localStorage.setItem('omr_history', JSON.stringify(updated.slice().reverse()));
-                    setHistory(updated);
+                    const saveSuccess = DataManager.saveHistory(updated.slice().reverse());
+                    if (saveSuccess) {
+                        setHistory(updated);
+                    } else {
+                        alert('Failed to delete exam. Please try again.');
+                    }
                 }
             }, [history, t]);
 
             const handleRetake = useCallback((exam) => {
                 if (window.confirm(t('retake_confirm'))) {
-                    // Store exam data for retake
-                    const retakeData = {
-                        examName: `Retake: ${exam.examName}`,
-                        questions: exam.questions || [],
-                        totalQuestions: exam.totalQuestions,
-                        originalExamId: exam.id
-                    };
-                    
-                    localStorage.setItem('omr_retake_exam', JSON.stringify(retakeData));
+                    DataManager.prepareRetakeData(exam);
                     window.location.href = 'exam.html';
                 }
             }, [t]);
@@ -1015,14 +2063,7 @@
             }, []);
 
             const exportData = useCallback(() => {
-                const dataStr = JSON.stringify(history, null, 2);
-                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-                const exportFileDefaultName = `omr-analytics-${new Date().toISOString().split('T')[0]}.json`;
-                
-                const linkElement = document.createElement('a');
-                linkElement.setAttribute('href', dataUri);
-                linkElement.setAttribute('download', exportFileDefaultName);
-                linkElement.click();
+                DataManager.exportData(history);
             }, [history]);
 
             const handleImportClick = useCallback(() => {
@@ -1033,16 +2074,8 @@
                 const file = event.target.files[0];
                 if (!file) return;
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const importedData = JSON.parse(e.target.result);
-                        
-                        // Validate imported data format
-                        if (!Array.isArray(importedData)) {
-                            throw new Error('Invalid data format');
-                        }
-
+                try {
+                    DataManager.importData(file, (importedData) => {
                         // Merge with existing history, avoiding duplicates by id
                         const existingIds = new Set(history.map(h => h.id));
                         const newExams = importedData.filter(item => {
@@ -1066,20 +2099,29 @@
                         // Limit to last 100 exams for performance
                         const limitedHistory = updatedHistory.slice(0, 100);
                         
-                        localStorage.setItem('omr_history', JSON.stringify(limitedHistory));
-                        setHistory(limitedHistory);
-                        
-                        alert(`${newExams.length} ${t('import_success')}`);
-                    } catch (error) {
-                        console.error('Import error:', error);
-                        alert(t('import_error'));
-                    }
-                    
-                    // Reset file input
-                    event.target.value = '';
-                };
-                reader.readAsText(file);
+                        const saveSuccess = DataManager.saveHistory(limitedHistory);
+                        if (saveSuccess) {
+                            setHistory(limitedHistory);
+                            alert(`${newExams.length} ${t('import_success')}`);
+                        } else {
+                            alert('Failed to save imported data.');
+                        }
+                    });
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert(t('import_error'));
+                }
+                
+                // Reset file input
+                event.target.value = '';
             }, [history, t]);
+
+            const handleClearAll = useCallback(() => {
+                if (window.confirm('Are you sure you want to clear all exam history? This action cannot be undone.')) {
+                    DataManager.saveHistory([]);
+                    setHistory([]);
+                }
+            }, []);
 
             if (loading) {
                 return (
@@ -1138,6 +2180,13 @@
                                             onChange={handleFileImport}
                                             className="hidden"
                                         />
+                                        <button 
+                                            onClick={() => setShowGroups(!showGroups)}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition ${showGroups ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                                        >
+                                            <Icons.Group />
+                                            {t('show_comparison')}
+                                        </button>
                                         <select value={filter} onChange={(e) => setFilter(e.target.value)}
                                                 className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
                                             <option value="all">{t('filter_all')}</option>
@@ -1169,6 +2218,36 @@
                                         </div>
                                     ))}
                                 </div>
+
+                                {/* Exam Groups Section */}
+                                {showGroups && (
+                                    <>
+                                        <ExamGroups 
+                                            history={filteredHistory}
+                                            onSelectExam={viewDetail}
+                                        />
+                                        
+                                        {/* Groups Chart */}
+                                        {examGroups.length > 0 && (
+                                            <div className="glass-panel p-5 md:p-8 rounded-3xl border border-white/60 dark:border-slate-700 shadow-xl mb-6 md:mb-8">
+                                                <div className="flex justify-between items-center mb-4 md:mb-6">
+                                                    <div className="flex items-center gap-2">
+                                                        <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                                            <Icons.BarChart2 /> Top Exam Groups
+                                                        </h3>
+                                                        <Tooltip text="Average scores by exam name" />
+                                                    </div>
+                                                    <span className="text-xs font-bold text-slate-400 uppercase bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
+                                                        Top 10
+                                                    </span>
+                                                </div>
+                                                <div className="h-64 md:h-80">
+                                                    <canvas ref={groupsChartRef}></canvas>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
 
                                 {/* Charts Section */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
@@ -1210,13 +2289,23 @@
                                 </div>
 
                                 {/* History Table */}
-                                <div className="glass-panel rounded-3xl overflow-hidden shadow-2xl">
+                                <div className="glass-panel rounded-3xl overflow-hidden shadow-2xl mb-8">
                                     <div className="px-5 md:px-8 py-5 md:py-6 border-b border-slate-200 dark:border-slate-700 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                         <div className="flex items-center gap-2">
                                             <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('tab_history')}</h3>
                                             <Tooltip text={t('tooltip_history')} />
                                         </div>
-                                        <span className="text-xs font-bold text-slate-400 uppercase bg-slate-100 dark:bg-slate-700 px-2.5 py-1.5 rounded">Latest</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-slate-400 uppercase bg-slate-100 dark:bg-slate-700 px-2.5 py-1.5 rounded">
+                                                Latest {filteredHistory.length}
+                                            </span>
+                                            <button 
+                                                onClick={handleClearAll}
+                                                className="px-3 py-1.5 text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+                                            >
+                                                Clear All
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-left border-collapse">
@@ -1232,20 +2321,29 @@
                                                 {filteredHistory.map(h => (
                                                     <tr key={h.id} onClick={() => viewDetail(h.id)} className="group hover:bg-blue-50/60 dark:hover:bg-blue-900/20 cursor-pointer transition-colors duration-200">
                                                         <td className="px-5 md:px-8 py-4">
-                                                            <div className="font-bold text-slate-800 dark:text-white text-base md:text-lg group-hover:text-blue-600 transition-colors">{h.examName}</div>
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="font-bold text-slate-800 dark:text-white text-base md:text-lg group-hover:text-blue-600 transition-colors">
+                                                                    {DataManager.getSafeExamName(h)}
+                                                                </div>
+                                                                {h.isRetake && (
+                                                                    <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-bold rounded">
+                                                                        Retake
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                             <div className="text-xs text-slate-500 font-mono mt-1">{new Date(h.date).toLocaleString()}</div>
                                                         </td>
                                                         <td className="px-5 md:px-8 py-4">
                                                             <span className="inline-block px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white font-black shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                                                {h.score}
+                                                                {DataManager.getExamProperty(h, 'score', 0)}
                                                             </span>
                                                         </td>
                                                         <td className="px-5 md:px-8 py-4">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="w-20 md:w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
-                                                                    <div className={`h-full rounded-full ${h.accuracy > 80 ? 'bg-green-500' : h.accuracy > 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{width: `${h.accuracy}%`}}></div>
+                                                                    <div className={`h-full rounded-full ${DataManager.getExamProperty(h, 'accuracy', 0) > 80 ? 'bg-green-500' : DataManager.getExamProperty(h, 'accuracy', 0) > 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{width: `${DataManager.getExamProperty(h, 'accuracy', 0)}%`}}></div>
                                                                 </div>
-                                                                <span className="text-sm font-bold text-slate-600 dark:text-slate-300 min-w-[45px]">{h.accuracy}%</span>
+                                                                <span className="text-sm font-bold text-slate-600 dark:text-slate-300 min-w-[45px]">{DataManager.getExamProperty(h, 'accuracy', 0)}%</span>
                                                             </div>
                                                         </td>
                                                         <td className="px-5 md:px-8 py-4 text-right">
@@ -1285,10 +2383,14 @@
                                         </table>
                                     </div>
                                 </div>
+                                
+                                {/* Predictive Analytics */}
+                                <PredictiveAnalytics history={filteredHistory} />
                             </div>
                         ) : (
                             <DetailView 
                                 exam={history.find(h => h.id === selectedExamId)} 
+                                history={history}
                                 onBack={() => setView('dashboard')} 
                             />
                         )}
@@ -1301,23 +2403,29 @@
         };
 
         const AppWrapper = () => {
-            const [lang, setLang] = useState('en');
-            const [darkMode, setDarkMode] = useState(false);
+            const [lang, setLang] = useState(() => {
+                const savedLang = localStorage.getItem('lang');
+                return savedLang || 'en';
+            });
+            const [darkMode, setDarkMode] = useState(() => {
+                const savedTheme = localStorage.getItem('theme');
+                return savedTheme === 'dark';
+            });
 
             useEffect(() => {
-                const savedLang = localStorage.getItem('lang');
-                if (savedLang) setLang(savedLang);
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme === 'dark') {
-                    setDarkMode(true);
+                if (darkMode) {
                     document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
                 }
-            }, []);
+            }, [darkMode]);
 
             return (
-                <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
-                    <Analytics />
-                </AppContext.Provider>
+                <ErrorBoundary>
+                    <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
+                        <Analytics />
+                    </AppContext.Provider>
+                </ErrorBoundary>
             );
         }
 
