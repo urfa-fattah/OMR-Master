@@ -4,7 +4,7 @@ const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  'https://cdn-icons-png.flaticon.com/512/3407/3407024.png',
+  'icon.png',
   'https://unpkg.com/react@18/umd/react.development.js',
   'https://unpkg.com/react-dom@18/umd/react-dom.development.js',
   'https://unpkg.com/@babel/standalone/babel.min.js',
@@ -134,8 +134,8 @@ self.addEventListener('push', event => {
   const data = event.data.json();
   const options = {
     body: data.body || 'New update available',
-    icon: 'https://cdn-icons-png.flaticon.com/512/3407/3407024.png',
-    badge: 'https://cdn-icons-png.flaticon.com/512/3407/3407024.png',
+    icon: 'icon.png',
+    badge: 'icon.png',
     vibrate: [100, 50, 100],
     data: {
       url: data.url || './'
