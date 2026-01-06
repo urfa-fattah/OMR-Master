@@ -738,13 +738,6 @@
                 modal_contact_title: "Contact Us",
                 modal_report_title: "Report an Issue",
                 modal_guide_title: "Usage Guidelines",
-                presets: "Quick Presets:",
-                preset_bcs: "BCS Prelim",
-                preset_med: "Medical",
-                preset_hsc: "HSC Mock",
-                preset_custom: "Custom",
-                preset_bank: "Bank Job",
-                preset_university: "University",
                 err_name_req: "Exam name is required",
                 mode_standard: "Standard",
                 mode_advanced: "Advanced",
@@ -787,7 +780,27 @@
                 clear_data: "Clear Data",
                 confirm_clear: "Are you sure?",
                 yes: "Yes",
-                no: "No"
+                no: "No",
+                see_how_to_use: "See How to Use",
+                view_details: "View Details",
+                smart_config: "Smart Configuration",
+                smart_tip: "Enter desired values for complete flexibility",
+                any_questions: "Any Number of Questions",
+                any_time: "Any Duration",
+                input_validation: "Values will be automatically validated",
+                unlimited_flexibility: "Unlimited Flexibility",
+                recommended: "Recommended",
+                set_custom: "Set Custom Values",
+                exam_type: "Exam Type",
+                exam_type_placeholder: "Select exam type or custom",
+                exam_types: {
+                    bcs: "BCS Preliminary",
+                    medical: "Medical Admission",
+                    hsc: "HSC/Bachelor",
+                    bank: "Bank Recruitment",
+                    university: "University Admission",
+                    custom: "Custom Configuration"
+                }
             },
             bn: {
                 app_name: "ওএমআর মাস্টার",
@@ -824,13 +837,6 @@
                 modal_contact_title: "যোগাযোগ করুন",
                 modal_report_title: "সমস্যা রিপোর্ট করুন",
                 modal_guide_title: "ব্যবহারের নিয়মাবলী",
-                presets: "দ্রুত প্রিসেট:",
-                preset_bcs: "বিসিএস প্রিলি",
-                preset_med: "মেডিকেল",
-                preset_hsc: "এইচএসসি মক",
-                preset_custom: "কাস্টম",
-                preset_bank: "ব্যাংক জব",
-                preset_university: "বিশ্ববিদ্যালয়",
                 err_name_req: "পরীক্ষার নাম আবশ্যক",
                 mode_standard: "স্ট্যান্ডার্ড",
                 mode_advanced: "অ্যাডভান্সড",
@@ -873,7 +879,27 @@
                 clear_data: "ডাটা ক্লিয়ার করুন",
                 confirm_clear: "আপনি কি নিশ্চিত?",
                 yes: "হ্যাঁ",
-                no: "না"
+                no: "না",
+                see_how_to_use: "ব্যবহার নির্দেশিকা দেখুন",
+                view_details: "বিস্তারিত দেখুন",
+                smart_config: "স্মার্ট কনফিগারেশন",
+                smart_tip: "সম্পূর্ণ নমনীয়তার জন্য পছন্দের মান লিখুন",
+                any_questions: "যেকোনো সংখ্যক প্রশ্ন",
+                any_time: "যেকোনো সময়সীমা",
+                input_validation: "মান স্বয়ংক্রিয়ভাবে যাচাই করা হবে",
+                unlimited_flexibility: "সীমাহীন নমনীয়তা",
+                recommended: "সুপারিশকৃত",
+                set_custom: "কাস্টম মান সেট করুন",
+                exam_type: "পরীক্ষার ধরন",
+                exam_type_placeholder: "পরীক্ষার ধরন নির্বাচন করুন",
+                exam_types: {
+                    bcs: "বিসিএস প্রিলিমিনারি",
+                    medical: "মেডিকেল ভর্তি",
+                    hsc: "এইচএসসি/স্নাতক",
+                    bank: "ব্যাংক নিয়োগ",
+                    university: "বিশ্ববিদ্যালয় ভর্তি",
+                    custom: "কাস্টম কনফিগারেশন"
+                }
             }
         };
 
@@ -907,7 +933,12 @@
             Smartphone: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>,
             Refresh: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
             Database: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
-            Shield: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Shield: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+            Users: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            Edit: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+            Type: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>,
+            Smartphone: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>,
+            Infinity: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.585 0-4.585 8 0 8 5.606 0 7.644-8 12.74-8z"/></svg>
         };
 
         const AppContext = createContext();
@@ -938,6 +969,440 @@
                         <div className="text-slate-600 dark:text-slate-300 max-h-[60vh] overflow-y-auto pr-2">
                             {children}
                         </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Smart Input Component
+        const SmartInput = ({ label, value, onChange, placeholder, type = "text", icon: Icon, required = false, name, min, max, step, className = "", disabled = false, error = null }) => {
+            const [isFocused, setIsFocused] = useState(false);
+            const hasValue = value !== '' && value !== undefined && value !== null;
+
+            return (
+                <div className={`smart-input-container ${className}`}>
+                    <label className="smart-input-label">
+                        {label}
+                    </label>
+                    <div className="relative">
+                        {Icon && (
+                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">
+                                <Icon />
+                            </div>
+                        )}
+                        <input
+                            type={type}
+                            value={value}
+                            onChange={onChange}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
+                            required={required}
+                            name={name}
+                            min={min}
+                            max={max}
+                            step={step}
+                            disabled={disabled}
+                            className={`w-full bg-white dark:bg-slate-800/50 border-2 ${isFocused ? 'border-blue-500 dark:border-blue-400' : 'border-slate-200 dark:border-slate-700'} rounded-xl ${Icon ? 'pl-10' : 'px-4'} py-3 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200 enhanced-input ${error ? 'border-red-500' : ''}`}
+                            placeholder={placeholder}
+                        />
+                    </div>
+                    {error && (
+                        <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {error}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Enhanced SmartNumberInput with validation and suggestions
+        const SmartNumberInput = ({ label, value, onChange, min = 1, max = 10000, step = 1, unit = "", suggestions = [], name, className = "" }) => {
+            const { lang } = useContext(AppContext);
+            const [inputValue, setInputValue] = useState(value);
+            const [showSuggestions, setShowSuggestions] = useState(false);
+            
+            useEffect(() => {
+                setInputValue(value);
+            }, [value]);
+            
+            const handleChange = (e) => {
+                const val = parseInt(e.target.value) || min;
+                setInputValue(val);
+                onChange({ target: { name, value: val } });
+            };
+            
+            const handleSuggestionClick = (suggestion) => {
+                setInputValue(suggestion);
+                onChange({ target: { name, value: suggestion } });
+                setShowSuggestions(false);
+            };
+            
+            const handleIncrement = () => {
+                const newValue = Math.min(inputValue + step, max);
+                setInputValue(newValue);
+                onChange({ target: { name, value: newValue } });
+            };
+            
+            const handleDecrement = () => {
+                const newValue = Math.max(inputValue - step, min);
+                setInputValue(newValue);
+                onChange({ target: { name, value: newValue } });
+            };
+
+            return (
+                <div className={`space-y-3 ${className}`}>
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                        <span>{label}</span>
+                        <span className="text-xs text-blue-600 dark:text-blue-400 font-normal">
+                            {translations[lang].any_questions}
+                        </span>
+                    </label>
+                    
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <div className="flex border-2 border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                                <button
+                                    type="button"
+                                    onClick={handleDecrement}
+                                    className="px-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                                >
+                                    −
+                                </button>
+                                <input
+                                    type="number"
+                                    name={name}
+                                    value={inputValue}
+                                    onChange={handleChange}
+                                    min={min}
+                                    max={max}
+                                    step={step}
+                                    className="w-full bg-white dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-white text-center focus:outline-none focus:border-blue-500"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleIncrement}
+                                    className="px-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                                >
+                                    +
+                                </button>
+                            </div>
+                            {unit && (
+                                <div className="absolute right-12 top-1/2 transform -translate-y-1/2 text-slate-400">
+                                    {unit}
+                                </div>
+                            )}
+                        </div>
+                        
+                        <button
+                            type="button"
+                            onClick={() => setShowSuggestions(!showSuggestions)}
+                            className="px-4 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition flex items-center gap-2"
+                        >
+                            <Icons.Type className="w-4 h-4" />
+                        </button>
+                    </div>
+                    
+                    {suggestions.length > 0 && showSuggestions && (
+                        <div className="grid grid-cols-3 gap-2 animate-fade-in">
+                            {suggestions.map((suggestion, index) => (
+                                <button
+                                    key={index}
+                                    type="button"
+                                    onClick={() => handleSuggestionClick(suggestion)}
+                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition ${inputValue === suggestion ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                                >
+                                    {suggestion}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    
+                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                        <Icons.Infinity className="w-3 h-3" />
+                        {translations[lang].input_validation}
+                    </div>
+                </div>
+            );
+        };
+
+        // Enhanced Duration Input with smart conversion
+        const SmartDurationInput = ({ label, value, onChange, name, className = "" }) => {
+            const { lang } = useContext(AppContext);
+            const [inputMode, setInputMode] = useState('minutes'); // 'minutes' or 'hours'
+            const [displayValue, setDisplayValue] = useState(value);
+            
+            useEffect(() => {
+                setDisplayValue(value);
+            }, [value]);
+            
+            const handleMinutesChange = (e) => {
+                const minutes = parseInt(e.target.value) || 1;
+                setDisplayValue(minutes);
+                onChange({ target: { name, value: minutes } });
+            };
+            
+            const handleHoursChange = (e) => {
+                const hours = parseFloat(e.target.value) || 0.5;
+                const minutes = Math.round(hours * 60);
+                setDisplayValue(minutes);
+                onChange({ target: { name, value: minutes } });
+            };
+            
+            const getHoursValue = () => {
+                return (displayValue / 60).toFixed(1);
+            };
+
+            const durationSuggestions = {
+                minutes: [5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 300],
+                hours: [0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
+            };
+
+            return (
+                <div className={`space-y-4 ${className}`}>
+                    <div className="flex justify-between items-center">
+                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                            {label}
+                        </label>
+                        <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                            <button
+                                type="button"
+                                onClick={() => setInputMode('minutes')}
+                                className={`px-3 py-1 rounded text-sm font-medium transition ${inputMode === 'minutes' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
+                            >
+                                Minutes
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setInputMode('hours')}
+                                className={`px-3 py-1 rounded text-sm font-medium transition ${inputMode === 'hours' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
+                            >
+                                Hours
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {inputMode === 'minutes' ? (
+                        <div className="space-y-3">
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <div className="flex border-2 border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleMinutesChange({ target: { value: Math.max(displayValue - 5, 1) } })}
+                                            className="px-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                                        >
+                                            −5
+                                        </button>
+                                        <input
+                                            type="number"
+                                            name={name}
+                                            value={displayValue}
+                                            onChange={handleMinutesChange}
+                                            min="1"
+                                            max="1440"
+                                            step="1"
+                                            className="w-full bg-white dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-white text-center focus:outline-none focus:border-blue-500"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => handleMinutesChange({ target: { value: Math.min(displayValue + 5, 1440) } })}
+                                            className="px-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                                        >
+                                            +5
+                                        </button>
+                                    </div>
+                                    <div className="absolute right-12 top-1/2 transform -translate-y-1/2 text-slate-400">
+                                        min
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-4 gap-2">
+                                {durationSuggestions.minutes.map((minutes) => (
+                                    <button
+                                        key={minutes}
+                                        type="button"
+                                        onClick={() => handleMinutesChange({ target: { value: minutes } })}
+                                        className={`px-2 py-1.5 rounded-lg text-xs font-medium transition ${displayValue === minutes ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                                    >
+                                        {minutes}m
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <div className="flex border-2 border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleHoursChange({ target: { value: Math.max(parseFloat(getHoursValue()) - 0.5, 0.1).toFixed(1) } })}
+                                            className="px-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                                        >
+                                            −0.5
+                                        </button>
+                                        <input
+                                            type="number"
+                                            value={getHoursValue()}
+                                            onChange={handleHoursChange}
+                                            min="0.1"
+                                            max="24"
+                                            step="0.1"
+                                            className="w-full bg-white dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-white text-center focus:outline-none focus:border-blue-500"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => handleHoursChange({ target: { value: Math.min(parseFloat(getHoursValue()) + 0.5, 24).toFixed(1) } })}
+                                            className="px-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                                        >
+                                            +0.5
+                                        </button>
+                                    </div>
+                                    <div className="absolute right-12 top-1/2 transform -translate-y-1/2 text-slate-400">
+                                        hours
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-4 gap-2">
+                                {durationSuggestions.hours.map((hours) => (
+                                    <button
+                                        key={hours}
+                                        type="button"
+                                        onClick={() => handleHoursChange({ target: { value: hours } })}
+                                        className={`px-2 py-1.5 rounded-lg text-xs font-medium transition ${parseFloat(getHoursValue()).toFixed(1) === hours.toFixed(1) ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                                    >
+                                        {hours}h
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    
+                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                        <Icons.Clock className="w-3 h-3" />
+                        {displayValue} minutes • {(displayValue / 60).toFixed(1)} hours
+                    </div>
+                </div>
+            );
+        };
+
+        // Enhanced Scoring Input with decimal support
+        const ScoringInput = ({ label, value, onChange, name, type = "positive", placeholder, step = 0.01 }) => {
+            const { lang } = useContext(AppContext);
+            const [quickValues, setQuickValues] = useState(type === 'positive' ? [1, 2, 3] : [0, 0.25, 0.5, 0.33, 1]);
+            
+            const handleQuickSelect = (quickValue) => {
+                onChange({ target: { name, value: quickValue } });
+            };
+
+            const handleInputChange = (e) => {
+                let newValue = parseFloat(e.target.value);
+                if (isNaN(newValue)) newValue = 0;
+                if (newValue < 0) newValue = 0;
+                onChange({ target: { name, value: newValue } });
+            };
+
+            return (
+                <div className="space-y-3">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 block">
+                        {label}
+                        {type === 'negative' && (
+                            <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">
+                                ({translations[lang].decimal_support})
+                            </span>
+                        )}
+                    </label>
+                    
+                    <div className="relative">
+                        <div className="flex items-center">
+                            <span className={`px-4 py-3 rounded-l-xl font-bold ${type === 'positive' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                                {type === 'positive' ? '+' : '-'}
+                            </span>
+                            <input
+                                type="number"
+                                name={name}
+                                value={value}
+                                onChange={handleInputChange}
+                                step={step}
+                                min="0"
+                                className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 border-l-0 rounded-r-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 enhanced-input"
+                                placeholder={placeholder}
+                            />
+                        </div>
+                    </div>
+                    
+                    {/* Quick Selection Buttons */}
+                    <div className="flex flex-wrap gap-2">
+                        {quickValues.map((quickValue, index) => (
+                            <button
+                                key={index}
+                                type="button"
+                                onClick={() => handleQuickSelect(quickValue)}
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${value == quickValue ? (type === 'positive' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-700' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-700') : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                            >
+                                {type === 'positive' ? '+' : '-'}{quickValue}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // Exam Type Selector Component
+        const ExamTypeSelector = ({ value, onChange, className = "" }) => {
+            const { lang } = useContext(AppContext);
+            const examTypes = [
+                { id: 'bcs', name: translations[lang].exam_types.bcs, questions: 200, duration: 120, positive: 1, negative: 0.25, options: 4 },
+                { id: 'medical', name: translations[lang].exam_types.medical, questions: 100, duration: 60, positive: 1, negative: 0.33, options: 4 },
+                { id: 'hsc', name: translations[lang].exam_types.hsc, questions: 25, duration: 25, positive: 1, negative: 0, options: 4 },
+                { id: 'bank', name: translations[lang].exam_types.bank, questions: 100, duration: 80, positive: 1, negative: 0.5, options: 5 },
+                { id: 'university', name: translations[lang].exam_types.university, questions: 50, duration: 40, positive: 1, negative: 0.2, options: 4 },
+                { id: 'custom', name: translations[lang].exam_types.custom, questions: 10, duration: 10, positive: 1, negative: 0.25, options: 4 }
+            ];
+
+            const handleExamTypeSelect = (examType) => {
+                if (examType.id === 'custom') {
+                    // For custom, just set the type but keep existing values
+                    onChange({ target: { value: examType.id } });
+                } else {
+                    // For predefined types, apply the configuration
+                    onChange({ target: { value: examType.id } });
+                    // Dispatch custom event to update the form
+                    const event = new CustomEvent('applyExamType', { detail: examType });
+                    window.dispatchEvent(event);
+                }
+            };
+
+            return (
+                <div className={`space-y-3 ${className}`}>
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                        <span>{translations[lang].exam_type}</span>
+                        <span className="text-xs text-blue-600 dark:text-blue-400">
+                            {value === 'custom' ? translations[lang].unlimited_flexibility : translations[lang].recommended}
+                        </span>
+                    </label>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {examTypes.map((examType) => (
+                            <button
+                                key={examType.id}
+                                type="button"
+                                onClick={() => handleExamTypeSelect(examType)}
+                                className={`p-3 rounded-xl border-2 transition-all ${value === examType.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600'}`}
+                            >
+                                <div className="font-medium text-slate-800 dark:text-white text-sm">{examType.name}</div>
+                                {examType.id !== 'custom' && (
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                        {examType.questions}Q • {examType.duration}m
+                                    </div>
+                                )}
+                            </button>
+                        ))}
                     </div>
                 </div>
             );
@@ -1109,200 +1574,6 @@
             );
         };
 
-        // Smart Input Component with dual input support
-        const SmartInput = ({ label, value, onChange, placeholder, type = "text", icon: Icon, required = false, name, min, max, step, className = "", disabled = false, showSlider = false, onSliderChange }) => {
-            const [isFocused, setIsFocused] = useState(false);
-            const hasValue = value !== '' && value !== undefined && value !== null;
-
-            return (
-                <div className={`smart-input-container ${className}`}>
-                    <label className="smart-input-label">
-                        {label}
-                    </label>
-                    <div className="relative">
-                        {Icon && (
-                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">
-                                <Icon />
-                            </div>
-                        )}
-                        <input
-                            type={type}
-                            value={value}
-                            onChange={onChange}
-                            onFocus={() => setIsFocused(true)}
-                            onBlur={() => setIsFocused(false)}
-                            required={required}
-                            name={name}
-                            min={min}
-                            max={max}
-                            step={step}
-                            disabled={disabled}
-                            className={`w-full bg-white dark:bg-slate-800/50 border-2 ${isFocused ? 'border-blue-500 dark:border-blue-400' : 'border-slate-200 dark:border-slate-700'} rounded-xl ${Icon ? 'pl-10' : 'px-4'} py-3 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200 enhanced-input`}
-                            placeholder={placeholder}
-                        />
-                    </div>
-                    
-                    {showSlider && onSliderChange && (
-                        <div className="mt-4">
-                            <input
-                                type="range"
-                                min={min}
-                                max={max}
-                                step={step}
-                                value={value}
-                                onChange={onSliderChange}
-                                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer"
-                            />
-                            <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                <span>{min}</span>
-                                <span>{Math.round((max - min) / 2)}</span>
-                                <span>{max}</span>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        };
-
-        // Enhanced SmartSlider with number input
-        const SmartSliderWithInput = ({ label, value, onChange, min, max, step = 1, unit = "", showValue = true, className = "", decimal = false }) => {
-            const [inputMode, setInputMode] = useState('slider'); // 'slider' or 'input'
-            const [tempValue, setTempValue] = useState(value);
-            
-            useEffect(() => {
-                setTempValue(value);
-            }, [value]);
-            
-            const handleInputChange = (e) => {
-                const newValue = decimal ? parseFloat(e.target.value) : parseInt(e.target.value);
-                if (newValue >= min && newValue <= max) {
-                    setTempValue(newValue);
-                    onChange({ target: { value: newValue } });
-                }
-            };
-            
-            const handleSliderChange = (e) => {
-                const newValue = decimal ? parseFloat(e.target.value) : parseInt(e.target.value);
-                setTempValue(newValue);
-                onChange({ target: { value: newValue } });
-            };
-            
-            const toggleInputMode = () => {
-                setInputMode(inputMode === 'slider' ? 'input' : 'slider');
-            };
-
-            return (
-                <div className={`space-y-4 ${className}`}>
-                    <div className="flex justify-between items-center">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                            {label}
-                            <button 
-                                onClick={toggleInputMode}
-                                type="button"
-                                className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                            >
-                                {inputMode === 'slider' ? translations[useContext(AppContext).lang].enter_manually : translations[useContext(AppContext).lang].use_slider}
-                            </button>
-                        </label>
-                        {showValue && (
-                            <div className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-lg font-bold flex items-center gap-2">
-                                <span>{tempValue}{unit}</span>
-                            </div>
-                        )}
-                    </div>
-                    
-                    {inputMode === 'slider' ? (
-                        <>
-                            <input
-                                type="range"
-                                min={min}
-                                max={max}
-                                step={step}
-                                value={tempValue}
-                                onChange={handleSliderChange}
-                                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer"
-                            />
-                            <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
-                                <span>{min}{unit}</span>
-                                <span>{Math.round((max - min) / 2)}{unit}</span>
-                                <span>{max}{unit}</span>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="relative">
-                            <input
-                                type="number"
-                                min={min}
-                                max={max}
-                                step={step}
-                                value={tempValue}
-                                onChange={handleInputChange}
-                                className="w-full bg-white dark:bg-slate-800 border-2 border-blue-500 dark:border-blue-400 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none enhanced-input"
-                            />
-                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400">
-                                {unit}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        };
-
-        // Enhanced Scoring Input with decimal support
-        const ScoringInput = ({ label, value, onChange, name, type = "positive", placeholder, step = 0.01 }) => {
-            const { lang } = useContext(AppContext);
-            const [quickValues, setQuickValues] = useState(type === 'positive' ? [1, 2, 3] : [0, 0.25, 0.5, 0.33, 1]);
-            
-            const handleQuickSelect = (quickValue) => {
-                onChange({ target: { name, value: quickValue } });
-            };
-
-            return (
-                <div className="space-y-3">
-                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 block">
-                        {label}
-                        {type === 'negative' && (
-                            <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">
-                                ({translations[lang].decimal_support})
-                            </span>
-                        )}
-                    </label>
-                    
-                    <div className="relative">
-                        <div className="flex items-center">
-                            <span className={`px-4 py-3 rounded-l-xl font-bold ${type === 'positive' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
-                                {type === 'positive' ? '+' : '-'}
-                            </span>
-                            <input
-                                type="number"
-                                name={name}
-                                value={value}
-                                onChange={onChange}
-                                step={step}
-                                min="0"
-                                className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 border-l-0 rounded-r-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 enhanced-input"
-                                placeholder={placeholder}
-                            />
-                        </div>
-                    </div>
-                    
-                    {/* Quick Selection Buttons */}
-                    <div className="flex flex-wrap gap-2">
-                        {quickValues.map((quickValue, index) => (
-                            <button
-                                key={index}
-                                type="button"
-                                onClick={() => handleQuickSelect(quickValue)}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${value == quickValue ? (type === 'positive' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-700' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-700') : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
-                            >
-                                {type === 'positive' ? '+' : '-'}{quickValue}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            );
-        };
-
         // PWA Status Component
         const PWAStatus = () => {
             const [isStandalone, setIsStandalone] = useState(false);
@@ -1383,18 +1654,15 @@
             const [showActions, setShowActions] = useState(false);
             const [showPWAModal, setShowPWAModal] = useState(false);
 
-            const quickPresets = [
-                { name: 'BCS', questions: 200, duration: 120, positive: 1, negative: 0.25 },
-                { name: 'Medical', questions: 100, duration: 60, positive: 1, negative: 0.33 },
-                { name: 'Bank', questions: 100, duration: 80, positive: 1, negative: 0.5 },
-                { name: 'HSC', questions: 25, duration: 25, positive: 1, negative: 0 },
+            const quickActions = [
+                { name: 'Clear Session', icon: Icons.Refresh, action: () => {
+                    localStorage.removeItem('omr_current_session');
+                    window.location.reload();
+                }},
+                { name: 'View Analytics', icon: Icons.BarChart, action: () => window.location.href = 'analytics.html'},
+                { name: 'Guidelines', icon: Icons.Book, action: () => window.location.href = 'guideline.html'},
+                { name: 'PWA Settings', icon: Icons.Settings, action: () => setShowPWAModal(true)}
             ];
-
-            const applyQuickPreset = (preset) => {
-                const event = new CustomEvent('applyPreset', { detail: preset });
-                window.dispatchEvent(event);
-                setShowActions(false);
-            };
 
             return (
                 <div className="fixed bottom-4 left-4 z-40">
@@ -1409,29 +1677,19 @@
                         <div className="absolute bottom-16 left-0 bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-4 min-w-[200px] animate-pop-in">
                             <h4 className="font-bold text-slate-800 dark:text-white mb-3">{t('quick_actions')}</h4>
                             <div className="space-y-2">
-                                {quickPresets.map((preset, index) => (
+                                {quickActions.map((action, index) => (
                                     <button
                                         key={index}
-                                        onClick={() => applyQuickPreset(preset)}
-                                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-sm text-slate-700 dark:text-slate-300"
+                                        onClick={() => {
+                                            action.action();
+                                            setShowActions(false);
+                                        }}
+                                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-2"
                                     >
-                                        <div className="font-medium">{preset.name}</div>
-                                        <div className="text-xs text-slate-500 dark:text-slate-400">
-                                            {preset.questions}Q, {preset.duration}min
-                                        </div>
+                                        <action.icon className="w-4 h-4" />
+                                        {action.name}
                                     </button>
                                 ))}
-                                <hr className="border-slate-200 dark:border-slate-700 my-2" />
-                                <button
-                                    onClick={() => {
-                                        setShowActions(false);
-                                        setShowPWAModal(true);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-2"
-                                >
-                                    <Icons.Settings className="w-4 h-4" />
-                                    PWA Settings
-                                </button>
                             </div>
                         </div>
                     )}
@@ -1488,7 +1746,7 @@
             // Secondary navigation links
             const secondaryLinks = [
                 { name: t('about'), icon: Icons.Info, href: 'about.html' },
-                { name: t('guideline'), icon: Icons.Book, href: 'guidelines.html' },
+                { name: t('guideline'), icon: Icons.Book, href: 'guideline.html' },
                 { name: t('report'), icon: Icons.Flag, href: 'report.html' },
                 { name: t('contact'), icon: Icons.Mail, href: 'contact.html' },
                 { name: t('donation'), icon: Icons.Heart, href: 'donate.html' },
@@ -1600,8 +1858,8 @@
                             <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
                                 <div className="flex items-center gap-3">
                                     <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
-                                        <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
-                                        Urfa Hasan Fattah
+                                        <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UR</span>
+                                        Urfa Hasan Fattah & Rifat
                                     </div>
                                     <div className="flex items-center gap-2">
                                         {isOnline ? (
@@ -1617,7 +1875,7 @@
                                 
                                 <div className="text-center">
                                     <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
-                                        {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {currentYear} {t('footer_rights')}
+                                        {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah & Rifatuzzaman Rifat</span>. &copy; {currentYear} {t('footer_rights')}
                                     </p>
                                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                                         {t('data_saved')} • PWA Enabled
@@ -1663,13 +1921,15 @@
             const [showPWAModal, setShowPWAModal] = useState(false);
             const [isStandalone, setIsStandalone] = useState(false);
             const [configMode, setConfigMode] = useState('standard');
+            const [examType, setExamType] = useState('custom');
+            const [errors, setErrors] = useState({});
             
-            // Enhanced Config with decimal support
+            // Enhanced Config with unlimited flexibility
             const initialConfig = {
                 examName: '', 
-                questionCount: 50, 
+                questionCount: 10, 
                 optionsCount: 4, 
-                duration: 60,
+                duration: 5,
                 positiveMarks: 1, 
                 negativeMarks: 0.25, 
                 pdfLink: '',
@@ -1682,40 +1942,6 @@
             
             const [config, setConfig] = useState(initialConfig);
 
-            // Enhanced Presets with decimal scoring
-            const presets = [
-                { 
-                    id: 'bcs', 
-                    name: t('preset_bcs'), 
-                    desc: '200Q • 120M • -0.25',
-                    conf: { questionCount: 200, duration: 120, positiveMarks: 1, negativeMarks: 0.25, optionsCount: 4 } 
-                },
-                { 
-                    id: 'med', 
-                    name: t('preset_med'), 
-                    desc: '100Q • 60M • -0.33',
-                    conf: { questionCount: 100, duration: 60, positiveMarks: 1, negativeMarks: 0.33, optionsCount: 4 } 
-                },
-                { 
-                    id: 'hsc', 
-                    name: t('preset_hsc'), 
-                    desc: '25Q • 25M • -0',
-                    conf: { questionCount: 25, duration: 25, positiveMarks: 1, negativeMarks: 0, optionsCount: 4 } 
-                },
-                { 
-                    id: 'bank', 
-                    name: t('preset_bank'), 
-                    desc: '100Q • 80M • -0.5',
-                    conf: { questionCount: 100, duration: 80, positiveMarks: 1, negativeMarks: 0.5, optionsCount: 5 } 
-                },
-                { 
-                    id: 'university', 
-                    name: t('preset_university'), 
-                    desc: '50Q • 40M • -0.2',
-                    conf: { questionCount: 50, duration: 40, positiveMarks: 1, negativeMarks: 0.2, optionsCount: 4 } 
-                }
-            ];
-
             const [stats, setStats] = useState({ total: 0, avgScore: 0, lastExam: 'Never' });
 
             // Calculate derived metrics
@@ -1724,7 +1950,10 @@
                 maxScore: config.questionCount * config.positiveMarks,
                 passingScore: Math.ceil(config.questionCount * 0.33 * config.positiveMarks),
                 questionDensity: config.duration ? (config.questionCount / config.duration).toFixed(1) : 0,
-                negativeImpact: (config.negativeMarks / config.positiveMarks).toFixed(2)
+                negativeImpact: (config.negativeMarks / config.positiveMarks).toFixed(2),
+                totalTimeFormatted: config.duration >= 60 ? 
+                    `${Math.floor(config.duration / 60)}h ${config.duration % 60}m` : 
+                    `${config.duration}m`
             };
 
             useEffect(() => {
@@ -1758,33 +1987,131 @@
                 // Set dark mode from context
                 setConfig(prev => ({ ...prev, darkMode }));
 
-                // Listen for preset application
-                const handleApplyPreset = (e) => {
-                    setConfig(prev => ({ ...prev, ...e.detail }));
+                // Listen for exam type application
+                const handleApplyExamType = (e) => {
+                    const examType = e.detail;
+                    setConfig(prev => ({
+                        ...prev,
+                        questionCount: examType.questions,
+                        duration: examType.duration,
+                        positiveMarks: examType.positive,
+                        negativeMarks: examType.negative,
+                        optionsCount: examType.options
+                    }));
                 };
                 
-                window.addEventListener('applyPreset', handleApplyPreset);
+                window.addEventListener('applyExamType', handleApplyExamType);
                 
-                return () => window.removeEventListener('applyPreset', handleApplyPreset);
+                return () => window.removeEventListener('applyExamType', handleApplyExamType);
             }, []);
+
+            // Enhanced validation
+            const validateField = (name, value) => {
+                const newErrors = { ...errors };
+                
+                switch (name) {
+                    case 'examName':
+                        if (!value.trim()) {
+                            newErrors.examName = t('err_name_req');
+                        } else if (value.length > 100) {
+                            newErrors.examName = 'Exam name too long (max 100 characters)';
+                        } else {
+                            delete newErrors.examName;
+                        }
+                        break;
+                        
+                    case 'questionCount':
+                        if (value < 1) {
+                            newErrors.questionCount = 'Minimum 1 question required';
+                        } else if (value > 10000) {
+                            newErrors.questionCount = 'Maximum 10000 questions allowed';
+                        } else {
+                            delete newErrors.questionCount;
+                        }
+                        break;
+                        
+                    case 'duration':
+                        if (value < 1) {
+                            newErrors.duration = 'Minimum 1 minute required';
+                        } else if (value > 1440) {
+                            newErrors.duration = 'Maximum 24 hours (1440 minutes) allowed';
+                        } else {
+                            delete newErrors.duration;
+                        }
+                        break;
+                        
+                    case 'positiveMarks':
+                        if (value < 0) {
+                            newErrors.positiveMarks = 'Positive marks cannot be negative';
+                        } else if (value > 100) {
+                            newErrors.positiveMarks = 'Maximum 100 marks per question';
+                        } else {
+                            delete newErrors.positiveMarks;
+                        }
+                        break;
+                        
+                    case 'negativeMarks':
+                        if (value < 0) {
+                            newErrors.negativeMarks = 'Negative marks cannot be negative';
+                        } else if (value > 100) {
+                            newErrors.negativeMarks = 'Maximum 100 marks deduction per question';
+                        } else {
+                            delete newErrors.negativeMarks;
+                        }
+                        break;
+                }
+                
+                setErrors(newErrors);
+                return Object.keys(newErrors).length === 0;
+            };
 
             const handleChange = (e) => {
                 const { name, value, type } = e.target;
+                let processedValue = value;
+                
+                // Handle number inputs
+                if (name === 'questionCount' || name === 'duration' || name === 'optionsCount') {
+                    processedValue = parseInt(value) || 1;
+                    if (processedValue < 1) processedValue = 1;
+                }
+                
+                // Handle decimal scoring inputs
+                if (name === 'positiveMarks' || name === 'negativeMarks') {
+                    processedValue = parseFloat(value) || 0;
+                    if (processedValue < 0) processedValue = 0;
+                }
+                
+                // Handle text/URL inputs
+                if (name === 'examName' || name === 'pdfLink') {
+                    processedValue = value;
+                }
+                
                 setConfig(prev => ({
                     ...prev,
-                    [name]: type === 'checkbox' ? e.target.checked : 
-                            ['examName', 'pdfLink'].includes(name) ? value : 
-                            parseFloat(value) || 0
+                    [name]: type === 'checkbox' ? e.target.checked : processedValue
                 }));
-            };
-
-            const applyPreset = (pConf) => {
-                setConfig(prev => ({ ...prev, ...pConf }));
+                
+                // Validate field
+                validateField(name, processedValue);
             };
 
             const startExam = (e) => {
                 e.preventDefault();
-                if(!config.examName.trim()) return;
+                
+                // Validate all fields
+                const fieldsToValidate = ['examName', 'questionCount', 'duration', 'positiveMarks', 'negativeMarks'];
+                let isValid = true;
+                
+                fieldsToValidate.forEach(field => {
+                    if (!validateField(field, config[field])) {
+                        isValid = false;
+                    }
+                });
+                
+                if (!isValid) {
+                    alert('Please fix the errors in the form');
+                    return;
+                }
                 
                 const newSession = {
                     config,
@@ -1901,7 +2228,7 @@
                         </div>
 
                         {/* Stats Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
                             <div className="glass-panel p-6 rounded-2xl flex flex-col justify-center items-center text-center animate-slide-up hover:shadow-lg transition-all duration-300 advanced-card">
                                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">
                                     <Icons.BarChart className="w-4 h-4" /> {t('exams_taken')}
@@ -1914,9 +2241,17 @@
                                 </div>
                                 <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.avgScore}</div>
                             </div>
-                            <div className="glass-panel p-6 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white flex flex-col justify-center items-center text-center shadow-lg shadow-blue-500/30 animate-slide-up cursor-pointer hover:scale-105 transition duration-300 advanced-card" onClick={() => window.location.href='analytics.html'} style={{animationDelay: '0.2s'}}>
-                                <div className="text-white/80 text-sm font-medium mb-1">{t('analytics')}</div>
-                                <div className="text-sm font-bold flex items-center gap-1 animate-bounce-subtle">View Details <Icons.ChevronRight /></div>
+                            <div className="glass-panel p-6 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 text-white flex flex-col justify-center items-center text-center shadow-lg shadow-purple-500/30 animate-slide-up cursor-pointer hover:scale-105 transition duration-300 advanced-card" onClick={() => window.location.href='guideline.html'} style={{animationDelay: '0.2s'}}>
+                                <div className="text-white/80 text-sm font-medium mb-1">{t('see_how_to_use')}</div>
+                                <div className="text-sm font-bold flex items-center gap-1 animate-bounce-subtle">
+                                    <Icons.Book className="w-4 h-4" /> View Guide
+                                </div>
+                            </div>
+                            <div className="glass-panel p-6 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white flex flex-col justify-center items-center text-center shadow-lg shadow-blue-500/30 animate-slide-up cursor-pointer hover:scale-105 transition duration-300 advanced-card" onClick={() => window.location.href='analytics.html'} style={{animationDelay: '0.3s'}}>
+                                <div className="text-white/80 text-sm font-medium mb-1">{t('view_details')}</div>
+                                <div className="text-sm font-bold flex items-center gap-1 animate-bounce-subtle">
+                                    <Icons.ChevronRight /> {t('analytics')}
+                                </div>
                             </div>
                         </div>
 
@@ -1940,65 +2275,38 @@
                             </div>
                         )}
 
-                        {/* Configuration Mode Toggle */}
-                        <div className="mb-6 flex justify-center">
-                            <div className="inline-flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                                <button
-                                    onClick={() => setConfigMode('standard')}
-                                    className={`px-6 py-2 rounded-lg font-bold transition ${configMode === 'standard' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
-                                >
-                                    {t('mode_standard')}
-                                </button>
-                                <button
-                                    onClick={() => setConfigMode('advanced')}
-                                    className={`px-6 py-2 rounded-lg font-bold transition ${configMode === 'advanced' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
-                                >
-                                    {t('mode_advanced')}
-                                </button>
-                            </div>
+                        {/* Smart Configuration Header */}
+                        <div className="mb-8 text-center">
+                            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('smart_config')}</h2>
+                            <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                                {t('smart_tip')}
+                            </p>
                         </div>
 
                         {/* Main Configuration Form */}
                         <div className="glass-panel rounded-3xl shadow-2xl overflow-hidden animate-slide-up mb-10 border border-white/60 dark:border-slate-700 advanced-card">
                             {/* Form Header */}
                             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-900/50 border-b border-white/50 dark:border-slate-700 p-6 sm:px-8">
-                                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                                    <div className="flex items-start gap-4">
-                                        <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 text-white rounded-xl shadow-lg">
-                                            <Icons.Settings className="w-6 h-6" />
-                                        </div>
-                                        <div>
-                                            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">{t('new_config')}</h2>
-                                            <p className="text-sm text-slate-500 dark:text-slate-400">{t('config_sub')}</p>
-                                        </div>
+                                <div className="flex items-start gap-4">
+                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 text-white rounded-xl shadow-lg">
+                                        <Icons.Settings className="w-6 h-6" />
                                     </div>
-                                    
-                                    {/* Quick Presets */}
-                                    <div className="lg:w-2/3">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <span className="text-sm font-bold text-slate-400 uppercase">{t('presets')}</span>
-                                            <div className="h-px flex-grow bg-slate-200 dark:bg-slate-700"></div>
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            {presets.map(p => (
-                                                <button 
-                                                    key={p.id} 
-                                                    type="button" 
-                                                    onClick={() => applyPreset(p.conf)}
-                                                    className={`px-4 py-2 rounded-lg border transition-all ${config.questionCount === p.conf.questionCount && config.duration === p.conf.duration ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-blue-300 dark:hover:border-blue-600'}`}
-                                                >
-                                                    <div className="font-bold text-sm">{p.name}</div>
-                                                    <div className="text-xs opacity-80">{p.desc}</div>
-                                                </button>
-                                            ))}
-                                        </div>
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">{t('new_config')}</h2>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">{t('config_sub')}</p>
                                     </div>
                                 </div>
                             </div>
 
                             <form onSubmit={startExam} className="p-6 sm:p-8 space-y-8">
                                 
-                                {/* 1. Exam Name Input */}
+                                {/* 1. Exam Type Selector */}
+                                <ExamTypeSelector
+                                    value={examType}
+                                    onChange={(e) => setExamType(e.target.value)}
+                                />
+
+                                {/* 2. Exam Name Input */}
                                 <SmartInput
                                     label={t('lbl_exam_name')}
                                     name="examName"
@@ -2007,38 +2315,41 @@
                                     placeholder={t('placeholder_exam')}
                                     icon={Icons.FileText}
                                     required={true}
+                                    error={errors.examName}
                                 />
 
-                                {/* 2. Enhanced Configuration Grid with Dual Inputs */}
+                                {/* 3. Enhanced Configuration Grid */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    {/* Left Column */}
+                                    {/* Left Column - Questions & Duration */}
                                     <div className="space-y-8">
-                                        {/* Questions Input with Slider */}
+                                        {/* Smart Questions Input */}
                                         <div className="p-6 rounded-2xl bg-white/50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700">
-                                            <SmartSliderWithInput
+                                            <SmartNumberInput
                                                 label={t('lbl_questions')}
                                                 value={config.questionCount}
                                                 onChange={handleChange}
                                                 min={1}
-                                                max={200}
+                                                max={10000}
                                                 step={1}
-                                                unit=""
                                                 name="questionCount"
+                                                suggestions={[1, 10, 25, 50, 100, 200, 500, 1000]}
                                             />
+                                            {errors.questionCount && (
+                                                <div className="text-red-500 text-sm mt-2">{errors.questionCount}</div>
+                                            )}
                                         </div>
 
-                                        {/* Duration Input with Slider */}
+                                        {/* Smart Duration Input */}
                                         <div className="p-6 rounded-2xl bg-white/50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700">
-                                            <SmartSliderWithInput
+                                            <SmartDurationInput
                                                 label={t('lbl_duration')}
                                                 value={config.duration}
                                                 onChange={handleChange}
-                                                min={5}
-                                                max={180}
-                                                step={5}
-                                                unit="m"
                                                 name="duration"
                                             />
+                                            {errors.duration && (
+                                                <div className="text-red-500 text-sm mt-2">{errors.duration}</div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -2048,9 +2359,6 @@
                                         <div className="p-6 rounded-2xl bg-white/50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700">
                                             <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
                                                 <Icons.Calculator /> {t('scoring_system')}
-                                                <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
-                                                    ({t('decimal_support')})
-                                                </span>
                                             </h3>
                                             <div className="grid grid-cols-2 gap-6">
                                                 <ScoringInput
@@ -2073,15 +2381,15 @@
                                             
                                             {/* Scoring Impact Preview */}
                                             <div className="mt-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                                                <div className="text-sm text-slate-600 dark:text-slate-400 mb-2">Scoring Impact:</div>
+                                                <div className="text-sm text-slate-600 dark:text-slate-400 mb-2">Scoring Impact Preview</div>
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                                                        <div className="text-xs text-slate-500 dark:text-slate-400">Correct Answer</div>
-                                                        <div className="text-lg font-bold text-green-600 dark:text-green-400">+{config.positiveMarks}</div>
+                                                        <div className="text-xs text-slate-500 dark:text-slate-400">For {config.questionCount} correct</div>
+                                                        <div className="text-lg font-bold text-green-600 dark:text-green-400">+{(config.questionCount * config.positiveMarks).toFixed(1)}</div>
                                                     </div>
                                                     <div className="text-center p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                                                        <div className="text-xs text-slate-500 dark:text-slate-400">Wrong Answer</div>
-                                                        <div className="text-lg font-bold text-red-600 dark:text-red-400">-{config.negativeMarks}</div>
+                                                        <div className="text-xs text-slate-500 dark:text-slate-400">Each wrong cancels</div>
+                                                        <div className="text-lg font-bold text-red-600 dark:text-red-400">{config.positiveMarks > 0 ? Math.round(config.positiveMarks / config.negativeMarks) : '∞'} correct</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -2091,7 +2399,7 @@
                                         <div className="p-6 rounded-2xl bg-white/50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700">
                                             <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">{t('lbl_options')}</h3>
                                             <div className="grid grid-cols-3 gap-2">
-                                                {[4, 5, 6].map(num => (
+                                                {[2, 3, 4, 5, 6].map(num => (
                                                     <button
                                                         key={num}
                                                         type="button"
@@ -2109,7 +2417,7 @@
                                     </div>
                                 </div>
 
-                                {/* 3. PDF Link Input */}
+                                {/* 4. PDF Link Input */}
                                 <SmartInput
                                     label={t('lbl_pdf')}
                                     name="pdfLink"
@@ -2120,7 +2428,7 @@
                                     type="url"
                                 />
 
-                                {/* 4. Advanced Settings Toggle */}
+                                {/* 5. Advanced Settings Toggle */}
                                 <div className="flex justify-center">
                                     <button
                                         type="button"
@@ -2132,7 +2440,7 @@
                                     </button>
                                 </div>
 
-                                {/* 5. Advanced Settings Section */}
+                                {/* 6. Advanced Settings Section */}
                                 {showAdvanced && (
                                     <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 animate-fade-in">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2200,7 +2508,7 @@
                                     </div>
                                 )}
 
-                                {/* 6. Enhanced Live Preview Section */}
+                                {/* 7. Enhanced Live Preview Section */}
                                 <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800">
                                     <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
                                         <Icons.BarChart /> {t('preview')}
@@ -2209,9 +2517,9 @@
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         <div className="text-center p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
                                             <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{t('total_time')}</div>
-                                            <div className="text-xl font-bold text-blue-600 dark:text-blue-400">{config.duration}m</div>
+                                            <div className="text-xl font-bold text-blue-600 dark:text-blue-400">{calculatedMetrics.totalTimeFormatted}</div>
                                             <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                {config.questionCount} questions
+                                                {config.duration} minutes
                                             </div>
                                         </div>
                                         <div className="text-center p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
@@ -2248,7 +2556,7 @@
                                     </div>
                                 </div>
 
-                                {/* 7. Helpful Tips */}
+                                {/* 8. Helpful Tips */}
                                 <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/10 dark:to-cyan-900/10 rounded-2xl border border-blue-100 dark:border-blue-800">
                                     <div className="flex items-center gap-2 mb-3">
                                         <Icons.Info className="w-5 h-5 text-blue-500" />
@@ -2274,32 +2582,34 @@
                                     </div>
                                 </div>
 
-                                {/* 8. Submit Button */}
+                                {/* 9. Submit Button */}
                                 <div className="relative">
                                     <button 
                                         type="submit" 
-                                        disabled={!config.examName.trim()}
-                                        className={`w-full py-5 rounded-xl shadow-xl transform transition-all duration-300 flex items-center justify-center gap-3 overflow-hidden relative group ${!config.examName.trim() ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white shadow-blue-500/30 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/40'}`}
+                                        disabled={!config.examName.trim() || Object.keys(errors).length > 0}
+                                        className={`w-full py-5 rounded-xl shadow-xl transform transition-all duration-300 flex items-center justify-center gap-3 overflow-hidden relative group ${!config.examName.trim() || Object.keys(errors).length > 0 ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white shadow-blue-500/30 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/40'}`}
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                                         <span className="relative z-10 flex items-center gap-3 text-lg font-bold">
-                                            {config.examName.trim() ? (
+                                            {config.examName.trim() && Object.keys(errors).length === 0 ? (
                                                 <>
                                                     <Icons.Play className="w-6 h-6" />
                                                     {t('btn_start')}
-                                                    <span className="text-sm font-normal opacity-90">({config.questionCount} questions, {config.duration} minutes)</span>
+                                                    <span className="text-sm font-normal opacity-90">({config.questionCount} questions, {calculatedMetrics.totalTimeFormatted})</span>
                                                 </>
                                             ) : (
-                                                <span className="text-sm uppercase tracking-widest">{t('err_name_req')}</span>
+                                                <span className="text-sm uppercase tracking-widest">
+                                                    {Object.keys(errors).length > 0 ? 'Fix errors to continue' : t('err_name_req')}
+                                                </span>
                                             )}
                                         </span>
                                     </button>
                                     
-                                    {config.examName.trim() && (
+                                    {config.examName.trim() && Object.keys(errors).length === 0 && (
                                         <div className="mt-3 text-center text-sm text-slate-500 dark:text-slate-400 animate-fade-in">
                                             {lang === 'en' 
-                                                ? `Max score: ${calculatedMetrics.maxScore} • Passing: ${calculatedMetrics.passingScore}+ • 4 wrong answers cancel 1 correct`
-                                                : `সর্বোচ্চ স্কোর: ${calculatedMetrics.maxScore} • পাসিং: ${calculatedMetrics.passingScore}+ • ৪টি ভুল উত্তর ১টি সঠিক উত্তর বাতিল করে`
+                                                ? `Max score: ${calculatedMetrics.maxScore} • Passing: ${calculatedMetrics.passingScore}+ • Time per question: ${calculatedMetrics.timePerQuestion}s`
+                                                : `সর্বোচ্চ স্কোর: ${calculatedMetrics.maxScore} • পাসিং: ${calculatedMetrics.passingScore}+ • প্রতি প্রশ্নে সময়: ${calculatedMetrics.timePerQuestion}s`
                                             }
                                         </div>
                                     )}
