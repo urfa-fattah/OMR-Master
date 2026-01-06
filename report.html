@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Report Issues - OMR Master Pro</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="OMR Master Pro">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="OMR Master">
+    <meta name="description" content="Report issues or provide feedback for OMR Master Pro application">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#2563eb">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="msapplication-config" content="none">
+    
+    <!-- Demo Icon Set (Using Flaticon as placeholder) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
+    <link rel="shortcut icon" href="icon.png">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json" id="manifestLink">
+    
+    <!-- Splash Screens -->
+    <link rel="apple-touch-startup-image" href="icon.png">
+    
+    <!-- React & Libraries -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Installation Prompt -->
+    <script>
+        // PWA Installation
+        let deferredPrompt;
+        let isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                          window.navigator.standalone ||
+                          document.referrer.includes('android-app://');
+        
+        // Enhanced beforeinstallprompt handler
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('beforeinstallprompt event fired');
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Only show install button if not already installed
+            if (!isStandalone && !localStorage.getItem('pwa-install-dismissed')) {
+                setTimeout(() => {
+                    showInstallPromotion();
+                }, 3000);
+            }
+            
+            // Update UI
+            updatePWAStatus();
+        });
+
+        // Listen for app installed event
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('PWA was installed');
+            isStandalone = true;
+            updatePWAStatus();
+            hideInstallPromotion();
+            showToast('App installed successfully!', 'success');
+        });
+
+        function showInstallPromotion() {
+            // Remove existing install button if any
+            const existingBtn = document.getElementById('installBtn');
+            if (existingBtn) existingBtn.remove();
+            
+            const installBtn = document.createElement('div');
+            installBtn.id = 'installBtn';
+            installBtn.innerHTML = `
+                <div class="fixed bottom-20 right-4 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce cursor-pointer hover:scale-105 transition-transform duration-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <div>
+                        <span class="font-bold">Install App</span>
+                        <p class="text-xs opacity-90">For better experience</p>
+                    </div>
+                    <button id="dismissInstall" class="ml-2 text-white/70 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(installBtn);
+            
+            // Install button click
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`User ${outcome} the install prompt`);
+                    if (outcome === 'accepted') {
+                        hideInstallPromotion();
+                    }
+                    deferredPrompt = null;
+                }
+            });
+            
+            // Dismiss button
+            document.getElementById('dismissInstall').addEventListener('click', (e) => {
+                e.stopPropagation();
+                hideInstallPromotion();
+                localStorage.setItem('pwa-install-dismissed', 'true');
+                setTimeout(() => localStorage.removeItem('pwa-install-dismissed'), 7 * 24 * 60 * 60 * 1000); // 7 days
+            });
+        }
+
+        function hideInstallPromotion() {
+            const installBtn = document.getElementById('installBtn');
+            if (installBtn) installBtn.remove();
+        }
+
+        function updatePWAStatus() {
+            const event = new CustomEvent('pwaStatusChanged', { 
+                detail: { isStandalone: isStandalone || window.matchMedia('(display-mode: standalone)').matches }
+            });
+            window.dispatchEvent(event);
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swUrl = './service-worker.js';
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('New service worker found:', newWorker.state);
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('New content available');
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                        
+                        // Check for updates on page load
+                        registration.update().catch(err => console.log('Update check failed:', err));
+                    })
+                    .catch(err => {
+                        console.log('Service Worker registration failed:', err);
+                        // Fallback: Create a simple service worker if it doesn't exist
+                        if (err instanceof TypeError) {
+                            createFallbackServiceWorker();
+                        }
+                    });
+            });
+        } else {
+            console.log('Service Workers are not supported');
+        }
+
+        // Create fallback service worker
+        function createFallbackServiceWorker() {
+            const fallbackSW = `
+                self.addEventListener('install', event => {
+                    console.log('Fallback Service Worker installing');
+                    self.skipWaiting();
+                });
+
+                self.addEventListener('activate', event => {
+                    console.log('Fallback Service Worker activating');
+                });
+
+                self.addEventListener('fetch', event => {
+                    // Network-first strategy for fallback
+                    event.respondWith(fetch(event.request));
+                });
+            `;
+            
+            const blob = new Blob([fallbackSW], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl)
+                .then(reg => console.log('Fallback Service Worker registered'))
+                .catch(err => console.log('Fallback SW registration failed:', err));
+        }
+
+        // Update notification
+        function showUpdateNotification() {
+            // Remove existing notification
+            const existing = document.getElementById('updateNotification');
+            if (existing) existing.remove();
+            
+            const updateDiv = document.createElement('div');
+            updateDiv.id = 'updateNotification';
+            updateDiv.innerHTML = `
+                <div class="fixed top-20 right-4 z-50 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-4 rounded-xl shadow-2xl flex items-center justify-between gap-4 max-w-sm animate-slide-down">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <div>
+                            <p class="font-bold">Update Available</p>
+                            <p class="text-sm opacity-90">Refresh for latest features</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="this.closest('#updateNotification').remove()" class="px-3 py-1 bg-white/20 rounded-lg text-sm">
+                            Later
+                        </button>
+                        <button onclick="location.reload()" class="bg-white text-green-700 px-3 py-1 rounded-lg font-bold text-sm hover:bg-green-50">
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(updateDiv);
+            
+            // Auto-remove after 30 seconds
+            setTimeout(() => {
+                if (updateDiv.parentNode) {
+                    updateDiv.remove();
+                }
+            }, 30000);
+        }
+
+        // Network status detection
+        let networkStatusTimeout;
+        window.addEventListener('online', () => {
+            clearTimeout(networkStatusTimeout);
+            showNetworkStatus('You are back online', 'green');
+            // Sync any pending data
+            if (typeof window.syncPendingData === 'function') {
+                window.syncPendingData();
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            clearTimeout(networkStatusTimeout);
+            showNetworkStatus('You are offline', 'red');
+        });
+
+        function showNetworkStatus(message, type) {
+            // Remove existing status
+            const existing = document.querySelector('.network-status');
+            if (existing) existing.remove();
+            
+            const colors = {
+                green: 'bg-green-500',
+                red: 'bg-red-500',
+                yellow: 'bg-yellow-500'
+            };
+            
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `network-status fixed top-4 left-1/2 transform -translate-x-1/2 z-50 ${colors[type]} text-white px-6 py-3 rounded-xl shadow-xl text-sm font-bold animate-slide-down flex items-center gap-2`;
+            statusDiv.innerHTML = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${type === 'green' ? 'M5 13l4 4L19 7' : 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'}" />
+                </svg>
+                ${message}
+            `;
+            document.body.appendChild(statusDiv);
+            
+            networkStatusTimeout = setTimeout(() => {
+                if (statusDiv.parentNode) {
+                    statusDiv.remove();
+                }
+            }, 3000);
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const types = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-24 right-4 z-50 ${types[type]} text-white px-6 py-3 rounded-xl shadow-xl text-sm font-bold animate-slide-up`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // Initialize PWA check on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if already installed
+            if (isStandalone) {
+                console.log('App is running in standalone mode');
+                document.body.classList.add('pwa-installed');
+            }
+            
+            // Check for updates
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'CHECK_UPDATE' });
+            }
+            
+            // Manual install button handler
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('#manualInstallBtn')) {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                    } else if (!isStandalone) {
+                        showInstallPromotion();
+                    } else {
+                        showToast('App is already installed!', 'info');
+                    }
+                }
+            });
+        });
+
+        // Generate dynamic manifest
+        function generateManifest() {
+            const manifest = {
+                "name": "OMR Master Pro",
+                "short_name": "OMR Master",
+                "description": "Professional OMR practice suite with advanced analytics",
+                "start_url": "./",
+                "display": "standalone",
+                "background_color": "#0f172a",
+                "theme_color": "#2563eb",
+                "orientation": "any",
+                "scope": "./",
+                "lang": "en",
+                "categories": ["education", "productivity", "utilities"],
+                "icons": [
+                    {
+                        "src": "icon.png",
+                        "sizes": "72x72",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "96x96",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "128x128",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "144x144",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "152x152",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "192x192",
+                        "type": "image/png",
+                        "purpose": "any maskable"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "384x384",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "512x512",
+                        "type": "image/png",
+                        "purpose": "any maskable"
+                    }
+                ],
+                "screenshots": [
+                    {
+                        "src": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop",
+                        "sizes": "800x600",
+                        "type": "image/jpeg",
+                        "form_factor": "wide",
+                        "label": "Dashboard view"
+                    }
+                ],
+                "shortcuts": [
+                    {
+                        "name": "New Exam",
+                        "short_name": "New",
+                        "description": "Create a new exam configuration",
+                        "url": "./?new-exam",
+                        "icons": [{
+                            "src": "icon.png",
+                            "sizes": "96x96"
+                        }]
+                    },
+                    {
+                        "name": "Report Issue",
+                        "short_name": "Report",
+                        "description": "Report an issue or provide feedback",
+                        "url": "./report.html",
+                        "icons": [{
+                            "src": "icon.png",
+                            "sizes": "96x96"
+                        }]
+                    }
+                ]
+            };
+            
+            // Create manifest blob and URL
+            const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            // Update manifest link
+            const manifestLink = document.getElementById('manifestLink');
+            if (manifestLink) {
+                manifestLink.href = url;
+            }
+            
+            return url;
+        }
+
+        // Generate manifest on load
+        window.addEventListener('load', () => {
+            generateManifest();
+        });
+    </script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        bangla: ['Hind Siliguri', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                        'pulse-gentle': 'pulseGentle 2s ease-in-out infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'slide-in-right': 'slideInRight 0.3s ease-out forwards',
+                        'bounce-subtle': 'bounceSubtle 2s infinite',
+                        'slide-down': 'slideDown 0.3s ease-out',
+                        'spin-slow': 'spin 3s linear infinite',
+                        'wave': 'wave 2s linear infinite',
+                        'gradient': 'gradient 3s ease infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        popIn: { '0%': { opacity: '0', transform: 'scale(0.9)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+                        pulseGentle: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.85' } },
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-10px)' } },
+                        slideInRight: { '0%': { opacity: '0', transform: 'translateX(10px)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
+                        bounceSubtle: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-5px)' } },
+                        slideDown: { '0%': { opacity: '0', transform: 'translateY(-20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        wave: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-100%)' } },
+                        gradient: { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
+                        shimmer: { '0%': { backgroundPosition: '-1000px 0' }, '100%': { backgroundPosition: '1000px 0' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-attachment: fixed;
+            background: radial-gradient(circle at top left, #f8fafc, #e2e8f0); 
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+        }
+        .dark body {
+            background: radial-gradient(circle at top left, #0f172a, #1e293b);
+        }
+        
+        /* PWA specific styles */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .nav-glass {
+                padding-top: env(safe-area-inset-top);
+                height: calc(80px + env(safe-area-inset-top));
+            }
+            .pwa-installed .install-btn {
+                display: none !important;
+            }
+        }
+        
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .dark .nav-glass {
+            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+        }
+
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Custom checkbox */
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .custom-checkbox:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+        .custom-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .dark .custom-checkbox {
+            border-color: #475569;
+        }
+        .dark .custom-checkbox:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        /* Advanced Card */
+        .advanced-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .advanced-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .dark .advanced-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Enhanced input focus */
+        .enhanced-input:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: #2563eb;
+        }
+        .dark .enhanced-input:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        /* PWA Install Button Animation */
+        @keyframes pulse-install {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .pulse-install {
+            animation: pulse-install 2s infinite;
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(90deg, #2563eb, #7c3aed, #2563eb);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s linear infinite;
+        }
+
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        .dark .skeleton {
+            background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+        }
+
+        /* Smart Input Styling */
+        .smart-input-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .smart-input-label {
+            position: absolute;
+            top: -10px;
+            left: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0 8px;
+            background: white;
+            color: #2563eb;
+            z-index: 10;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+        .dark .smart-input-label {
+            background: #0f172a;
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body class="text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-blue-500 selection:text-white">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, createContext, useContext } = React;
+
+        // --- Translations Dictionary ---
+        const translations = {
+            en: {
+                app_name: "OMR Master",
+                pro: "PRO",
+                dashboard: "Dashboard",
+                active_session: "Active Session",
+                analytics: "Analytics",
+                about: "About",
+                report: "Report Issues",
+                guideline: "Guidelines",
+                contact: "Contact",
+                donation: "Donation",
+                resume: "Resume Exam",
+                exams_taken: "Exams Taken",
+                avg_score: "Avg Score",
+                last_active: "Last Active",
+                new_config: "New Exam Configuration",
+                config_sub: "Configure your exam parameters below",
+                lbl_exam_name: "Exam Name",
+                lbl_questions: "Total Questions",
+                lbl_duration: "Duration (Minutes)",
+                lbl_correct: "Correct (+)",
+                lbl_wrong: "Wrong (-)",
+                lbl_options: "Answer Options",
+                lbl_pdf: "Question Paper URL",
+                placeholder_exam: "Enter exam name (e.g., BCS 45th Preliminary Test)",
+                placeholder_pdf: "https://drive.google.com/file/d/... or direct PDF link",
+                btn_start: "Start Examination",
+                btn_advanced: "Advanced Settings",
+                footer_credit: "Designed & Developed by",
+                footer_rights: "All Rights Reserved.",
+                modal_about_title: "About OMR Master",
+                modal_about_desc: "OMR Master Pro is an advanced self-testing tool designed to simulate real-world exam environments.",
+                modal_contact_title: "Contact Us",
+                modal_report_title: "Report an Issue",
+                modal_guide_title: "Usage Guidelines",
+                err_name_req: "Exam name is required",
+                mode_standard: "Standard",
+                mode_advanced: "Advanced",
+                tips: "Tips",
+                tip_1: "Use descriptive exam names for better tracking",
+                tip_2: "Set realistic time limits matching actual exams",
+                tip_3: "Add PDF link for split-screen practice",
+                tip_4: "Adjust scoring based on exam pattern",
+                preview: "Preview",
+                total_time: "Total Time",
+                scoring_system: "Scoring System",
+                question_density: "Questions/Min",
+                estimated_speed: "Sec/Question",
+                auto_submit: "Auto Submit",
+                shuffle_questions: "Shuffle Questions",
+                show_timer: "Show Timer",
+                enable_sound: "Enable Sound",
+                dark_mode: "Dark Mode",
+                quick_actions: "Quick Actions",
+                enter_manually: "Enter manually",
+                use_slider: "Use slider",
+                decimal_support: "Supports 0.25, 0.33, 0.5 etc.",
+                install_app: "Install App",
+                app_installed: "App Installed",
+                offline_mode: "Offline Mode",
+                data_saved: "Data saved locally",
+                pwa_features: "PWA Features",
+                pwa_feature_1: "Works offline",
+                pwa_feature_2: "Fast loading",
+                pwa_feature_3: "Home screen icon",
+                pwa_feature_4: "Push notifications",
+                install_now: "Install Now",
+                later: "Later",
+                new_update: "New Update Available",
+                refresh: "Refresh",
+                network_online: "Back online",
+                network_offline: "You are offline",
+                cache_cleared: "Cache cleared",
+                storage: "Storage",
+                clear_data: "Clear Data",
+                confirm_clear: "Are you sure?",
+                yes: "Yes",
+                no: "No",
+                see_how_to_use: "See How to Use",
+                view_details: "View Details",
+                
+                // Report page specific translations
+                report_title: "Report Issues",
+                report_subtitle: "Help us improve OMR Master Pro by reporting bugs or suggesting features",
+                report_name: "Your Name",
+                report_email: "Email Address",
+                report_issue_type: "Issue Type",
+                report_subject: "Subject",
+                report_description: "Detailed Description",
+                report_screenshot: "Screenshot (Optional)",
+                report_priority: "Priority Level",
+                report_submit: "Submit Report",
+                report_success: "Report submitted successfully!",
+                report_error: "Please fill in all required fields",
+                report_generate: "Generate Report",
+                report_copy: "Copy Report",
+                report_send_email: "Send via Email",
+                report_send_whatsapp: "Send via WhatsApp",
+                report_send_telegram: "Send via Telegram",
+                report_contact_methods: "Direct Contact Methods",
+                report_email_address: "Email",
+                report_whatsapp_number: "WhatsApp/Telegram",
+                report_quick_actions: "Quick Actions",
+                report_bug: "Bug Report",
+                report_feature: "Feature Request",
+                report_ui: "UI/UX Issue",
+                report_other: "Other",
+                report_low: "Low",
+                report_medium: "Medium",
+                report_high: "High",
+                report_critical: "Critical",
+                report_placeholder_name: "Enter your name",
+                report_placeholder_email: "Enter your email",
+                report_placeholder_subject: "Brief description of the issue",
+                report_placeholder_description: "Please describe the issue in detail. Include steps to reproduce if applicable...",
+                report_screenshot_note: "PNG, JPG, GIF up to 5MB",
+                report_auto_info: "System information will be automatically included",
+                report_response_time: "Response Time: 24-48 hours",
+                report_thank_you: "Thank you for helping us improve!",
+                report_click_to_upload: "Click to upload screenshot",
+                report_drag_drop: "or drag and drop"
+            },
+            bn: {
+                app_name: "ওএমআর মাস্টার",
+                pro: "প্রো",
+                dashboard: "ড্যাশবোর্ড",
+                active_session: "চলমান সেশন",
+                analytics: "বিশ্লেষণ",
+                about: "আমাদের সম্পর্কে",
+                report: "সমস্যা জানান",
+                guideline: "নির্দেশাবলী",
+                contact: "যোগাযোগ",
+                donation: "অনুদান",
+                resume: "পরীক্ষা শুরু করুন",
+                exams_taken: "মোট পরীক্ষা",
+                avg_score: "গড় স্কোর",
+                last_active: "সর্বশেষ সক্রিয়",
+                new_config: "নতুন পরীক্ষার কনফিগারেশন",
+                config_sub: "নিচে আপনার পরীক্ষার প্যারামিটার সেট করুন",
+                lbl_exam_name: "পরীক্ষার নাম",
+                lbl_questions: "মোট প্রশ্ন",
+                lbl_duration: "সময় (মিনিট)",
+                lbl_correct: "সঠিক (+)",
+                lbl_wrong: "ভুল (-)",
+                lbl_options: "উত্তর অপশন",
+                lbl_pdf: "প্রশ্নপত্রের লিংক",
+                placeholder_exam: "পরীক্ষার নাম লিখুন (যেমন: বিসিএস ৪৫তম প্রিলিমিনারি)",
+                placeholder_pdf: "https://drive.google.com/file/d/... অথবা সরাসরি পিডিএফ লিংক",
+                btn_start: "পরীক্ষা শুরু করুন",
+                btn_advanced: "এডভান্সড সেটিংস",
+                footer_credit: "ডিজাইন ও ডেভেলপমেন্টে",
+                footer_rights: "সর্বস্বত্ব সংরক্ষিত।",
+                modal_about_title: "ওএমআর মাস্টার সম্পর্কে",
+                modal_about_desc: "ওএমআর মাস্টার প্রো একটি উন্নত সেলফ-টেস্টিং টুল যা আপনাকে বাস্তব পরীক্ষার পরিবেশের অভিজ্ঞতা দেবে।",
+                modal_contact_title: "যোগাযোগ করুন",
+                modal_report_title: "সমস্যা রিপোর্ট করুন",
+                modal_guide_title: "ব্যবহারের নিয়মাবলী",
+                err_name_req: "পরীক্ষার নাম আবশ্যক",
+                mode_standard: "স্ট্যান্ডার্ড",
+                mode_advanced: "অ্যাডভান্সড",
+                tips: "পরামর্শ",
+                tip_1: "ভালো ট্র্যাকিংয়ের জন্য বর্ণনামূলক পরীক্ষার নাম ব্যবহার করুন",
+                tip_2: "বাস্তব পরীক্ষার সাথে মিল রেখে সময় সীমা নির্ধারণ করুন",
+                tip_3: "স্প্লিট-স্ক্রিন অনুশীলনের জন্য পিডিএফ লিংক যোগ করুন",
+                tip_4: "পরীক্ষার প্যাটার্ন অনুযায়ী স্কোরিং সমন্বয় করুন",
+                preview: "প্রিভিউ",
+                total_time: "মোট সময়",
+                scoring_system: "স্কোরিং সিস্টেম",
+                question_density: "প্রশ্ন/মিনিট",
+                estimated_speed: "সেকেন্ড/প্রশ্ন",
+                auto_submit: "স্বয়ংক্রিয় জমা",
+                shuffle_questions: "প্রশ্ন এলোমেলো",
+                show_timer: "টাইমার দেখান",
+                enable_sound: "শব্দ সক্রিয়",
+                dark_mode: "ডার্ক মোড",
+                quick_actions: "দ্রুত কাজ",
+                enter_manually: "হাতে লিখুন",
+                use_slider: "স্লাইডার ব্যবহার করুন",
+                decimal_support: "০.২৫, ০.৩৩, ০.৫ ইত্যাদি সমর্থিত",
+                install_app: "অ্যাপ ইন্সটল করুন",
+                app_installed: "অ্যাপ ইন্সটল করা আছে",
+                offline_mode: "অফলাইন মোড",
+                data_saved: "ডাটা লোকালি সংরক্ষিত",
+                pwa_features: "PWA ফিচারসমূহ",
+                pwa_feature_1: "অফলাইনে কাজ করে",
+                pwa_feature_2: "দ্রুত লোডিং",
+                pwa_feature_3: "হোম স্ক্রিন আইকন",
+                pwa_feature_4: "পুশ নোটিফিকেশন",
+                install_now: "এখনই ইন্সটল করুন",
+                later: "পরে",
+                new_update: "নতুন আপডেট উপলব্ধ",
+                refresh: "রিফ্রেশ",
+                network_online: "অনলাইনে ফিরেছেন",
+                network_offline: "আপনি অফলাইনে রয়েছেন",
+                cache_cleared: "ক্যাশে মুছে ফেলা হয়েছে",
+                storage: "স্টোরেজ",
+                clear_data: "ডাটা ক্লিয়ার করুন",
+                confirm_clear: "আপনি কি নিশ্চিত?",
+                yes: "হ্যাঁ",
+                no: "না",
+                see_how_to_use: "ব্যবহার নির্দেশিকা দেখুন",
+                view_details: "বিস্তারিত দেখুন",
+                
+                // Report page specific translations
+                report_title: "সমস্যা জানান",
+                report_subtitle: "বাগ রিপোর্ট বা নতুন ফিচার সুপারিশ করে OMR Master Pro কে আরও উন্নত করতে সাহায্য করুন",
+                report_name: "আপনার নাম",
+                report_email: "ইমেইল ঠিকানা",
+                report_issue_type: "সমস্যার ধরন",
+                report_subject: "বিষয়",
+                report_description: "বিস্তারিত বিবরণ",
+                report_screenshot: "স্ক্রিনশট (ঐচ্ছিক)",
+                report_priority: "অগ্রাধিকার স্তর",
+                report_submit: "রিপোর্ট জমা দিন",
+                report_success: "রিপোর্ট সফলভাবে জমা হয়েছে!",
+                report_error: "অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন",
+                report_generate: "রিপোর্ট তৈরি করুন",
+                report_copy: "রিপোর্ট কপি করুন",
+                report_send_email: "ইমেইলের মাধ্যমে পাঠান",
+                report_send_whatsapp: "WhatsApp এর মাধ্যমে পাঠান",
+                report_send_telegram: "Telegram এর মাধ্যমে পাঠান",
+                report_contact_methods: "সরাসরি যোগাযোগের মাধ্যম",
+                report_email_address: "ইমেইল",
+                report_whatsapp_number: "WhatsApp/Telegram",
+                report_quick_actions: "দ্রুত কাজ",
+                report_bug: "বাগ রিপোর্ট",
+                report_feature: "নতুন ফিচারের আবেদন",
+                report_ui: "UI/UX সমস্যা",
+                report_other: "অন্যান্য",
+                report_low: "নিম্ন",
+                report_medium: "মধ্যম",
+                report_high: "উচ্চ",
+                report_critical: "সমালোচনামূলক",
+                report_placeholder_name: "আপনার নাম লিখুন",
+                report_placeholder_email: "আপনার ইমেইল লিখুন",
+                report_placeholder_subject: "সমস্যার সংক্ষিপ্ত বর্ণনা",
+                report_placeholder_description: "দয়া করে সমস্যাটি বিস্তারিত বর্ণনা করুন। সম্ভব হলে সমস্যাটি পুনরায় তৈরি করার ধাপগুলো লিখুন...",
+                report_screenshot_note: "PNG, JPG, GIF সর্বোচ্চ ৫MB",
+                report_auto_info: "সিস্টেম তথ্য স্বয়ংক্রিয়ভাবে যুক্ত হবে",
+                report_response_time: "প্রতিক্রিয়া সময়: ২৪-৪৮ ঘন্টা",
+                report_thank_you: "আমাদের উন্নতিতে সাহায্য করার জন্য ধন্যবাদ!",
+                report_click_to_upload: "স্ক্রিনশট আপলোড করতে ক্লিক করুন",
+                report_drag_drop: "বা ড্রাগ এন্ড ড্রপ করুন"
+            }
+        };
+
+        // --- Icons ---
+        const Icons = {
+            Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Play: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+            BarChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>,
+            Settings: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+            Sun: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+            Moon: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+            Globe: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+            Info: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+            Flag: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+            Mail: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+            Book: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+            Heart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+            X: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+            Check: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+            FileText: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>,
+            Link: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
+            Clock: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+            Zap: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+            HelpCircle: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+            ChevronRight: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+            Calculator: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>,
+            Hash: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>,
+            Download: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+            Wifi: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>,
+            WifiOff: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>,
+            Smartphone: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>,
+            Refresh: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+            Database: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
+            Shield: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+            Users: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            WhatsApp: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.76.982.998-3.677-.236-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.9 6.994c-.004 5.45-4.436 9.884-9.884 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.333.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.304-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.333 11.893-11.893 0-3.18-1.24-6.162-3.495-8.411"/></svg>,
+            Telegram: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.064-1.225-.461-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>,
+            Image: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>,
+            AlertCircle: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+            Copy: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>,
+            Send: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        };
+
+        const AppContext = createContext();
+
+        // Modal Component
+        const Modal = ({ title, isOpen, onClose, children, size = 'lg' }) => {
+            if (!isOpen) return null;
+            
+            const sizes = {
+                sm: 'max-w-md',
+                md: 'max-w-lg',
+                lg: 'max-w-2xl',
+                xl: 'max-w-4xl'
+            };
+            
+            return (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
+                    <div className={`relative w-full ${sizes[size]} glass-panel rounded-2xl p-6 shadow-2xl animate-pop-in border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90`}>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                                {title}
+                            </h3>
+                            <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                                <Icons.X />
+                            </button>
+                        </div>
+                        <div className="text-slate-600 dark:text-slate-300 max-h-[60vh] overflow-y-auto pr-2">
+                            {children}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Smart Input Component
+        const SmartInput = ({ label, value, onChange, placeholder, type = "text", icon: Icon, required = false, name, className = "", error = null }) => {
+            const [isFocused, setIsFocused] = useState(false);
+            const hasValue = value !== '' && value !== undefined && value !== null;
+
+            return (
+                <div className={`smart-input-container ${className}`}>
+                    <label className="smart-input-label">
+                        {label}
+                    </label>
+                    <div className="relative">
+                        {Icon && (
+                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">
+                                <Icon />
+                            </div>
+                        )}
+                        <input
+                            type={type}
+                            value={value}
+                            onChange={onChange}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
+                            required={required}
+                            name={name}
+                            className={`w-full bg-white dark:bg-slate-800/50 border-2 ${isFocused ? 'border-blue-500 dark:border-blue-400' : 'border-slate-200 dark:border-slate-700'} rounded-xl ${Icon ? 'pl-10' : 'px-4'} py-3 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200 enhanced-input ${error ? 'border-red-500' : ''}`}
+                            placeholder={placeholder}
+                        />
+                    </div>
+                    {error && (
+                        <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <Icons.AlertCircle className="w-4 h-4" />
+                            {error}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // PWA Status Component
+        const PWAStatus = () => {
+            const [isStandalone, setIsStandalone] = useState(false);
+            const [isOnline, setIsOnline] = useState(true);
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+
+            useEffect(() => {
+                // Check if app is running in standalone mode
+                const checkStandalone = () => {
+                    const standalone = window.matchMedia('(display-mode: standalone)').matches || 
+                                    window.navigator.standalone || 
+                                    document.referrer.includes('android-app://');
+                    setIsStandalone(standalone);
+                };
+                
+                checkStandalone();
+                
+                // Check online status
+                setIsOnline(navigator.onLine);
+                
+                // Listen for events
+                const handleOnline = () => setIsOnline(true);
+                const handleOffline = () => setIsOnline(false);
+                const handlePWAStatus = (e) => setIsStandalone(e.detail.isStandalone);
+                
+                window.addEventListener('online', handleOnline);
+                window.addEventListener('offline', handleOffline);
+                window.addEventListener('pwaStatusChanged', handlePWAStatus);
+                
+                return () => {
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                    window.removeEventListener('pwaStatusChanged', handlePWAStatus);
+                };
+            }, []);
+
+            if (!isStandalone && isOnline) return null;
+
+            return (
+                <div className="fixed bottom-20 left-4 z-40 flex flex-col gap-2">
+                    {isStandalone && (
+                        <div className="flex items-center gap-2 bg-green-500 text-white px-3 py-2 rounded-xl shadow-lg text-sm font-bold animate-slide-in-right">
+                            <Icons.Smartphone className="w-4 h-4" />
+                            <span>{t('app_installed')}</span>
+                        </div>
+                    )}
+                    {!isOnline && (
+                        <div className="flex items-center gap-2 bg-yellow-500 text-white px-3 py-2 rounded-xl shadow-lg text-sm font-bold animate-slide-in-right">
+                            <Icons.WifiOff className="w-4 h-4" />
+                            <span>{t('offline_mode')}</span>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Quick Actions Component
+        const QuickActions = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const [showActions, setShowActions] = useState(false);
+
+            const quickActions = [
+                { name: 'Clear All Reports', icon: Icons.Refresh, action: () => {
+                    localStorage.removeItem('omr_reports');
+                    showToast('All reports cleared', 'success');
+                    setShowActions(false);
+                }},
+                { name: 'View History', icon: Icons.FileText, action: () => {
+                    const reports = JSON.parse(localStorage.getItem('omr_reports') || '[]');
+                    if (reports.length === 0) {
+                        showToast('No reports found', 'info');
+                    } else {
+                        alert(`You have ${reports.length} saved reports`);
+                    }
+                    setShowActions(false);
+                }},
+                { name: 'Back to Dashboard', icon: Icons.Home, action: () => {
+                    window.location.href = 'index.html';
+                }}
+            ];
+
+            return (
+                <div className="fixed bottom-4 left-4 z-40">
+                    <button
+                        onClick={() => setShowActions(!showActions)}
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-xl shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                    >
+                        <Icons.Settings className="w-6 h-6" />
+                    </button>
+                    
+                    {showActions && (
+                        <div className="absolute bottom-16 left-0 bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-4 min-w-[200px] animate-pop-in">
+                            <h4 className="font-bold text-slate-800 dark:text-white mb-3">{t('quick_actions')}</h4>
+                            <div className="space-y-2">
+                                {quickActions.map((action, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={action.action}
+                                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                    >
+                                        <action.icon className="w-4 h-4" />
+                                        {action.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const Navbar = ({ activePage }) => {
+            const { lang, setLang, darkMode, setDarkMode } = useContext(AppContext);
+            const [isOpen, setIsOpen] = useState(false);
+            const [sessionActive, setSessionActive] = useState(false);
+            const [isPWA, setIsPWA] = useState(false);
+            const t = (k) => translations[lang][k];
+
+            useEffect(() => {
+                const session = localStorage.getItem('omr_current_session');
+                if (session) setSessionActive(true);
+                
+                // Check if PWA
+                const checkPWA = window.matchMedia('(display-mode: standalone)').matches;
+                setIsPWA(checkPWA);
+                
+                // Listen for PWA status changes
+                const handlePWAStatus = (e) => setIsPWA(e.detail.isStandalone);
+                window.addEventListener('pwaStatusChanged', handlePWAStatus);
+                
+                return () => window.removeEventListener('pwaStatusChanged', handlePWAStatus);
+            }, []);
+
+            const toggleTheme = () => {
+                const newDarkMode = !darkMode;
+                setDarkMode(newDarkMode);
+                document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', newDarkMode ? 'dark' : 'light');
+            };
+
+            const toggleLang = () => {
+                const newLang = lang === 'en' ? 'bn' : 'en';
+                setLang(newLang);
+                localStorage.setItem('lang', newLang);
+            };
+
+            // Main navigation links
+            const links = [
+                { name: t('dashboard'), href: 'index.html', icon: Icons.Home, active: activePage === 'home' },
+                { name: t('active_session'), href: 'exam.html', icon: Icons.Play, active: activePage === 'exam', hidden: !sessionActive },
+                { name: t('analytics'), href: 'analytics.html', icon: Icons.BarChart, active: activePage === 'analytics' },
+            ];
+
+            // Secondary navigation links
+            const secondaryLinks = [
+                { name: t('about'), icon: Icons.Info, href: 'about.html' },
+                { name: t('guideline'), icon: Icons.Book, href: 'guideline.html' },
+                { name: t('report'), icon: Icons.Flag, href: 'report.html', active: activePage === 'report' },
+                { name: t('contact'), icon: Icons.Mail, href: 'contact.html' },
+                { name: t('donation'), icon: Icons.Heart, href: 'donate.html' },
+            ];
+
+            return (
+                <nav className="fixed top-0 inset-x-0 z-50 nav-glass transition-all duration-300 shadow-sm pwa-padding">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-20">
+                            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.location.href='index.html'}>
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 transition-transform group-hover:scale-105 group-hover:rotate-3">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                                </div>
+                                <div className={lang === 'bn' ? 'font-bangla' : ''}>
+                                    <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight leading-none">{t('app_name')}</h1>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-[10px] font-bold tracking-widest text-blue-600 dark:text-blue-400 uppercase">{t('pro')}</span>
+                                        {isPWA && (
+                                            <span className="text-[8px] font-bold tracking-widest text-green-600 dark:text-green-400 uppercase">PWA</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="hidden lg:flex items-center gap-2">
+                                <div className="flex items-center gap-1 mr-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                                    {links.map(link => !link.hidden && (
+                                        <a key={link.name} href={link.href} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${link.active ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}>
+                                            <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                        </a>
+                                    ))}
+                                </div>
+                                {secondaryLinks.map((item, idx) => (
+                                    <a key={idx} href={item.href} title={item.name} className={`p-2.5 rounded-xl transition-colors ${item.active ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                                        <item.icon />
+                                    </a>
+                                ))}
+                                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                                <button onClick={toggleLang} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:scale-105 transition-transform">
+                                    <Icons.Globe /> {lang === 'en' ? 'BN' : 'EN'}
+                                </button>
+                                <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:rotate-12 transition-transform">
+                                    {darkMode ? <Icons.Sun /> : <Icons.Moon />}
+                                </button>
+                            </div>
+                            <div className="lg:hidden flex items-center gap-3">
+                                <button onClick={toggleLang} className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{lang === 'en' ? 'BN' : 'EN'}</button>
+                                <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-300">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
+                                <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {isOpen && (
+                        <div className="lg:hidden border-t border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-xl">
+                            <div className="p-4 space-y-2">
+                                {links.map(link => !link.hidden && (
+                                    <a key={link.name} href={link.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium ${link.active ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'}`}>
+                                        <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                    </a>
+                                ))}
+                                <hr className="border-slate-100 dark:border-slate-800 my-2" />
+                                {secondaryLinks.map((item, idx) => (
+                                    <a key={idx} href={item.href} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
+                                        <item.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{item.name}</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </nav>
+            );
+        };
+
+        const Footer = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const currentYear = new Date().getFullYear();
+            const [isOnline, setIsOnline] = useState(true);
+
+            useEffect(() => {
+                setIsOnline(navigator.onLine);
+                const handleOnline = () => setIsOnline(true);
+                const handleOffline = () => setIsOnline(false);
+                
+                window.addEventListener('online', handleOnline);
+                window.addEventListener('offline', handleOffline);
+                
+                return () => {
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                };
+            }, []);
+
+            const handleInstallClick = () => {
+                if (window.deferredPrompt) {
+                    window.deferredPrompt.prompt();
+                } else {
+                    showToast('Click the install button in the top right', 'info');
+                }
+            };
+
+            return (
+                <footer className="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
+                    <div className="max-w-7xl mx-auto px-4 py-8">
+                        <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
+                                    <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
+                                    Urfa Hasan Fattah
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {isOnline ? (
+                                        <Icons.Wifi className="w-4 h-4 text-green-500" />
+                                    ) : (
+                                        <Icons.WifiOff className="w-4 h-4 text-yellow-500" />
+                                    )}
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                                        {isOnline ? 'Online' : 'Offline'}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div className="text-center">
+                                <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                                    {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {currentYear} {t('footer_rights')}
+                                </p>
+                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                    {t('data_saved')} • PWA Enabled
+                                </p>
+                            </div>
+                            
+                            <div className="flex flex-col gap-3">
+                                <a 
+                                    href="donate.html" 
+                                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold rounded-xl shadow-lg shadow-pink-500/20 hover:shadow-xl hover:shadow-pink-500/30 transition-all duration-300 hover:scale-105"
+                                >
+                                    <Icons.Heart className="w-5 h-5" />
+                                    <span className={lang === 'bn' ? 'font-bangla' : ''}>{t('donation')}</span>
+                                </a>
+                                
+                                {/* Install PWA Button */}
+                                <button 
+                                    id="manualInstallBtn"
+                                    onClick={handleInstallClick}
+                                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105 text-sm pulse-install"
+                                >
+                                    <Icons.Download className="w-4 h-4" />
+                                    <span>{t('install_app')}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            );
+        };
+
+        // Toast notification function
+        const showToast = (message, type = 'success') => {
+            const types = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-24 right-4 z-50 ${types[type]} text-white px-6 py-3 rounded-xl shadow-xl text-sm font-bold animate-slide-up`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 3000);
+        };
+
+        const ReportPage = () => {
+            const { lang, darkMode } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            
+            const [formData, setFormData] = useState({
+                name: '',
+                email: '',
+                issueType: 'bug',
+                subject: '',
+                description: '',
+                priority: 'medium',
+                screenshot: null
+            });
+
+            const [errors, setErrors] = useState({});
+            const [screenshotPreview, setScreenshotPreview] = useState(null);
+            const [systemInfo, setSystemInfo] = useState({});
+            const [showPreview, setShowPreview] = useState(false);
+            const [reportContent, setReportContent] = useState('');
+
+            // Your contact information
+            const contactInfo = {
+                email: 'uhfabdulfattah@gmail.com',
+                whatsapp: '+8801933407672',
+                telegram: '+8801933407672'
+            };
+
+            // Detect system information
+            useEffect(() => {
+                const userAgent = navigator.userAgent;
+                const screen = window.screen;
+                
+                // Browser detection
+                let browser = "Unknown";
+                if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) browser = "Chrome";
+                else if (userAgent.includes("Firefox")) browser = "Firefox";
+                else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) browser = "Safari";
+                else if (userAgent.includes("Edg")) browser = "Edge";
+                
+                // OS detection
+                let os = "Unknown";
+                if (userAgent.includes("Windows")) os = "Windows";
+                else if (userAgent.includes("Mac")) os = "macOS";
+                else if (userAgent.includes("Linux")) os = "Linux";
+                else if (userAgent.includes("Android")) os = "Android";
+                else if (userAgent.includes("iOS")) os = "iOS";
+                
+                setSystemInfo({
+                    browser: `${browser} (${userAgent.split(') ')[0].split('(')[1] || 'Unknown'})`,
+                    os: os,
+                    screen: `${screen.width}×${screen.height}`,
+                    url: window.location.href,
+                    userAgent: userAgent
+                });
+            }, []);
+
+            const handleChange = (e) => {
+                const { name, value, type, files } = e.target;
+                
+                if (type === 'file') {
+                    const file = files[0];
+                    if (file) {
+                        if (file.size > 5 * 1024 * 1024) {
+                            setErrors(prev => ({...prev, screenshot: 'File size must be less than 5MB'}));
+                            return;
+                        }
+                        if (!file.type.startsWith('image/')) {
+                            setErrors(prev => ({...prev, screenshot: 'Please upload an image file'}));
+                            return;
+                        }
+                        
+                        setFormData(prev => ({...prev, screenshot: file}));
+                        setErrors(prev => ({...prev, screenshot: null}));
+                        
+                        // Create preview
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            setScreenshotPreview(e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                } else {
+                    setFormData(prev => ({...prev, [name]: value}));
+                    
+                    // Clear error when user starts typing
+                    if (errors[name]) {
+                        setErrors(prev => ({...prev, [name]: null}));
+                    }
+                }
+            };
+
+            const validateForm = () => {
+                const newErrors = {};
+                
+                if (!formData.subject.trim()) newErrors.subject = t('report_error');
+                if (!formData.description.trim()) newErrors.description = t('report_error');
+                
+                setErrors(newErrors);
+                return Object.keys(newErrors).length === 0;
+            };
+
+            const generateReport = () => {
+                if (!validateForm()) {
+                    showToast(t('report_error'), 'error');
+                    return;
+                }
+
+                const issueTypeMap = {
+                    bug: t('report_bug'),
+                    feature: t('report_feature'),
+                    ui: t('report_ui'),
+                    other: t('report_other')
+                };
+
+                const priorityMap = {
+                    low: t('report_low'),
+                    medium: t('report_medium'),
+                    high: t('report_high'),
+                    critical: t('report_critical')
+                };
+
+                const report = `=== OMR Master Pro Issue Report ===
+
+REPORT TYPE: ${issueTypeMap[formData.issueType].toUpperCase()}
+PRIORITY: ${priorityMap[formData.priority].toUpperCase()}
+DATE: ${new Date().toISOString()}
+TIMESTAMP: ${Date.now()}
+
+--- USER INFORMATION ---
+Name: ${formData.name || 'Not provided'}
+Email: ${formData.email || 'Not provided'}
+
+--- SYSTEM INFORMATION ---
+Browser: ${systemInfo.browser}
+Operating System: ${systemInfo.os}
+Screen Resolution: ${systemInfo.screen}
+Page URL: ${systemInfo.url}
+User Agent: ${systemInfo.userAgent}
+
+--- ISSUE DETAILS ---
+SUBJECT: ${formData.subject}
+
+DESCRIPTION:
+${formData.description}
+
+--- TECHNICAL DETAILS ---
+App Version: OMR Master Pro v1.0
+PWA Status: ${window.matchMedia('(display-mode: standalone)').matches ? 'Installed' : 'Browser'}
+Online Status: ${navigator.onLine ? 'Online' : 'Offline'}
+Language: ${lang.toUpperCase()}
+Theme: ${darkMode ? 'Dark' : 'Light'}
+
+--- ADDITIONAL NOTES ---
+This report was generated via the built-in reporting system.
+Please respond within 24-48 hours.
+Contact: ${contactInfo.email} / ${contactInfo.whatsapp}
+
+--- END OF REPORT ---`;
+
+                setReportContent(report);
+                setShowPreview(true);
+            };
+
+            const copyReport = () => {
+                navigator.clipboard.writeText(reportContent).then(() => {
+                    showToast(t('report_success'), 'success');
+                });
+            };
+
+            const sendViaEmail = () => {
+                const subject = encodeURIComponent(`OMR Master Pro Issue: ${formData.subject}`);
+                const body = encodeURIComponent(reportContent);
+                window.open(`mailto:${contactInfo.email}?subject=${subject}&body=${body}`);
+            };
+
+            const sendViaWhatsApp = () => {
+                const message = encodeURIComponent(`*OMR Master Pro Issue Report*\n\n*Subject:* ${formData.subject}\n\n*Description:* ${formData.description.substring(0, 200)}...\n\nPlease check email for full report.`);
+                window.open(`https://wa.me/${contactInfo.whatsapp.replace('+', '')}?text=${message}`, '_blank');
+            };
+
+            const sendViaTelegram = () => {
+                const message = encodeURIComponent(`OMR Master Pro Issue Report\n\nSubject: ${formData.subject}\n\nDescription: ${formData.description.substring(0, 200)}...\n\nPlease check email for full report.`);
+                window.open(`https://t.me/share/url?url=&text=${message}`, '_blank');
+            };
+
+            const saveReport = () => {
+                const reports = JSON.parse(localStorage.getItem('omr_reports') || '[]');
+                reports.push({
+                    ...formData,
+                    report: reportContent,
+                    timestamp: Date.now(),
+                    status: 'pending'
+                });
+                localStorage.setItem('omr_reports', JSON.stringify(reports));
+                
+                showToast(t('report_success'), 'success');
+                setShowPreview(false);
+                
+                // Reset form
+                setFormData({
+                    name: '',
+                    email: '',
+                    issueType: 'bug',
+                    subject: '',
+                    description: '',
+                    priority: 'medium',
+                    screenshot: null
+                });
+                setScreenshotPreview(null);
+            };
+
+            const removeScreenshot = () => {
+                setFormData(prev => ({...prev, screenshot: null}));
+                setScreenshotPreview(null);
+            };
+
+            return (
+                <div className={`min-h-screen pt-24 flex flex-col ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                    <Navbar activePage="report" />
+                    <PWAStatus />
+                    <QuickActions />
+
+                    {/* Report Preview Modal */}
+                    <Modal
+                        title={t('report_form_title')}
+                        isOpen={showPreview}
+                        onClose={() => setShowPreview(false)}
+                        size="xl"
+                    >
+                        <div className="space-y-6">
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 max-h-96 overflow-y-auto">
+                                <pre className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap font-mono">
+                                    {reportContent}
+                                </pre>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <button
+                                    onClick={copyReport}
+                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white rounded-xl font-bold transition"
+                                >
+                                    <Icons.Copy className="w-5 h-5" />
+                                    {t('report_copy')}
+                                </button>
+                                <button
+                                    onClick={saveReport}
+                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-bold transition"
+                                >
+                                    <Icons.Check className="w-5 h-5" />
+                                    {t('report_submit')}
+                                </button>
+                            </div>
+                        </div>
+                    </Modal>
+
+                    <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
+                        
+                        {/* Hero Header */}
+                        <div className="text-center mb-10 animate-fade-in relative">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl pointer-events-none animate-float"></div>
+                            <h1 className="relative text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
+                                <span className="gradient-text">{t('report_title')}</span>
+                            </h1>
+                            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+                                {t('report_subtitle')}
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* Left Column: Contact Methods */}
+                            <div className="lg:col-span-1 space-y-6">
+                                {/* Contact Methods Card */}
+                                <div className="glass-panel rounded-3xl p-6 advanced-card">
+                                    <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
+                                        <Icons.Mail className="w-5 h-5" />
+                                        {t('report_contact_methods')}
+                                    </h2>
+                                    
+                                    <div className="space-y-4">
+                                        {/* Email */}
+                                        <div className="p-4 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-xl border border-red-200 dark:border-red-800">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <div className="w-10 h-10 bg-red-500 text-white rounded-lg flex items-center justify-center">
+                                                    <Icons.Mail className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-slate-800 dark:text-white">{t('report_email_address')}</h3>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">{contactInfo.email}</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => window.open(`mailto:${contactInfo.email}`, '_blank')}
+                                                className="w-full mt-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-bold transition"
+                                            >
+                                                {t('report_send_email')}
+                                            </button>
+                                        </div>
+
+                                        {/* WhatsApp */}
+                                        <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <div className="w-10 h-10 bg-green-500 text-white rounded-lg flex items-center justify-center">
+                                                    <Icons.WhatsApp className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-slate-800 dark:text-white">{t('report_whatsapp_number')}</h3>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">{contactInfo.whatsapp}</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={sendViaWhatsApp}
+                                                className="w-full mt-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-bold transition"
+                                            >
+                                                {t('report_send_whatsapp')}
+                                            </button>
+                                        </div>
+
+                                        {/* Telegram */}
+                                        <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <div className="w-10 h-10 bg-blue-500 text-white rounded-lg flex items-center justify-center">
+                                                    <Icons.Telegram className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-slate-800 dark:text-white">Telegram</h3>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">{contactInfo.telegram}</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={sendViaTelegram}
+                                                className="w-full mt-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-bold transition"
+                                            >
+                                                {t('report_send_telegram')}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Response Time Info */}
+                                    <div className="mt-6 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                                        <div className="flex items-center gap-2">
+                                            <Icons.Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                            <span className="font-bold text-amber-700 dark:text-amber-300">{t('report_response_time')}</span>
+                                        </div>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                                            {t('report_thank_you')}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* System Info Card */}
+                                <div className="glass-panel rounded-3xl p-6 advanced-card">
+                                    <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
+                                        {t('report_auto_info')}
+                                    </h3>
+                                    <div className="space-y-3 text-sm">
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-600 dark:text-slate-400">Browser:</span>
+                                            <span className="font-medium text-slate-800 dark:text-slate-200">{systemInfo.browser}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-600 dark:text-slate-400">OS:</span>
+                                            <span className="font-medium text-slate-800 dark:text-slate-200">{systemInfo.os}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-600 dark:text-slate-400">Screen:</span>
+                                            <span className="font-medium text-slate-800 dark:text-slate-200">{systemInfo.screen}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Column: Report Form */}
+                            <div className="lg:col-span-2">
+                                <div className="glass-panel rounded-3xl shadow-2xl overflow-hidden animate-slide-up border border-white/60 dark:border-slate-700 advanced-card">
+                                    {/* Form Header */}
+                                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-900/50 border-b border-white/50 dark:border-slate-700 p-6">
+                                        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
+                                            {t('report_form_title')}
+                                        </h2>
+                                        <p className="text-slate-600 dark:text-slate-400">
+                                            {t('report_subtitle')}
+                                        </p>
+                                    </div>
+
+                                    <form className="p-6 space-y-6">
+                                        {/* Name & Email */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <SmartInput
+                                                label={t('report_name')}
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                placeholder={t('report_placeholder_name')}
+                                                icon={Icons.FileText}
+                                                error={errors.name}
+                                            />
+                                            <SmartInput
+                                                label={t('report_email')}
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                placeholder={t('report_placeholder_email')}
+                                                type="email"
+                                                icon={Icons.Mail}
+                                                error={errors.email}
+                                            />
+                                        </div>
+
+                                        {/* Issue Type & Priority */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                                    {t('report_issue_type')}
+                                                </label>
+                                                <select
+                                                    name="issueType"
+                                                    value={formData.issueType}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 enhanced-input"
+                                                >
+                                                    <option value="bug">{t('report_bug')}</option>
+                                                    <option value="feature">{t('report_feature')}</option>
+                                                    <option value="ui">{t('report_ui')}</option>
+                                                    <option value="other">{t('report_other')}</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                                    {t('report_priority')}
+                                                </label>
+                                                <select
+                                                    name="priority"
+                                                    value={formData.priority}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 enhanced-input"
+                                                >
+                                                    <option value="low">{t('report_low')}</option>
+                                                    <option value="medium">{t('report_medium')}</option>
+                                                    <option value="high">{t('report_high')}</option>
+                                                    <option value="critical">{t('report_critical')}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {/* Subject */}
+                                        <SmartInput
+                                            label={t('report_subject')}
+                                            name="subject"
+                                            value={formData.subject}
+                                            onChange={handleChange}
+                                            placeholder={t('report_placeholder_subject')}
+                                            required={true}
+                                            icon={Icons.FileText}
+                                            error={errors.subject}
+                                        />
+
+                                        {/* Description */}
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                                {t('report_description')} *
+                                            </label>
+                                            <textarea
+                                                name="description"
+                                                value={formData.description}
+                                                onChange={handleChange}
+                                                rows="6"
+                                                className={`w-full bg-white dark:bg-slate-800 border-2 ${errors.description ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'} rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 enhanced-input`}
+                                                placeholder={t('report_placeholder_description')}
+                                                required
+                                            />
+                                            {errors.description && (
+                                                <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                                    <Icons.AlertCircle className="w-4 h-4" />
+                                                    {errors.description}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Screenshot Upload */}
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                                {t('report_screenshot')}
+                                            </label>
+                                            <div 
+                                                className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center cursor-pointer hover:border-blue-400 transition-colors"
+                                                onClick={() => document.getElementById('screenshotInput').click()}
+                                            >
+                                                <input
+                                                    type="file"
+                                                    id="screenshotInput"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={handleChange}
+                                                    name="screenshot"
+                                                />
+                                                <Icons.Image className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                                                <p className="text-slate-600 dark:text-slate-400 mb-1">{t('report_click_to_upload')}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('report_screenshot_note')}</p>
+                                            </div>
+                                            {errors.screenshot && (
+                                                <div className="text-red-500 text-sm mt-1">{errors.screenshot}</div>
+                                            )}
+                                            {screenshotPreview && (
+                                                <div className="mt-4">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Preview:</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={removeScreenshot}
+                                                            className="text-red-500 hover:text-red-600 text-sm font-medium"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                    <img 
+                                                        src={screenshotPreview} 
+                                                        alt="Screenshot preview" 
+                                                        className="max-w-full rounded-lg border border-slate-200 dark:border-slate-700"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
+                                            <button
+                                                type="button"
+                                                onClick={generateReport}
+                                                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
+                                            >
+                                                <Icons.FileText className="w-5 h-5" />
+                                                {t('report_generate')}
+                                            </button>
+                                            
+                                            <button
+                                                type="button"
+                                                onClick={sendViaEmail}
+                                                className="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
+                                            >
+                                                <Icons.Mail className="w-5 h-5" />
+                                                {t('report_send_email')}
+                                            </button>
+                                            
+                                            <button
+                                                type="button"
+                                                onClick={sendViaWhatsApp}
+                                                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
+                                            >
+                                                <Icons.WhatsApp className="w-5 h-5" />
+                                                {t('report_send_whatsapp')}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                    <Footer />
+                </div>
+            );
+        };
+
+        const AppWrapper = () => {
+            const [lang, setLang] = useState('en');
+            const [darkMode, setDarkMode] = useState(false);
+            const [isStandalone, setIsStandalone] = useState(false);
+
+            useEffect(() => {
+                // Load saved preferences
+                const savedLang = localStorage.getItem('lang');
+                if (savedLang) setLang(savedLang);
+
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    setDarkMode(true);
+                    document.documentElement.classList.add('dark');
+                }
+
+                // Check PWA status
+                const checkPWA = window.matchMedia('(display-mode: standalone)').matches;
+                setIsStandalone(checkPWA);
+                
+                // Add PWA specific classes
+                if (checkPWA) {
+                    document.body.classList.add('pwa-installed');
+                }
+                
+                // Listen for PWA status changes
+                const handlePWAStatus = (e) => {
+                    setIsStandalone(e.detail.isStandalone);
+                    if (e.detail.isStandalone) {
+                        document.body.classList.add('pwa-installed');
+                    } else {
+                        document.body.classList.remove('pwa-installed');
+                    }
+                };
+                
+                window.addEventListener('pwaStatusChanged', handlePWAStatus);
+                
+                return () => window.removeEventListener('pwaStatusChanged', handlePWAStatus);
+            }, []);
+
+            return (
+                <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
+                    <ReportPage />
+                </AppContext.Provider>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AppWrapper />);
+    </script>
+</body>
+</html>
