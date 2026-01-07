@@ -1,0 +1,2234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OMR Master Pro - Guidelines</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="OMR Master Pro">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="OMR Master">
+    <meta name="description" content="Professional OMR practice suite - Complete user guidelines">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#2563eb">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="msapplication-config" content="none">
+    
+    <!-- Demo Icon Set (Using Flaticon as placeholder) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
+    <link rel="shortcut icon" href="icon.png">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json" id="manifestLink">
+    
+    <!-- Splash Screens -->
+    <link rel="apple-touch-startup-image" href="icon.png">
+    
+    <!-- React & Libraries -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Installation Prompt -->
+    <script>
+        // PWA Installation
+        let deferredPrompt;
+        let isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                          window.navigator.standalone ||
+                          document.referrer.includes('android-app://');
+        
+        // Enhanced beforeinstallprompt handler
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('beforeinstallprompt event fired');
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Only show install button if not already installed
+            if (!isStandalone && !localStorage.getItem('pwa-install-dismissed')) {
+                setTimeout(() => {
+                    showInstallPromotion();
+                }, 3000);
+            }
+            
+            // Update UI
+            updatePWAStatus();
+        });
+
+        // Listen for app installed event
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('PWA was installed');
+            isStandalone = true;
+            updatePWAStatus();
+            hideInstallPromotion();
+            showToast('App installed successfully!', 'success');
+        });
+
+        function showInstallPromotion() {
+            // Remove existing install button if any
+            const existingBtn = document.getElementById('installBtn');
+            if (existingBtn) existingBtn.remove();
+            
+            const installBtn = document.createElement('div');
+            installBtn.id = 'installBtn';
+            installBtn.innerHTML = `
+                <div class="fixed bottom-20 right-4 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce cursor-pointer hover:scale-105 transition-transform duration-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <div>
+                        <span class="font-bold">Install App</span>
+                        <p class="text-xs opacity-90">For better experience</p>
+                    </div>
+                    <button id="dismissInstall" class="ml-2 text-white/70 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(installBtn);
+            
+            // Install button click
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`User ${outcome} the install prompt`);
+                    if (outcome === 'accepted') {
+                        hideInstallPromotion();
+                    }
+                    deferredPrompt = null;
+                }
+            });
+            
+            // Dismiss button
+            document.getElementById('dismissInstall').addEventListener('click', (e) => {
+                e.stopPropagation();
+                hideInstallPromotion();
+                localStorage.setItem('pwa-install-dismissed', 'true');
+                setTimeout(() => localStorage.removeItem('pwa-install-dismissed'), 7 * 24 * 60 * 60 * 1000); // 7 days
+            });
+        }
+
+        function hideInstallPromotion() {
+            const installBtn = document.getElementById('installBtn');
+            if (installBtn) installBtn.remove();
+        }
+
+        function updatePWAStatus() {
+            const event = new CustomEvent('pwaStatusChanged', { 
+                detail: { isStandalone: isStandalone || window.matchMedia('(display-mode: standalone)').matches }
+            });
+            window.dispatchEvent(event);
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swUrl = './service-worker.js';
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('New service worker found:', newWorker.state);
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('New content available');
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                        
+                        // Check for updates on page load
+                        registration.update().catch(err => console.log('Update check failed:', err));
+                    })
+                    .catch(err => {
+                        console.log('Service Worker registration failed:', err);
+                        // Fallback: Create a simple service worker if it doesn't exist
+                        if (err instanceof TypeError) {
+                            createFallbackServiceWorker();
+                        }
+                    });
+            });
+        } else {
+            console.log('Service Workers are not supported');
+        }
+
+        // Create fallback service worker
+        function createFallbackServiceWorker() {
+            const fallbackSW = `
+                self.addEventListener('install', event => {
+                    console.log('Fallback Service Worker installing');
+                    self.skipWaiting();
+                });
+
+                self.addEventListener('activate', event => {
+                    console.log('Fallback Service Worker activating');
+                });
+
+                self.addEventListener('fetch', event => {
+                    // Network-first strategy for fallback
+                    event.respondWith(fetch(event.request));
+                });
+            `;
+            
+            const blob = new Blob([fallbackSW], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl)
+                .then(reg => console.log('Fallback Service Worker registered'))
+                .catch(err => console.log('Fallback SW registration failed:', err));
+        }
+
+        // Update notification
+        function showUpdateNotification() {
+            // Remove existing notification
+            const existing = document.getElementById('updateNotification');
+            if (existing) existing.remove();
+            
+            const updateDiv = document.createElement('div');
+            updateDiv.id = 'updateNotification';
+            updateDiv.innerHTML = `
+                <div class="fixed top-20 right-4 z-50 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-4 rounded-xl shadow-2xl flex items-center justify-between gap-4 max-w-sm animate-slide-down">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <div>
+                            <p class="font-bold">Update Available</p>
+                            <p class="text-sm opacity-90">Refresh for latest features</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="this.closest('#updateNotification').remove()" class="px-3 py-1 bg-white/20 rounded-lg text-sm">
+                            Later
+                        </button>
+                        <button onclick="location.reload()" class="bg-white text-green-700 px-3 py-1 rounded-lg font-bold text-sm hover:bg-green-50">
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(updateDiv);
+            
+            // Auto-remove after 30 seconds
+            setTimeout(() => {
+                if (updateDiv.parentNode) {
+                    updateDiv.remove();
+                }
+            }, 30000);
+        }
+
+        // Network status detection
+        let networkStatusTimeout;
+        window.addEventListener('online', () => {
+            clearTimeout(networkStatusTimeout);
+            showNetworkStatus('You are back online', 'green');
+            // Sync any pending data
+            if (typeof window.syncPendingData === 'function') {
+                window.syncPendingData();
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            clearTimeout(networkStatusTimeout);
+            showNetworkStatus('You are offline', 'red');
+        });
+
+        function showNetworkStatus(message, type) {
+            // Remove existing status
+            const existing = document.querySelector('.network-status');
+            if (existing) existing.remove();
+            
+            const colors = {
+                green: 'bg-green-500',
+                red: 'bg-red-500',
+                yellow: 'bg-yellow-500'
+            };
+            
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `network-status fixed top-4 left-1/2 transform -translate-x-1/2 z-50 ${colors[type]} text-white px-6 py-3 rounded-xl shadow-xl text-sm font-bold animate-slide-down flex items-center gap-2`;
+            statusDiv.innerHTML = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${type === 'green' ? 'M5 13l4 4L19 7' : 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'}" />
+                </svg>
+                ${message}
+            `;
+            document.body.appendChild(statusDiv);
+            
+            networkStatusTimeout = setTimeout(() => {
+                if (statusDiv.parentNode) {
+                    statusDiv.remove();
+                }
+            }, 3000);
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const types = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-24 right-4 z-50 ${types[type]} text-white px-6 py-3 rounded-xl shadow-xl text-sm font-bold animate-slide-up`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // Initialize PWA check on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if already installed
+            if (isStandalone) {
+                console.log('App is running in standalone mode');
+                document.body.classList.add('pwa-installed');
+            }
+            
+            // Check for updates
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'CHECK_UPDATE' });
+            }
+            
+            // Manual install button handler
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('#manualInstallBtn')) {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                    } else if (!isStandalone) {
+                        showInstallPromotion();
+                    } else {
+                        showToast('App is already installed!', 'info');
+                    }
+                }
+            });
+        });
+
+        // Generate dynamic manifest
+        function generateManifest() {
+            const manifest = {
+                "name": "OMR Master Pro",
+                "short_name": "OMR Master",
+                "description": "Professional OMR practice suite with advanced analytics",
+                "start_url": "./",
+                "display": "standalone",
+                "background_color": "#0f172a",
+                "theme_color": "#2563eb",
+                "orientation": "any",
+                "scope": "./",
+                "lang": "en",
+                "categories": ["education", "productivity", "utilities"],
+                "icons": [
+                    {
+                        "src": "icon.png",
+                        "sizes": "72x72",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "96x96",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "128x128",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "144x144",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "152x152",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "192x192",
+                        "type": "image/png",
+                        "purpose": "any maskable"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "384x384",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "icon.png",
+                        "sizes": "512x512",
+                        "type": "image/png",
+                        "purpose": "any maskable"
+                    }
+                ],
+                "screenshots": [
+                    {
+                        "src": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop",
+                        "sizes": "800x600",
+                        "type": "image/jpeg",
+                        "form_factor": "wide",
+                        "label": "Dashboard view"
+                    }
+                ],
+                "shortcuts": [
+                    {
+                        "name": "New Exam",
+                        "short_name": "New",
+                        "description": "Create a new exam configuration",
+                        "url": "./?new-exam",
+                        "icons": [{
+                            "src": "icon.png",
+                            "sizes": "96x96"
+                        }]
+                    },
+                    {
+                        "name": "Analytics",
+                        "short_name": "Stats",
+                        "description": "View your exam statistics",
+                        "url": "./analytics.html",
+                        "icons": [{
+                            "src": "icon.png",
+                            "sizes": "96x96"
+                        }]
+                    }
+                ]
+            };
+            
+            // Create manifest blob and URL
+            const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            // Update manifest link
+            const manifestLink = document.getElementById('manifestLink');
+            if (manifestLink) {
+                manifestLink.href = url;
+            }
+            
+            return url;
+        }
+
+        // Generate manifest on load
+        window.addEventListener('load', () => {
+            generateManifest();
+        });
+    </script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        bangla: ['Hind Siliguri', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                        'pulse-gentle': 'pulseGentle 2s ease-in-out infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'slide-in-right': 'slideInRight 0.3s ease-out forwards',
+                        'bounce-subtle': 'bounceSubtle 2s infinite',
+                        'slide-down': 'slideDown 0.3s ease-out',
+                        'spin-slow': 'spin 3s linear infinite',
+                        'wave': 'wave 2s linear infinite',
+                        'gradient': 'gradient 3s ease infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        popIn: { '0%': { opacity: '0', transform: 'scale(0.9)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+                        pulseGentle: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.85' } },
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-10px)' } },
+                        slideInRight: { '0%': { opacity: '0', transform: 'translateX(10px)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
+                        bounceSubtle: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-5px)' } },
+                        slideDown: { '0%': { opacity: '0', transform: 'translateY(-20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        wave: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-100%)' } },
+                        gradient: { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
+                        shimmer: { '0%': { backgroundPosition: '-1000px 0' }, '100%': { backgroundPosition: '1000px 0' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-attachment: fixed;
+            background: radial-gradient(circle at top left, #f8fafc, #e2e8f0); 
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+        }
+        .dark body {
+            background: radial-gradient(circle at top left, #0f172a, #1e293b);
+        }
+        
+        /* PWA specific styles */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .nav-glass {
+                padding-top: env(safe-area-inset-top);
+                height: calc(80px + env(safe-area-inset-top));
+            }
+            .pwa-installed .install-btn {
+                display: none !important;
+            }
+        }
+        
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .dark .nav-glass {
+            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+        }
+
+        /* Range Slider Customization */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+            margin-top: -8px; 
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+            transition: all 0.2s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.8);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+        .dark input[type=range]::-webkit-slider-runnable-track {
+            background: #475569;
+        }
+
+        /* Smart Input Styling */
+        .smart-input-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .smart-input-label {
+            position: absolute;
+            top: -10px;
+            left: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0 8px;
+            background: white;
+            color: #2563eb;
+            z-index: 10;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+        .dark .smart-input-label {
+            background: #0f172a;
+            color: #60a5fa;
+        }
+
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Custom checkbox */
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .custom-checkbox:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+        .custom-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .dark .custom-checkbox {
+            border-color: #475569;
+        }
+        .dark .custom-checkbox:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        /* Advanced Card */
+        .advanced-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .advanced-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .dark .advanced-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Number Input Spinner */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            opacity: 1;
+            height: 30px;
+        }
+
+        /* Enhanced input focus */
+        .enhanced-input:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: #2563eb;
+        }
+        .dark .enhanced-input:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        /* PWA Install Button Animation */
+        @keyframes pulse-install {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .pulse-install {
+            animation: pulse-install 2s infinite;
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(90deg, #2563eb, #7c3aed, #2563eb);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s linear infinite;
+        }
+
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        .dark .skeleton {
+            background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+        }
+    </style>
+</head>
+<body class="text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-blue-500 selection:text-white">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, createContext, useContext } = React;
+
+        // --- Translations Dictionary ---
+        const translations = {
+            en: {
+                app_name: "OMR Master",
+                pro: "PRO",
+                dashboard: "Dashboard",
+                active_session: "Active Session",
+                analytics: "Analytics",
+                about: "About",
+                report: "Report Issues",
+                guideline: "Guidelines",
+                contact: "Contact",
+                donation: "Donation",
+                resume: "Resume Exam",
+                exams_taken: "Exams Taken",
+                avg_score: "Avg Score",
+                last_active: "Last Active",
+                new_config: "New Exam Configuration",
+                config_sub: "Configure your exam parameters below",
+                lbl_exam_name: "Exam Name",
+                lbl_questions: "Total Questions",
+                lbl_duration: "Duration (Minutes)",
+                lbl_correct: "Correct (+)",
+                lbl_wrong: "Wrong (-)",
+                lbl_options: "Answer Options",
+                lbl_pdf: "Question Paper URL",
+                placeholder_exam: "Enter exam name (e.g., BCS 45th Preliminary Test)",
+                placeholder_pdf: "https://drive.google.com/file/d/... or direct PDF link",
+                btn_start: "Start Examination",
+                btn_advanced: "Advanced Settings",
+                footer_credit: "Designed & Developed by",
+                footer_rights: "All Rights Reserved.",
+                modal_about_title: "About OMR Master",
+                modal_about_desc: "OMR Master Pro is an advanced self-testing tool designed to simulate real-world exam environments.",
+                modal_contact_title: "Contact Us",
+                modal_report_title: "Report an Issue",
+                modal_guide_title: "Usage Guidelines",
+                err_name_req: "Exam name is required",
+                mode_standard: "Standard",
+                mode_advanced: "Advanced",
+                tips: "Tips",
+                tip_1: "Use descriptive exam names for better tracking",
+                tip_2: "Set realistic time limits matching actual exams",
+                tip_3: "Add PDF link for split-screen practice",
+                tip_4: "Adjust scoring based on exam pattern",
+                preview: "Preview",
+                total_time: "Total Time",
+                scoring_system: "Scoring System",
+                question_density: "Questions/Min",
+                estimated_speed: "Sec/Question",
+                auto_submit: "Auto Submit",
+                shuffle_questions: "Shuffle Questions",
+                show_timer: "Show Timer",
+                enable_sound: "Enable Sound",
+                dark_mode: "Dark Mode",
+                quick_actions: "Quick Actions",
+                enter_manually: "Enter manually",
+                use_slider: "Use slider",
+                decimal_support: "Supports 0.25, 0.33, 0.5 etc.",
+                install_app: "Install App",
+                app_installed: "App Installed",
+                offline_mode: "Offline Mode",
+                data_saved: "Data saved locally",
+                pwa_features: "PWA Features",
+                pwa_feature_1: "Works offline",
+                pwa_feature_2: "Fast loading",
+                pwa_feature_3: "Home screen icon",
+                pwa_feature_4: "Push notifications",
+                install_now: "Install Now",
+                later: "Later",
+                new_update: "New Update Available",
+                refresh: "Refresh",
+                network_online: "Back online",
+                network_offline: "You are offline",
+                cache_cleared: "Cache cleared",
+                storage: "Storage",
+                clear_data: "Clear Data",
+                confirm_clear: "Are you sure?",
+                yes: "Yes",
+                no: "No",
+                see_how_to_use: "See How to Use",
+                view_details: "View Details",
+                smart_config: "Smart Configuration",
+                smart_tip: "Enter desired values for complete flexibility",
+                any_questions: "Any Number of Questions",
+                any_time: "Any Duration",
+                input_validation: "Values will be automatically validated",
+                unlimited_flexibility: "Unlimited Flexibility",
+                recommended: "Recommended",
+                set_custom: "Set Custom Values",
+                exam_type: "Exam Type",
+                exam_type_placeholder: "Select exam type or custom",
+                exam_types: {
+                    bcs: "BCS Preliminary",
+                    medical: "Medical Admission",
+                    hsc: "HSC/Bachelor",
+                    bank: "Bank Recruitment",
+                    university: "University Admission",
+                    custom: "Custom Configuration"
+                },
+                // New translations for guideline page
+                guideline_title: "Complete User Guidelines",
+                guideline_subtitle: "Learn how to use all features of OMR Master Pro",
+                index_page_guide: "Index Page (Dashboard) Guide",
+                analytics_page_guide: "Analytics Page Guide",
+                exam_page_guide: "Exam Page Guide",
+                pwa_features_guide: "PWA Features Guide",
+                coming_soon: "Coming Soon",
+                video_tutorial: "Video Tutorial",
+                play_video: "Play Video",
+                step_by_step: "Step-by-Step Guide",
+                feature_breakdown: "Feature Breakdown",
+                navigation_guide: "Navigation Guide",
+                configuration_guide: "Configuration Guide",
+                advanced_settings_guide: "Advanced Settings Guide",
+                quick_tips: "Quick Tips",
+                video_placeholder: "Video tutorial will be available soon",
+                index_page_desc: "The index page serves as your main dashboard where you can configure and start new exams, view statistics, and access all features.",
+                analytics_page_desc: "The analytics page provides detailed insights into your exam performance, progress tracking, and historical data analysis.",
+                exam_page_desc: "The exam page is where you take your configured exams with real-time tracking, question navigation, and submission features.",
+                pwa_features_desc: "Learn about Progressive Web App features including offline usage, installation, and home screen functionality.",
+                // Analytics page specific translations
+                ana_title: "Performance Intelligence",
+                ana_sub: "Deep dive into your exam metrics and cognitive patterns.",
+                kpi_exams: "Total Exams",
+                kpi_acc: "Avg Accuracy", 
+                kpi_best: "Best Score", 
+                kpi_time: "Study Time",
+                kpi_efficiency: "Efficiency",
+                kpi_consistency: "Consistency",
+                performance_intelligence: "Performance Intelligence",
+                exam_history_log: "Exam History Log",
+                deep_dive: "Deep Dive",
+                detailed_exam_view: "Detailed Exam View",
+                skill_radar: "Skill Radar",
+                question_heatmap: "Question Heatmap",
+                performance_trend: "Performance Trend",
+                ai_insights: "AI Insights",
+                breakdown_chart: "Breakdown Chart",
+                predictive_analytics: "Predictive Analytics",
+                comparison_view: "Comparison View",
+                exam_groups: "Exam Groups",
+                export_import: "Export/Import Data",
+                dashboard_overview: "Dashboard Overview",
+                performance_metrics: "Performance Metrics",
+                advanced_visualizations: "Advanced Visualizations",
+                data_management: "Data Management",
+                retake_exam: "Retake Exam",
+                export_data: "Export Data",
+                import_data: "Import Data",
+                filter_exams: "Filter Exams",
+                compare_exams: "Compare Exams",
+                view_details_analytics: "View Details",
+                delete_exam: "Delete Exam",
+                clear_all_data: "Clear All Data",
+                filter_all_time: "All Time",
+                filter_this_week: "This Week",
+                filter_this_month: "This Month",
+                performance_charts: "Performance Charts",
+                score_distribution: "Score Distribution",
+                time_analysis: "Time Analysis",
+                accuracy_trends: "Accuracy Trends",
+                weak_areas: "Weak Areas",
+                strong_areas: "Strong Areas",
+                study_recommendations: "Study Recommendations",
+                exam_patterns: "Exam Patterns",
+                time_management: "Time Management",
+                question_analysis: "Question Analysis",
+                // PWA features translations
+                pwa_offline_usage: "Offline Usage",
+                pwa_home_screen: "Home Screen Installation",
+                pwa_push_notifications: "Push Notifications",
+                pwa_fast_loading: "Fast Loading",
+                pwa_background_sync: "Background Sync",
+                pwa_native_features: "Native App Features",
+                pwa_install_guide: "Installation Guide",
+                pwa_benefits: "PWA Benefits",
+                pwa_limitations: "PWA Limitations",
+                pwa_security: "Security Features",
+                pwa_updates: "Automatic Updates",
+                pwa_storage: "Local Storage",
+                pwa_cross_platform: "Cross Platform",
+                pwa_no_app_store: "No App Store Required"
+            },
+            bn: {
+                app_name: "ওএমআর মাস্টার",
+                pro: "প্রো",
+                dashboard: "ড্যাশবোর্ড",
+                active_session: "চলমান সেশন",
+                analytics: "বিশ্লেষণ",
+                about: "আমাদের সম্পর্কে",
+                report: "রিপোর্ট",
+                guideline: "নির্দেশিকা",
+                contact: "যোগাযোগ",
+                donation: "অনুদান",
+                resume: "পরীক্ষা শুরু করুন",
+                exams_taken: "মোট পরীক্ষা",
+                avg_score: "গড় স্কোর",
+                last_active: "সর্বশেষ সক্রিয়",
+                new_config: "নতুন পরীক্ষার কনফিগারেশন",
+                config_sub: "নিচে আপনার পরীক্ষার প্যারামিটার সেট করুন",
+                lbl_exam_name: "পরীক্ষার নাম",
+                lbl_questions: "মোট প্রশ্ন",
+                lbl_duration: "সময় (মিনিট)",
+                lbl_correct: "সঠিক (+)",
+                lbl_wrong: "ভুল (-)",
+                lbl_options: "উত্তর অপশন",
+                lbl_pdf: "প্রশ্নপত্রের লিংক",
+                placeholder_exam: "পরীক্ষার নাম লিখুন (যেমন: বিসিএস ৪৫তম প্রিলিমিনারি)",
+                placeholder_pdf: "https://drive.google.com/file/d/... অথবা সরাসরি পিডিএফ লিংক",
+                btn_start: "পরীক্ষা শুরু করুন",
+                btn_advanced: "এডভান্সড সেটিংস",
+                footer_credit: "ডিজাইন ও ডেভেলপমেন্টে",
+                footer_rights: "সর্বস্বত্ব সংরক্ষিত।",
+                modal_about_title: "ওএমআর মাস্টার সম্পর্কে",
+                modal_about_desc: "ওএমআর মাস্টার প্রো একটি উন্নত সেলফ-টেস্টিং টুল যা আপনাকে বাস্তব পরীক্ষার পরিবেশের অভিজ্ঞতা দেবে।",
+                modal_contact_title: "যোগাযোগ করুন",
+                modal_report_title: "সমস্যা রিপোর্ট করুন",
+                modal_guide_title: "ব্যবহারের নিয়মাবলী",
+                err_name_req: "পরীক্ষার নাম আবশ্যক",
+                mode_standard: "স্ট্যান্ডার্ড",
+                mode_advanced: "অ্যাডভান্সড",
+                tips: "পরামর্শ",
+                tip_1: "ভালো ট্র্যাকিংয়ের জন্য বর্ণনামূলক পরীক্ষার নাম ব্যবহার করুন",
+                tip_2: "বাস্তব পরীক্ষার সাথে মিল রেখে সময় সীমা নির্ধারণ করুন",
+                tip_3: "স্প্লিট-স্ক্রিন অনুশীলনের জন্য পিডিএফ লিংক যোগ করুন",
+                tip_4: "পরীক্ষার প্যাটার্ন অনুযায়ী স্কোরিং সমন্বয় করুন",
+                preview: "প্রিভিউ",
+                total_time: "মোট সময়",
+                scoring_system: "স্কোরিং সিস্টেম",
+                question_density: "প্রশ্ন/মিনিট",
+                estimated_speed: "সেকেন্ড/প্রশ্ন",
+                auto_submit: "স্বয়ংক্রিয় জমা",
+                shuffle_questions: "প্রশ্ন এলোমেলো",
+                show_timer: "টাইমার দেখান",
+                enable_sound: "শব্দ সক্রিয়",
+                dark_mode: "ডার্ক মোড",
+                quick_actions: "দ্রুত কাজ",
+                enter_manually: "হাতে লিখুন",
+                use_slider: "স্লাইডার ব্যবহার করুন",
+                decimal_support: "০.২৫, ০.৩৩, ০.৫ ইত্যাদি সমর্থিত",
+                install_app: "অ্যাপ ইন্সটল করুন",
+                app_installed: "অ্যাপ ইন্সটল করা আছে",
+                offline_mode: "অফলাইন মোড",
+                data_saved: "ডাটা লোকালি সংরক্ষিত",
+                pwa_features: "PWA বৈশিষ্ট্য",
+                pwa_feature_1: "অফলাইনে কাজ করে",
+                pwa_feature_2: "দ্রুত লোডিং",
+                pwa_feature_3: "হোম স্ক্রিন আইকন",
+                pwa_feature_4: "পুশ নোটিফিকেশন",
+                install_now: "এখনই ইন্সটল করুন",
+                later: "পরে",
+                new_update: "নতুন আপডেট উপলব্ধ",
+                refresh: "রিফ্রেশ",
+                network_online: "অনলাইনে ফিরেছেন",
+                network_offline: "আপনি অফলাইনে রয়েছেন",
+                cache_cleared: "ক্যাশে মুছে ফেলা হয়েছে",
+                storage: "স্টোরেজ",
+                clear_data: "ডাটা ক্লিয়ার করুন",
+                confirm_clear: "আপনি কি নিশ্চিত?",
+                yes: "হ্যাঁ",
+                no: "না",
+                see_how_to_use: "ব্যবহার নির্দেশিকা দেখুন",
+                view_details: "বিস্তারিত দেখুন",
+                smart_config: "স্মার্ট কনফিগারেশন",
+                smart_tip: "সম্পূর্ণ নমনীয়তার জন্য পছন্দের মান লিখুন",
+                any_questions: "যেকোনো সংখ্যক প্রশ্ন",
+                any_time: "যেকোনো সময়সীমা",
+                input_validation: "মান স্বয়ংক্রিয়ভাবে যাচাই করা হবে",
+                unlimited_flexibility: "সীমাহীন নমনীয়তা",
+                recommended: "সুপারিশকৃত",
+                set_custom: "কাস্টম মান সেট করুন",
+                exam_type: "পরীক্ষার ধরন",
+                exam_type_placeholder: "পরীক্ষার ধরন নির্বাচন করুন",
+                exam_types: {
+                    bcs: "বিসিএস প্রিলিমিনারি",
+                    medical: "মেডিকেল ভর্তি",
+                    hsc: "এইচএসসি/স্নাতক",
+                    bank: "ব্যাংক নিয়োগ",
+                    university: "বিশ্ববিদ্যালয় ভর্তি",
+                    custom: "কাস্টম কনফিগারেশন"
+                },
+                // New translations for guideline page
+                guideline_title: "সম্পূর্ণ ব্যবহারকারী নির্দেশিকা",
+                guideline_subtitle: "OMR Master Pro-এর সকল বৈশিষ্ট্য ব্যবহার করার পদ্ধতি শিখুন",
+                index_page_guide: "ইনডেক্স পেজ (ড্যাশবোর্ড) নির্দেশিকা",
+                analytics_page_guide: "বিশ্লেষণ পেজ নির্দেশিকা",
+                exam_page_guide: "পরীক্ষা পেজ নির্দেশিকা",
+                pwa_features_guide: "PWA বৈশিষ্ট্য নির্দেশিকা",
+                coming_soon: "শীঘ্রই আসছে",
+                video_tutorial: "ভিডিও টিউটোরিয়াল",
+                play_video: "ভিডিও চালান",
+                step_by_step: "ধাপে ধাপে নির্দেশিকা",
+                feature_breakdown: "বৈশিষ্ট্য বিস্তারিত",
+                navigation_guide: "নেভিগেশন নির্দেশিকা",
+                configuration_guide: "কনফিগারেশন নির্দেশিকা",
+                advanced_settings_guide: "অ্যাডভান্সড সেটিংস নির্দেশিকা",
+                quick_tips: "দ্রুত টিপস",
+                video_placeholder: "ভিডিও টিউটোরিয়াল শীঘ্রই উপলব্ধ হবে",
+                index_page_desc: "ইনডেক্স পেজটি আপনার প্রধান ড্যাশবোর্ড হিসাবে কাজ করে যেখানে আপনি নতুন পরীক্ষা কনফিগার এবং শুরু করতে পারেন, পরিসংখ্যান দেখতে পারেন এবং সমস্ত বৈশিষ্ট্য অ্যাক্সেস করতে পারেন।",
+                analytics_page_desc: "বিশ্লেষণ পেজটি আপনার পরীক্ষার কর্মক্ষমতা, অগ্রগতি ট্র্যাকিং এবং ঐতিহাসিক ডেটা বিশ্লেষণের বিস্তারিত অন্তর্দৃষ্টি প্রদান করে।",
+                exam_page_desc: "পরীক্ষা পেজটি যেখানে আপনি রিয়েল-টাইম ট্র্যাকিং, প্রশ্ন নেভিগেশন এবং জমা বৈশিষ্ট্যগুলির সাথে আপনার কনফিগার করা পরীক্ষাগুলি নেন।",
+                pwa_features_desc: "প্রগ্রেসিভ ওয়েব অ্যাপ বৈশিষ্ট্যগুলি সম্পর্কে জানুন যার মধ্যে অফলাইন ব্যবহার, ইনস্টলেশন এবং হোম স্ক্রিন কার্যকারিতা অন্তর্ভুক্ত।",
+                // Analytics page specific translations
+                ana_title: "পারফরমেন্স ইন্টেলিজেন্স",
+                ana_sub: "আপনার পরীক্ষার মেট্রিক্স এবং প্যাটার্ন বিশ্লেষণ করুন।",
+                kpi_exams: "মোট পরীক্ষা",
+                kpi_acc: "গড় সঠিকতা",
+                kpi_best: "সেরা স্কোর",
+                kpi_time: "মোট সময়",
+                kpi_efficiency: "দক্ষতা",
+                kpi_consistency: "ধারাবাহিকতা",
+                performance_intelligence: "পারফরমেন্স ইন্টেলিজেন্স",
+                exam_history_log: "পরীক্ষার ইতিহাস লগ",
+                deep_dive: "বিস্তারিত দেখুন",
+                detailed_exam_view: "বিস্তারিত পরীক্ষা ভিউ",
+                skill_radar: "দক্ষতা রাডার",
+                question_heatmap: "প্রশ্ন হিটম্যাপ",
+                performance_trend: "পারফরমেন্স ট্রেন্ড",
+                ai_insights: "এআই ইনসাইটস",
+                breakdown_chart: "ব্রেকডাউন চার্ট",
+                predictive_analytics: "ভবিষ্যদ্বাণীমূলক বিশ্লেষণ",
+                comparison_view: "তুলনা ভিউ",
+                exam_groups: "পরীক্ষার গ্রুপ",
+                export_import: "ডেটা এক্সপোর্ট/ইম্পোর্ট",
+                dashboard_overview: "ড্যাশবোর্ড ওভারভিউ",
+                performance_metrics: "পারফরমেন্স মেট্রিক্স",
+                advanced_visualizations: "অ্যাডভান্সড ভিজ্যুয়ালাইজেশন",
+                data_management: "ডেটা ম্যানেজমেন্ট",
+                retake_exam: "পুনরায় পরীক্ষা দিন",
+                export_data: "ডেটা এক্সপোর্ট",
+                import_data: "ডেটা ইম্পোর্ট",
+                filter_exams: "পরীক্ষা ফিল্টার",
+                compare_exams: "পরীক্ষা তুলনা",
+                view_details_analytics: "বিস্তারিত দেখুন",
+                delete_exam: "পরীক্ষা মুছুন",
+                clear_all_data: "সকল ডেটা ক্লিয়ার",
+                filter_all_time: "সব সময়",
+                filter_this_week: "এই সপ্তাহ",
+                filter_this_month: "এই মাস",
+                performance_charts: "পারফরমেন্স চার্ট",
+                score_distribution: "স্কোর ডিস্ট্রিবিউশন",
+                time_analysis: "সময় বিশ্লেষণ",
+                accuracy_trends: "সঠিকতা ট্রেন্ড",
+                weak_areas: "দুর্বল ক্ষেত্র",
+                strong_areas: "শক্তিশালী ক্ষেত্র",
+                study_recommendations: "পড়াশোনার সুপারিশ",
+                exam_patterns: "পরীক্ষার প্যাটার্ন",
+                time_management: "সময় ব্যবস্থাপনা",
+                question_analysis: "প্রশ্ন বিশ্লেষণ",
+                // PWA features translations
+                pwa_offline_usage: "অফলাইন ব্যবহার",
+                pwa_home_screen: "হোম স্ক্রিন ইনস্টলেশন",
+                pwa_push_notifications: "পুশ নোটিফিকেশন",
+                pwa_fast_loading: "দ্রুত লোডিং",
+                pwa_background_sync: "ব্যাকগ্রাউন্ড সিঙ্ক",
+                pwa_native_features: "নেটিভ অ্যাপ বৈশিষ্ট্য",
+                pwa_install_guide: "ইনস্টলেশন গাইড",
+                pwa_benefits: "PWA সুবিধা",
+                pwa_limitations: "PWA সীমাবদ্ধতা",
+                pwa_security: "সিকিউরিটি বৈশিষ্ট্য",
+                pwa_updates: "অটোমেটিক আপডেট",
+                pwa_storage: "লোকাল স্টোরেজ",
+                pwa_cross_platform: "ক্রস প্লাটফর্ম",
+                pwa_no_app_store: "অ্যাপ স্টোর প্রয়োজন নেই"
+            }
+        };
+
+        // --- Icons (Lucide) ---
+        const Icons = {
+            Home: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Play: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+            BarChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>,
+            Settings: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+            Sun: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+            Moon: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+            Globe: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+            Info: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+            Flag: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+            Mail: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+            Book: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+            Heart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+            X: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+            Check: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+            FileText: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>,
+            Link: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
+            Clock: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+            Zap: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+            HelpCircle: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+            ChevronRight: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+            Calculator: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>,
+            Hash: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>,
+            Download: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+            Wifi: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>,
+            WifiOff: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>,
+            Smartphone: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>,
+            Refresh: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+            Database: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
+            Shield: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+            Users: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            Edit: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+            Type: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>,
+            Infinity: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.585 0-4.585 8 0 8 5.606 0 7.644-8 12.74-8z"/></svg>,
+            Video: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>,
+            List: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>,
+            Navigation: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>,
+            Activity: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+            Award: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+            TrendingUp: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+            Brain: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>,
+            Target: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+            Eye: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+            Trash: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>,
+            Compare: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 21l-6-6m6 6v-8m0 8h-8"/><path d="M3 3l6 6m-6-6v8m0-8h8"/></svg>,
+            Group: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            AlertCircle: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+            Upload: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+            Filter: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>,
+            BarChart2: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+            PieChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+        };
+
+        const AppContext = createContext();
+
+        // Enhanced Modal with PWA features
+        const Modal = ({ title, isOpen, onClose, children, size = 'lg' }) => {
+            if (!isOpen) return null;
+            
+            const sizes = {
+                sm: 'max-w-md',
+                md: 'max-w-lg',
+                lg: 'max-w-2xl',
+                xl: 'max-w-4xl'
+            };
+            
+            return (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
+                    <div className={`relative w-full ${sizes[size]} glass-panel rounded-2xl p-6 shadow-2xl animate-pop-in border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90`}>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                                {title}
+                            </h3>
+                            <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                                <Icons.X />
+                            </button>
+                        </div>
+                        <div className="text-slate-600 dark:text-slate-300 max-h-[60vh] overflow-y-auto pr-2">
+                            {children}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // PWA Settings Modal
+        const PWASettingsModal = ({ isOpen, onClose }) => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const [storageInfo, setStorageInfo] = useState({});
+            const [showClearConfirm, setShowClearConfirm] = useState(false);
+            
+            useEffect(() => {
+                if ('storage' in navigator && 'estimate' in navigator.storage) {
+                    navigator.storage.estimate().then(estimate => {
+                        setStorageInfo({
+                            usage: (estimate.usage / (1024 * 1024)).toFixed(2),
+                            quota: (estimate.quota / (1024 * 1024)).toFixed(2)
+                        });
+                    });
+                }
+                
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.getRegistrations().then(regs => {
+                        setStorageInfo(prev => ({...prev, swCount: regs.length}));
+                    });
+                }
+            }, [isOpen]);
+            
+            const clearCache = async () => {
+                try {
+                    if ('caches' in window) {
+                        const cacheNames = await caches.keys();
+                        await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    }
+                    
+                    if ('serviceWorker' in navigator) {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(registrations.map(reg => reg.unregister()));
+                    }
+                    
+                    localStorage.removeItem('omr_history');
+                    localStorage.removeItem('omr_current_session');
+                    
+                    window.dispatchEvent(new CustomEvent('cacheCleared'));
+                    setShowClearConfirm(false);
+                    setTimeout(() => window.location.reload(), 1000);
+                } catch (err) {
+                    console.error('Failed to clear cache:', err);
+                }
+            };
+            
+            const updateApp = () => {
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+                }
+                window.location.reload();
+            };
+            
+            return (
+                <Modal
+                    title="PWA Settings"
+                    isOpen={isOpen}
+                    onClose={onClose}
+                    size="md"
+                >
+                    <div className="space-y-6">
+                        <div className="space-y-4">
+                            <h4 className="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                                <Icons.Database /> {t('storage')}
+                            </h4>
+                            {storageInfo.usage && (
+                                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-sm text-slate-600 dark:text-slate-400">Storage Used</span>
+                                        <span className="font-bold">{storageInfo.usage} MB / {storageInfo.quota} MB</span>
+                                    </div>
+                                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                        <div 
+                                            className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-500" 
+                                            style={{ width: `${(storageInfo.usage / storageInfo.quota) * 100}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <button
+                                onClick={() => setShowClearConfirm(true)}
+                                className="w-full py-3 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-xl font-bold hover:from-red-600 hover:to-rose-600 transition flex items-center justify-center gap-2"
+                            >
+                                <Icons.Refresh /> {t('clear_data')}
+                            </button>
+                            
+                            {showClearConfirm && (
+                                <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
+                                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowClearConfirm(false)}></div>
+                                    <div className="relative glass-panel rounded-2xl p-6 shadow-2xl animate-pop-in max-w-sm w-full">
+                                        <h4 className="text-lg font-bold text-slate-800 dark:text-white mb-4">{t('confirm_clear')}</h4>
+                                        <p className="text-slate-600 dark:text-slate-400 mb-6">
+                                            This will clear all cached data and restart the app.
+                                        </p>
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={() => setShowClearConfirm(false)}
+                                                className="flex-1 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-bold"
+                                            >
+                                                {t('no')}
+                                            </button>
+                                            <button
+                                                onClick={clearCache}
+                                                className="flex-1 py-2 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg font-bold"
+                                            >
+                                                {t('yes')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <h4 className="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                                <Icons.Shield /> Service Worker
+                            </h4>
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                                    <span className="text-sm text-slate-600 dark:text-slate-400">Status</span>
+                                    <span className="font-bold text-green-600 dark:text-green-400">
+                                        {navigator.serviceWorker ? 'Active' : 'Not Supported'}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                                    <span className="text-sm text-slate-600 dark:text-slate-400">Registrations</span>
+                                    <span className="font-bold">{storageInfo.swCount || 0}</span>
+                                </div>
+                            </div>
+                            
+                            <button
+                                onClick={updateApp}
+                                className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-bold hover:from-blue-600 hover:to-indigo-600 transition flex items-center justify-center gap-2"
+                            >
+                                <Icons.Refresh /> Check for Updates
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+            );
+        };
+
+        // PWA Status Component
+        const PWAStatus = () => {
+            const [isStandalone, setIsStandalone] = useState(false);
+            const [isOnline, setIsOnline] = useState(true);
+            const [showPWAModal, setShowPWAModal] = useState(false);
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+
+            useEffect(() => {
+                const checkStandalone = () => {
+                    const standalone = window.matchMedia('(display-mode: standalone)').matches || 
+                                    window.navigator.standalone || 
+                                    document.referrer.includes('android-app://');
+                    setIsStandalone(standalone);
+                };
+                
+                checkStandalone();
+                setIsOnline(navigator.onLine);
+                
+                const handleOnline = () => setIsOnline(true);
+                const handleOffline = () => setIsOnline(false);
+                const handlePWAStatus = (e) => setIsStandalone(e.detail.isStandalone);
+                
+                window.addEventListener('online', handleOnline);
+                window.addEventListener('offline', handleOffline);
+                window.addEventListener('pwaStatusChanged', handlePWAStatus);
+                
+                return () => {
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                    window.removeEventListener('pwaStatusChanged', handlePWAStatus);
+                };
+            }, []);
+
+            if (!isStandalone && isOnline) return null;
+
+            return (
+                <div className="fixed bottom-20 left-4 z-40 flex flex-col gap-2">
+                    {isStandalone && (
+                        <div 
+                            className="flex items-center gap-2 bg-green-500 text-white px-3 py-2 rounded-xl shadow-lg text-sm font-bold animate-slide-in-right cursor-pointer hover:scale-105 transition-transform"
+                            onClick={() => setShowPWAModal(true)}
+                        >
+                            <Icons.Smartphone className="w-4 h-4" />
+                            <span>{t('app_installed')}</span>
+                        </div>
+                    )}
+                    {!isOnline && (
+                        <div className="flex items-center gap-2 bg-yellow-500 text-white px-3 py-2 rounded-xl shadow-lg text-sm font-bold animate-slide-in-right">
+                            <Icons.WifiOff className="w-4 h-4" />
+                            <span>{t('offline_mode')}</span>
+                        </div>
+                    )}
+                    
+                    {showPWAModal && (
+                        <PWASettingsModal isOpen={showPWAModal} onClose={() => setShowPWAModal(false)} />
+                    )}
+                </div>
+            );
+        };
+
+        // Quick Actions Component
+        const QuickActions = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const [showActions, setShowActions] = useState(false);
+            const [showPWAModal, setShowPWAModal] = useState(false);
+
+            const quickActions = [
+                { name: 'Clear Session', icon: Icons.Refresh, action: () => {
+                    localStorage.removeItem('omr_current_session');
+                    window.location.reload();
+                }},
+                { name: 'View Analytics', icon: Icons.BarChart, action: () => window.location.href = 'analytics.html'},
+                { name: 'Guidelines', icon: Icons.Book, action: () => window.location.href = 'guideline.html'},
+                { name: 'PWA Settings', icon: Icons.Settings, action: () => setShowPWAModal(true)}
+            ];
+
+            return (
+                <div className="fixed bottom-4 left-4 z-40">
+                    <button
+                        onClick={() => setShowActions(!showActions)}
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-xl shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                    >
+                        <Icons.Settings className="w-6 h-6" />
+                    </button>
+                    
+                    {showActions && (
+                        <div className="absolute bottom-16 left-0 bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-4 min-w-[200px] animate-pop-in">
+                            <h4 className="font-bold text-slate-800 dark:text-white mb-3">{t('quick_actions')}</h4>
+                            <div className="space-y-2">
+                                {quickActions.map((action, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => {
+                                            action.action();
+                                            setShowActions(false);
+                                        }}
+                                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                    >
+                                        <action.icon className="w-4 h-4" />
+                                        {action.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    
+                    {showPWAModal && (
+                        <PWASettingsModal isOpen={showPWAModal} onClose={() => setShowPWAModal(false)} />
+                    )}
+                </div>
+            );
+        };
+
+        const Navbar = ({ activePage }) => {
+            const { lang, setLang, darkMode, setDarkMode } = useContext(AppContext);
+            const [isOpen, setIsOpen] = useState(false);
+            const [sessionActive, setSessionActive] = useState(false);
+            const [isPWA, setIsPWA] = useState(false);
+            const t = (k) => translations[lang][k];
+
+            useEffect(() => {
+                const session = localStorage.getItem('omr_current_session');
+                if (session) setSessionActive(true);
+                
+                const checkPWA = window.matchMedia('(display-mode: standalone)').matches;
+                setIsPWA(checkPWA);
+                
+                const handlePWAStatus = (e) => setIsPWA(e.detail.isStandalone);
+                window.addEventListener('pwaStatusChanged', handlePWAStatus);
+                
+                return () => window.removeEventListener('pwaStatusChanged', handlePWAStatus);
+            }, []);
+
+            const toggleTheme = () => {
+                const newDarkMode = !darkMode;
+                setDarkMode(newDarkMode);
+                document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', newDarkMode ? 'dark' : 'light');
+            };
+
+            const toggleLang = () => {
+                const newLang = lang === 'en' ? 'bn' : 'en';
+                setLang(newLang);
+                localStorage.setItem('lang', newLang);
+            };
+
+            const links = [
+                { name: t('dashboard'), href: 'index.html', icon: Icons.Home, active: activePage === 'home' },
+                { name: t('active_session'), href: 'exam.html', icon: Icons.Play, active: activePage === 'exam', hidden: !sessionActive },
+                { name: t('analytics'), href: 'analytics.html', icon: Icons.BarChart, active: activePage === 'analytics' },
+                { name: t('guideline'), href: 'guideline.html', icon: Icons.Book, active: activePage === 'guideline' },
+            ];
+
+            const secondaryLinks = [
+                { name: t('about'), icon: Icons.Info, href: 'about.html' },
+                { name: t('report'), icon: Icons.Flag, href: 'report.html' },
+                { name: t('contact'), icon: Icons.Mail, href: 'contact.html' },
+                { name: t('donation'), icon: Icons.Heart, href: 'donate.html' },
+            ];
+
+            return (
+                <nav className="fixed top-0 inset-x-0 z-50 nav-glass transition-all duration-300 shadow-sm pwa-padding">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-20">
+                            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.location.href='index.html'}>
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 transition-transform group-hover:scale-105 group-hover:rotate-3">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                                </div>
+                                <div className={lang === 'bn' ? 'font-bangla' : ''}>
+                                    <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight leading-none">{t('app_name')}</h1>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-[10px] font-bold tracking-widest text-blue-600 dark:text-blue-400 uppercase">{t('pro')}</span>
+                                        {isPWA && (
+                                            <span className="text-[8px] font-bold tracking-widest text-green-600 dark:text-green-400 uppercase">PWA</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="hidden lg:flex items-center gap-2">
+                                <div className="flex items-center gap-1 mr-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                                    {links.map(link => !link.hidden && (
+                                        <a key={link.name} href={link.href} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${link.active ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}>
+                                            <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                        </a>
+                                    ))}
+                                </div>
+                                {secondaryLinks.map((item, idx) => (
+                                    <a key={idx} href={item.href} title={item.name} className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                                        <item.icon />
+                                    </a>
+                                ))}
+                                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                                <button onClick={toggleLang} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:scale-105 transition-transform">
+                                    <Icons.Globe /> {lang === 'en' ? 'BN' : 'EN'}
+                                </button>
+                                <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:rotate-12 transition-transform">
+                                    {darkMode ? <Icons.Sun /> : <Icons.Moon />}
+                                </button>
+                            </div>
+                            <div className="lg:hidden flex items-center gap-3">
+                                <button onClick={toggleLang} className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{lang === 'en' ? 'BN' : 'EN'}</button>
+                                <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-300">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
+                                <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {isOpen && (
+                        <div className="lg:hidden border-t border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl absolute w-full shadow-xl">
+                            <div className="p-4 space-y-2">
+                                {links.map(link => !link.hidden && (
+                                    <a key={link.name} href={link.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium ${link.active ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'}`}>
+                                        <link.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{link.name}</span>
+                                    </a>
+                                ))}
+                                <hr className="border-slate-100 dark:border-slate-800 my-2" />
+                                {secondaryLinks.map((item, idx) => (
+                                    <a key={idx} href={item.href} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">
+                                        <item.icon /> <span className={lang === 'bn' ? 'font-bangla' : ''}>{item.name}</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </nav>
+            );
+        };
+
+        const Footer = () => {
+            const { lang } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            const currentYear = new Date().getFullYear();
+            const [isOnline, setIsOnline] = useState(true);
+            const [showPWAModal, setShowPWAModal] = useState(false);
+
+            useEffect(() => {
+                setIsOnline(navigator.onLine);
+                const handleOnline = () => setIsOnline(true);
+                const handleOffline = () => setIsOnline(false);
+                
+                window.addEventListener('online', handleOnline);
+                window.addEventListener('offline', handleOffline);
+                
+                return () => {
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                };
+            }, []);
+
+            const handleInstallClick = () => {
+                if (window.deferredPrompt) {
+                    window.deferredPrompt.prompt();
+                } else {
+                    setShowPWAModal(true);
+                }
+            };
+
+            return (
+                <>
+                    <footer className="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
+                        <div className="max-w-7xl mx-auto px-4 py-8">
+                            <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
+                                        <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UR</span>
+                                        Urfa Hasan Fattah & Rifat
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {isOnline ? (
+                                            <Icons.Wifi className="w-4 h-4 text-green-500" />
+                                        ) : (
+                                            <Icons.WifiOff className="w-4 h-4 text-yellow-500" />
+                                        )}
+                                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                                            {isOnline ? 'Online' : 'Offline'}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div className="text-center">
+                                    <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                                        {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah & Rifatuzzaman Rifat</span>. &copy; {currentYear} {t('footer_rights')}
+                                    </p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                        {t('data_saved')} • PWA Enabled
+                                    </p>
+                                </div>
+                                
+                                <div className="flex flex-col gap-3">
+                                    <a 
+                                        href="donate.html" 
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold rounded-xl shadow-lg shadow-pink-500/20 hover:shadow-xl hover:shadow-pink-500/30 transition-all duration-300 hover:scale-105"
+                                    >
+                                        <Icons.Heart className="w-5 h-5" />
+                                        <span className={lang === 'bn' ? 'font-bangla' : ''}>{t('donation')}</span>
+                                    </a>
+                                    
+                                    <button 
+                                        id="manualInstallBtn"
+                                        onClick={handleInstallClick}
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105 text-sm pulse-install"
+                                    >
+                                        <Icons.Download className="w-4 h-4" />
+                                        <span>{t('install_app')}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                    
+                    {showPWAModal && (
+                        <PWASettingsModal isOpen={showPWAModal} onClose={() => setShowPWAModal(false)} />
+                    )}
+                </>
+            );
+        };
+
+        // Guideline Page Component
+        const Guideline = () => {
+            const { lang, darkMode } = useContext(AppContext);
+            const t = (k) => translations[lang][k];
+            
+            const [activeSection, setActiveSection] = useState('index');
+            
+            const guidelineSections = [
+                { id: 'index', title: t('index_page_guide'), description: t('index_page_desc') },
+                { id: 'analytics', title: t('analytics_page_guide'), description: t('analytics_page_desc') },
+                { id: 'exam', title: t('exam_page_guide'), description: t('exam_page_desc') },
+                { id: 'pwa', title: t('pwa_features_guide'), description: t('pwa_features_desc') }
+            ];
+
+            // Index Page Features
+            const indexPageFeatures = [
+                {
+                    title: t('navigation_guide'),
+                    icon: Icons.Navigation,
+                    points: [
+                        "Top navigation bar with Dashboard, Active Session, Analytics, and Guidelines links",
+                        "Language switcher (English/Bangla) in the top right corner",
+                        "Dark/Light mode toggle for comfortable viewing",
+                        "Quick access to About, Report Issues, Contact, and Donation pages"
+                    ]
+                },
+                {
+                    title: t('configuration_guide'),
+                    icon: Icons.Settings,
+                    points: [
+                        "Smart Configuration with unlimited flexibility for questions and duration",
+                        "Predefined exam types (BCS, Medical, HSC, Bank, University, Custom)",
+                        "Enhanced scoring system with decimal support for negative marking",
+                        "PDF link integration for split-screen practice mode"
+                    ]
+                },
+                {
+                    title: t('advanced_settings_guide'),
+                    icon: Icons.BarChart,
+                    points: [
+                        "Shuffle questions option for random question order",
+                        "Auto-submit when time ends",
+                        "Show/hide timer during exam",
+                        "Enable/disable sound notifications"
+                    ]
+                },
+                {
+                    title: t('quick_tips'),
+                    icon: Icons.Info,
+                    points: [
+                        "Use descriptive exam names for better tracking",
+                        "Set realistic time limits matching actual exams",
+                        "Add PDF link for split-screen practice",
+                        "Adjust scoring based on exam pattern"
+                    ]
+                }
+            ];
+
+            // Analytics Page Features
+            const analyticsPageFeatures = [
+                {
+                    title: t('dashboard_overview'),
+                    icon: Icons.BarChart,
+                    points: [
+                        "Performance Intelligence dashboard with key metrics",
+                        "Six KPI cards showing Total Exams, Avg Accuracy, Best Score, Study Time, Efficiency, and Consistency",
+                        "Real-time data visualization with interactive charts",
+                        "Filter exams by time period (All Time, This Week, This Month)"
+                    ]
+                },
+                {
+                    title: t('performance_metrics'),
+                    icon: Icons.Activity,
+                    points: [
+                        "Performance Trend chart showing score progression over time",
+                        "Score Distribution analysis across different ranges",
+                        "Advanced visualizations including Skill Radar and Question Heatmap",
+                        "AI Insights with personalized study recommendations"
+                    ]
+                },
+                {
+                    title: t('detailed_exam_view'),
+                    icon: Icons.Eye,
+                    points: [
+                        "Deep dive into individual exam performance",
+                        "Skill Radar visualization showing Accuracy, Speed, Coverage, Consistency, Focus, and Efficiency",
+                        "Question-by-question heatmap showing correct, wrong, and skipped questions",
+                        "Breakdown chart with detailed statistics"
+                    ]
+                },
+                {
+                    title: t('predictive_analytics'),
+                    icon: Icons.Brain,
+                    points: [
+                        "Next Score Prediction based on historical performance",
+                        "AI-powered study recommendations",
+                        "Knowledge Gaps identification",
+                        "Performance Forecast with confidence scores"
+                    ]
+                },
+                {
+                    title: t('comparison_view'),
+                    icon: Icons.Compare,
+                    points: [
+                        "Compare multiple attempts of the same exam",
+                        "Visual comparison charts showing score, accuracy, and time improvements",
+                        "Retake History tracking",
+                        "Exam Groups for organizing similar exams"
+                    ]
+                },
+                {
+                    title: t('data_management'),
+                    icon: Icons.Database,
+                    points: [
+                        "Export all exam data as JSON file",
+                        "Import data from previous sessions",
+                        "Delete individual exam records",
+                        "Clear all data with confirmation"
+                    ]
+                }
+            ];
+
+            // PWA Features
+            const pwaFeatures = [
+                {
+                    title: t('pwa_offline_usage'),
+                    icon: Icons.WifiOff,
+                    points: [
+                        "Works completely offline once installed",
+                        "Service Worker caches all necessary files",
+                        "Automatic background updates when online",
+                        "Network-first strategy for data fetching"
+                    ]
+                },
+                {
+                    title: t('pwa_home_screen'),
+                    icon: Icons.Smartphone,
+                    points: [
+                        "Installable like a native app on any device",
+                        "Custom app icon on home screen",
+                        "Splash screen during app launch",
+                        "Standalone mode (no browser UI)"
+                    ]
+                },
+                {
+                    title: t('pwa_fast_loading'),
+                    icon: Icons.Zap,
+                    points: [
+                        "Instant loading from home screen",
+                        "Cached resources for immediate access",
+                        "Progressive enhancement",
+                        "Optimized performance on all devices"
+                    ]
+                },
+                {
+                    title: t('pwa_security'),
+                    icon: Icons.Shield,
+                    points: [
+                        "HTTPS required for all PWA features",
+                        "Secure data storage",
+                        "Protected against common web vulnerabilities",
+                        "Regular security updates"
+                    ]
+                },
+                {
+                    title: t('pwa_cross_platform'),
+                    icon: Icons.Globe,
+                    points: [
+                        "Works on Windows, macOS, Linux, iOS, and Android",
+                        "Responsive design for all screen sizes",
+                        "No app store restrictions",
+                        "Automatic updates without user intervention"
+                    ]
+                },
+                {
+                    title: t('pwa_benefits'),
+                    icon: Icons.Award,
+                    points: [
+                        "Smaller app size compared to native apps",
+                        "No installation from app stores required",
+                        "Easy updates without app store approval",
+                        "Reduced development and maintenance costs"
+                    ]
+                }
+            ];
+
+            return (
+                <div className={`min-h-screen pt-24 flex flex-col ${lang === 'bn' ? 'font-bangla' : ''}`}>
+                    <Navbar activePage="guideline" />
+                    <PWAStatus />
+                    <QuickActions />
+
+                    <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
+                        
+                        {/* Hero Header */}
+                        <div className="text-center mb-10 animate-fade-in relative">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl pointer-events-none animate-float"></div>
+                            <h1 className="relative text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
+                                <span className="gradient-text">{t('guideline_title')}</span>
+                            </h1>
+                            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+                                {t('guideline_subtitle')}
+                            </p>
+                        </div>
+
+                        {/* Section Navigation */}
+                        <div className="mb-10">
+                            <div className="flex flex-wrap justify-center gap-4 mb-8">
+                                {guidelineSections.map((section) => (
+                                    <button
+                                        key={section.id}
+                                        onClick={() => setActiveSection(section.id)}
+                                        className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 ${
+                                            activeSection === section.id
+                                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
+                                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                                        }`}
+                                    >
+                                        {section.title}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Active Section Content */}
+                            <div className="glass-panel rounded-3xl shadow-2xl overflow-hidden animate-fade-in p-8">
+                                {/* Index Page Section */}
+                                {activeSection === 'index' && (
+                                    <div>
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 text-white rounded-xl">
+                                                <Icons.Home className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('index_page_guide')}</h2>
+                                                <p className="text-slate-600 dark:text-slate-400">{t('index_page_desc')}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                                            {indexPageFeatures.map((feature, index) => (
+                                                <div key={index} className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+                                                            <feature.icon className="w-5 h-5" />
+                                                        </div>
+                                                        <h3 className="text-lg font-bold text-slate-800 dark:text-white">{feature.title}</h3>
+                                                    </div>
+                                                    <ul className="space-y-2">
+                                                        {feature.points.map((point, idx) => (
+                                                            <li key={idx} className="flex items-start gap-2 text-slate-600 dark:text-slate-400">
+                                                                <Icons.Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                                                <span>{point}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Video Section */}
+                                        <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-700">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <Icons.Video className="w-6 h-6 text-blue-500" />
+                                                <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('video_tutorial')}</h3>
+                                            </div>
+                                            
+                                            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                                                <div className="aspect-video relative flex items-center justify-center">
+                                                    <video 
+                                                        className="absolute inset-0 w-full h-full object-cover"
+                                                        poster="index-preview.jpg"
+                                                        controls
+                                                    >
+                                                        <source src="index.mp4" type="video/mp4" />
+                                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 text-center">
+                                                            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mb-4">
+                                                                <Icons.Play className="w-10 h-10" />
+                                                            </div>
+                                                            <h4 className="text-2xl font-bold mb-2">{t('play_video')}</h4>
+                                                            <p className="text-slate-300">{t('video_placeholder')}</p>
+                                                        </div>
+                                                    </video>
+                                                </div>
+                                                <div className="p-6 bg-slate-800/50">
+                                                    <h4 className="text-lg font-bold text-white mb-2">{t('step_by_step')}</h4>
+                                                    <p className="text-slate-300">
+                                                        This video demonstrates how to use all features of the index page including exam configuration, settings adjustment, and navigation.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Quick Start Guide */}
+                                        <div className="mt-10 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6">
+                                            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-4">{t('step_by_step')}</h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center">
+                                                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                        <span className="font-bold">1</span>
+                                                    </div>
+                                                    <h4 className="font-bold text-slate-800 dark:text-white mb-2">{t('select_exam_type')}</h4>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">Choose from predefined types or custom configuration</p>
+                                                    <img src="exam-type.jpg" alt="Exam Type Selection" className="mt-3 rounded-lg w-full h-32 object-cover" />
+                                                </div>
+                                                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center">
+                                                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                        <span className="font-bold">2</span>
+                                                    </div>
+                                                    <h4 className="font-bold text-slate-800 dark:text-white mb-2">{t('configure_parameters')}</h4>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">Set questions, duration, scoring, and advanced settings</p>
+                                                    <img src="configuration.jpg" alt="Configuration" className="mt-3 rounded-lg w-full h-32 object-cover" />
+                                                </div>
+                                                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center">
+                                                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                        <span className="font-bold">3</span>
+                                                    </div>
+                                                    <h4 className="font-bold text-slate-800 dark:text-white mb-2">{t('start_exam')}</h4>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">Review preview and click Start Examination button</p>
+                                                    <img src="start-exam.jpg" alt="Start Exam" className="mt-3 rounded-lg w-full h-32 object-cover" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Analytics Page Section */}
+                                {activeSection === 'analytics' && (
+                                    <div>
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-500 text-white rounded-xl">
+                                                <Icons.BarChart className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('analytics_page_guide')}</h2>
+                                                <p className="text-slate-600 dark:text-slate-400">{t('analytics_page_desc')}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                                            {analyticsPageFeatures.map((feature, index) => (
+                                                <div key={index} className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <div className="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
+                                                            <feature.icon className="w-5 h-5" />
+                                                        </div>
+                                                        <h3 className="text-lg font-bold text-slate-800 dark:text-white">{feature.title}</h3>
+                                                    </div>
+                                                    <ul className="space-y-2">
+                                                        {feature.points.map((point, idx) => (
+                                                            <li key={idx} className="flex items-start gap-2 text-slate-600 dark:text-slate-400">
+                                                                <Icons.Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                                                <span>{point}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Video Section */}
+                                        <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-700">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <Icons.Video className="w-6 h-6 text-green-500" />
+                                                <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('video_tutorial')}</h3>
+                                            </div>
+                                            
+                                            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                                                <div className="aspect-video relative flex items-center justify-center">
+                                                    <video 
+                                                        className="absolute inset-0 w-full h-full object-cover"
+                                                        poster="analytics-preview.jpg"
+                                                        controls
+                                                    >
+                                                        <source src="analytics.mp4" type="video/mp4" />
+                                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 text-center">
+                                                            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mb-4">
+                                                                <Icons.Play className="w-10 h-10" />
+                                                            </div>
+                                                            <h4 className="text-2xl font-bold mb-2">{t('play_video')}</h4>
+                                                            <p className="text-slate-300">{t('video_placeholder')}</p>
+                                                        </div>
+                                                    </video>
+                                                </div>
+                                                <div className="p-6 bg-slate-800/50">
+                                                    <h4 className="text-lg font-bold text-white mb-2">{t('step_by_step')}</h4>
+                                                    <p className="text-slate-300">
+                                                        This video demonstrates how to use all features of the analytics page including performance analysis, exam comparison, and data management.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Feature Images */}
+                                        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center">
+                                                <img src="performance-dashboard.jpg" alt="Performance Dashboard" className="w-full h-48 object-cover rounded-lg mb-3" />
+                                                <h4 className="font-bold text-slate-800 dark:text-white mb-2">{t('dashboard_overview')}</h4>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">Interactive dashboard with real-time metrics</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center">
+                                                <img src="skill-radar.jpg" alt="Skill Radar" className="w-full h-48 object-cover rounded-lg mb-3" />
+                                                <h4 className="font-bold text-slate-800 dark:text-white mb-2">{t('skill_radar')}</h4>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">Visual representation of your skills across different areas</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center">
+                                                <img src="comparison-view.jpg" alt="Comparison View" className="w-full h-48 object-cover rounded-lg mb-3" />
+                                                <h4 className="font-bold text-slate-800 dark:text-white mb-2">{t('comparison_view')}</h4>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">Compare your performance across multiple attempts</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Exam Page Section (Placeholder) */}
+                                {activeSection === 'exam' && (
+                                    <div>
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-xl">
+                                                <Icons.Play className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('exam_page_guide')}</h2>
+                                                <p className="text-slate-600 dark:text-slate-400">{t('exam_page_desc')}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl overflow-hidden shadow-2xl mb-8">
+                                            <div className="aspect-video relative flex items-center justify-center">
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 text-center">
+                                                    <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center mb-4">
+                                                        <Icons.Play className="w-10 h-10" />
+                                                    </div>
+                                                    <h4 className="text-2xl font-bold mb-2">{t('coming_soon')}</h4>
+                                                    <p className="text-slate-300">Detailed exam page guide will be available soon</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="text-center py-8">
+                                            <Icons.List className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                                            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t('feature_breakdown')}</h3>
+                                            <p className="text-slate-600 dark:text-slate-400">
+                                                The exam page will feature real-time tracking, question navigation, split-screen PDF view, flagging system, and submission features.
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* PWA Features Section */}
+                                {activeSection === 'pwa' && (
+                                    <div>
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-xl">
+                                                <Icons.Smartphone className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('pwa_features_guide')}</h2>
+                                                <p className="text-slate-600 dark:text-slate-400">{t('pwa_features_desc')}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                                            {pwaFeatures.map((feature, index) => (
+                                                <div key={index} className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300">
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
+                                                            <feature.icon className="w-5 h-5" />
+                                                        </div>
+                                                        <h3 className="text-lg font-bold text-slate-800 dark:text-white">{feature.title}</h3>
+                                                    </div>
+                                                    <ul className="space-y-2">
+                                                        {feature.points.map((point, idx) => (
+                                                            <li key={idx} className="flex items-start gap-2 text-slate-600 dark:text-slate-400">
+                                                                <Icons.Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                                                <span>{point}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Video Section */}
+                                        <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-700">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <Icons.Video className="w-6 h-6 text-purple-500" />
+                                                <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('video_tutorial')}</h3>
+                                            </div>
+                                            
+                                            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                                                <div className="aspect-video relative flex items-center justify-center">
+                                                    <video 
+                                                        className="absolute inset-0 w-full h-full object-cover"
+                                                        poster="pwa-preview.jpg"
+                                                        controls
+                                                    >
+                                                        <source src="pwa.mp4" type="video/mp4" />
+                                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 text-center">
+                                                            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-4">
+                                                                <Icons.Play className="w-10 h-10" />
+                                                            </div>
+                                                            <h4 className="text-2xl font-bold mb-2">{t('play_video')}</h4>
+                                                            <p className="text-slate-300">{t('video_placeholder')}</p>
+                                                        </div>
+                                                    </video>
+                                                </div>
+                                                <div className="p-6 bg-slate-800/50">
+                                                    <h4 className="text-lg font-bold text-white mb-2">{t('pwa_install_guide')}</h4>
+                                                    <p className="text-slate-300">
+                                                        This video demonstrates how to install OMR Master Pro as a PWA on your device and use all offline features.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Installation Steps */}
+                                        <div className="mt-10 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-6">
+                                            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-4">{t('pwa_install_guide')}</h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center">
+                                                    <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                        <span className="font-bold">1</span>
+                                                    </div>
+                                                    <h4 className="font-bold text-slate-800 dark:text-white mb-2">Open in Chrome/Safari</h4>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">Visit the app in a modern browser</p>
+                                                    <img src="browser.jpg" alt="Browser" className="mt-3 rounded-lg w-full h-32 object-cover" />
+                                                </div>
+                                                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center">
+                                                    <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                        <span className="font-bold">2</span>
+                                                    </div>
+                                                    <h4 className="font-bold text-slate-800 dark:text-white mb-2">Tap Install</h4>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">Click the install button in the address bar</p>
+                                                    <img src="install-button.jpg" alt="Install Button" className="mt-3 rounded-lg w-full h-32 object-cover" />
+                                                </div>
+                                                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center">
+                                                    <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                        <span className="font-bold">3</span>
+                                                    </div>
+                                                    <h4 className="font-bold text-slate-800 dark:text-white mb-2">Confirm Installation</h4>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">Confirm the installation in the popup</p>
+                                                    <img src="confirm-install.jpg" alt="Confirm Installation" className="mt-3 rounded-lg w-full h-32 object-cover" />
+                                                </div>
+                                                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center">
+                                                    <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                        <span className="font-bold">4</span>
+                                                    </div>
+                                                    <h4 className="font-bold text-slate-800 dark:text-white mb-2">Use as App</h4>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">Access from home screen like a native app</p>
+                                                    <img src="home-screen.jpg" alt="Home Screen" className="mt-3 rounded-lg w-full h-32 object-cover" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </main>
+
+                    <Footer />
+                </div>
+            );
+        };
+
+        const AppWrapper = () => {
+            const [lang, setLang] = useState('en');
+            const [darkMode, setDarkMode] = useState(false);
+            const [isStandalone, setIsStandalone] = useState(false);
+
+            useEffect(() => {
+                const savedLang = localStorage.getItem('lang');
+                if (savedLang) setLang(savedLang);
+
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    setDarkMode(true);
+                    document.documentElement.classList.add('dark');
+                }
+
+                const checkPWA = window.matchMedia('(display-mode: standalone)').matches;
+                setIsStandalone(checkPWA);
+                
+                if (checkPWA) {
+                    document.body.classList.add('pwa-installed');
+                }
+                
+                const handlePWAStatus = (e) => {
+                    setIsStandalone(e.detail.isStandalone);
+                    if (e.detail.isStandalone) {
+                        document.body.classList.add('pwa-installed');
+                    } else {
+                        document.body.classList.remove('pwa-installed');
+                    }
+                };
+                
+                window.addEventListener('pwaStatusChanged', handlePWAStatus);
+                
+                return () => window.removeEventListener('pwaStatusChanged', handlePWAStatus);
+            }, []);
+
+            return (
+                <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
+                    <Guideline />
+                </AppContext.Provider>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AppWrapper />);
+    </script>
+</body>
+</html>
