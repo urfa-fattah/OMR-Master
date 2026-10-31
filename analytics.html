@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OMR Master Pro - Advanced Intelligence</title>
     
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -450,7 +451,26 @@
                 performance_forecast: "Performance Forecast",
                 knowledge_gaps: "Knowledge Gaps",
                 time_management: "Time Management",
-                focus_areas: "Focus Areas"
+                focus_areas: "Focus Areas",
+                mistakes_analysis: "Mistake & Error Diagnostics",
+                frequent_mistakes: "Most Frequent Mistakes Analysis",
+                penalty_lost: "Marks Lost to Negative Penalty",
+                wrong_option_bias: "Most Frequent Mistake Option",
+                fatigue_analysis: "Exam Phase Error Distribution",
+                opening_phase: "Opening (Q1-33%)",
+                middle_phase: "Middle (Q34-66%)",
+                closing_phase: "Closing (Q67-100%)",
+                consecutive_streak: "Max Consecutive Wrong Streak",
+                potential_score: "Score Without Guessing",
+                smart_tips_title: "Actionable Advice For Next Exam",
+                answer_breakdown: "Detailed Question & Answer Review",
+                all_questions: "All Questions",
+                your_answer: "Your Answer",
+                correct_key: "Correct Key",
+                not_answered: "Not Answered",
+                retake_mistakes: "Retake Incorrect Only",
+                print_summary: "Print / Save Summary",
+                score_impact: "Score Impact"
             },
             bn: {
                 app_name: "ওএমআর মাস্টার", pro: "প্রো", dashboard: "ড্যাশবোর্ড", active_session: "চলমান সেশন",
@@ -521,7 +541,26 @@
                 performance_forecast: "পারফরমেন্স পূর্বাভাস",
                 knowledge_gaps: "জ্ঞানের ফাঁক",
                 time_management: "সময় ব্যবস্থাপনা",
-                focus_areas: "ফোকাস এরিয়া"
+                focus_areas: "ফোকাস এরিয়া",
+                mistakes_analysis: "ভুল ও ত্রুটি বিশ্লেষণ",
+                frequent_mistakes: "সর্বাধিক ঘন ঘন ভুল বিশ্লেষণ",
+                penalty_lost: "নেগেটিভ মার্কিংয়ে হারানো নম্বর",
+                wrong_option_bias: "ভুল উত্তরের প্রিয় অপশন",
+                fatigue_analysis: "পরীক্ষার বিভিন্ন ধাপে ভুলের হার",
+                opening_phase: "শুরুর ভাগ (১-৩৩%)",
+                middle_phase: "মাঝের ভাগ (৩৪-৬৬%)",
+                closing_phase: "শেষের ভাগ (৬৭-১০০%)",
+                consecutive_streak: "টানা সর্বোচ্চ ভুল ধারা",
+                potential_score: "ভুল অনুমান ছাড়া সম্ভাব্য স্কোর",
+                smart_tips_title: "পরবর্তী পরীক্ষার জন্য প্রয়োজনীয় পরামর্শ",
+                answer_breakdown: "প্রশ্ন ও উত্তরের বিস্তারিত পর্যালোচনা",
+                all_questions: "সকল প্রশ্ন",
+                your_answer: "আপনার উত্তর",
+                correct_key: "সঠিক উত্তর",
+                not_answered: "উত্তর দেননি",
+                retake_mistakes: "শুধুমাত্র ভুলগুলো রিটেক দিন",
+                print_summary: "প্রিন্ট / সারাংশ সংরক্ষণ",
+                score_impact: "স্কোরের প্রভাব"
             }
         };
 
@@ -570,7 +609,9 @@
             Users: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
             Star: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
             TrendingDown: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>,
-            PieChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+            PieChart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
+            Printer: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>,
+            Search: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         };
 
         const AppContext = createContext();
@@ -643,7 +684,7 @@
 
             const secondaryLinks = [
                 { name: t('about'), href: 'about.html', icon: Icons.Info },
-                { name: t('guideline'), href: 'guidelines.html', icon: Icons.Book },
+                { name: t('guideline'), href: 'guideline.html', icon: Icons.Book },
                 { name: t('report'), href: 'report.html', icon: Icons.Flag },
                 { name: t('contact'), href: 'contact.html', icon: Icons.Mail },
             ];
@@ -737,11 +778,11 @@
                 <footer className="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
                     <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center justify-center gap-2 text-center">
                         <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
-                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UR</span>
-                            Urfa Hasan Fattah & Rifat
+                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
+                            Urfa Hasan Fattah
                         </div>
                         <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
-                            {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah & Rifatuzzaman Rifat</span>. &copy; {currentYear} {t('footer_rights')}
+                            {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {currentYear} {t('footer_rights')}
                         </p>
                     </div>
                 </footer>
@@ -1185,61 +1226,176 @@
             );
         };
 
-        // --- Enhanced Detail View with Fixed Responsive Layout ---
+        // --- Enhanced Detail View: Organized, Mistake Analytics & Answer Review ---
         const DetailView = ({ exam, history, onBack }) => {
             const { lang, darkMode } = useContext(AppContext);
-            const t = (k) => translations[lang][k];
+            const t = (k) => translations[lang][k] || k;
             const [showComparison, setShowComparison] = useState(false);
+            const [answerFilter, setAnswerFilter] = useState('all'); // 'all' | 'correct' | 'wrong' | 'skipped'
+            const [searchQuery, setSearchQuery] = useState('');
+            
             const radarRef = useRef(null);
             const radarInst = useRef(null);
             const doughRef = useRef(null);
             const doughInst = useRef(null);
-            const trendRef = useRef(null);
-            const trendInst = useRef(null);
-            
-            // Advanced Analytics with safe access
+
+            // Safe data extraction
+            const totalQ = DataManager.getExamProperty(exam, 'totalQuestions', 0);
+            const grading = exam.gradingDetails || {};
+            const userAnswers = exam.userAnswers || exam.answers || {};
+            const templates = useMemo(() => {
+                try {
+                    return JSON.parse(localStorage.getItem('omr_correction_templates') || '{}');
+                } catch {
+                    return {};
+                }
+            }, []);
+            const correctKeys = exam.correctAnswers || (templates[exam.examName] && templates[exam.examName].correctAnswers) || {};
+            const posMark = parseFloat(exam.config?.positiveMarks || 1);
+            const negMark = parseFloat(exam.config?.negativeMarks || 0.25);
+
+            // Basic Stats
             const stats = useMemo(() => {
                 if(!exam) return { correct: 0, wrong: 0, skipped: 0, efficiency: 0, avgSpeed: 0, attempted: 0, consistency: 0 };
-                const correct = Object.values(exam.gradingDetails || {}).filter(s => s === 'correct').length;
-                const wrong = Object.values(exam.gradingDetails || {}).filter(s => s === 'wrong').length;
-                const skipped = (exam.totalQuestions || 0) - (correct + wrong);
+                const correct = Object.values(grading).filter(s => s === 'correct').length;
+                const wrong = Object.values(grading).filter(s => s === 'wrong').length;
+                const skipped = Math.max(0, totalQ - (correct + wrong));
                 const attempted = correct + wrong;
-                
-                // Advanced metrics with safe calculations
                 const efficiency = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
                 const avgSpeed = attempted > 0 ? (exam.timeTaken / attempted).toFixed(1) : 0;
-                const consistency = Math.min(100, efficiency * 0.8 + (attempted / (exam.totalQuestions || 1)) * 20);
+                const consistency = Math.min(100, efficiency * 0.8 + (attempted / (totalQ || 1)) * 20);
                 
                 return { correct, wrong, skipped, efficiency, avgSpeed, attempted, consistency };
-            }, [exam]);
+            }, [exam, grading, totalQ]);
 
+            // In-depth Mistake Diagnostics & Previous Exams Analysis
+            const mistakeAnalysis = useMemo(() => {
+                if (!exam) return null;
+                const wrongQuestions = [];
+                const skippedQuestions = [];
+                const correctQuestions = [];
+                const optionCounts = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+
+                for (let i = 1; i <= totalQ; i++) {
+                    const status = grading[i] || (userAnswers[i] ? 'answered' : 'skipped');
+                    const ans = userAnswers[i];
+                    if (status === 'wrong') {
+                        wrongQuestions.push(i);
+                        if (ans && optionCounts[ans] !== undefined) optionCounts[ans]++;
+                    } else if (status === 'correct') {
+                        correctQuestions.push(i);
+                    } else {
+                        skippedQuestions.push(i);
+                    }
+                }
+
+                // Marks lost to penalty vs potential score
+                const penaltyLost = (wrongQuestions.length * negMark).toFixed(2);
+                const potentialScoreWithoutGuessing = (correctQuestions.length * posMark).toFixed(2);
+
+                // Option bias in this exam
+                let mostFrequentOption = '-';
+                let maxOptionCount = 0;
+                Object.entries(optionCounts).forEach(([opt, count]) => {
+                    if (count > maxOptionCount) {
+                        maxOptionCount = count;
+                        mostFrequentOption = opt;
+                    }
+                });
+
+                // Phase / Fatigue Analysis
+                const third = Math.ceil(totalQ / 3) || 1;
+                const phase1Wrong = wrongQuestions.filter(q => q <= third).length;
+                const phase2Wrong = wrongQuestions.filter(q => q > third && q <= third * 2).length;
+                const phase3Wrong = wrongQuestions.filter(q => q > third * 2).length;
+
+                // Longest consecutive wrong streak
+                let maxStreak = 0;
+                let currentStreak = 0;
+                for (let i = 1; i <= totalQ; i++) {
+                    if (grading[i] === 'wrong') {
+                        currentStreak++;
+                        if (currentStreak > maxStreak) maxStreak = currentStreak;
+                    } else {
+                        currentStreak = 0;
+                    }
+                }
+
+                // Historical analysis across all previous exams
+                const historyExams = Array.isArray(history) ? history.filter(h => h.id !== exam.id) : [];
+                let totalHistoricalWrong = 0;
+                let totalHistoricalPenalty = 0;
+                const histOptionBias = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+
+                historyExams.forEach(h => {
+                    const hGrading = h.gradingDetails || {};
+                    const hAnswers = h.userAnswers || h.answers || {};
+                    const hNeg = parseFloat(h.config?.negativeMarks || 0.25);
+                    const hWrongCount = Object.values(hGrading).filter(s => s === 'wrong').length;
+                    
+                    totalHistoricalWrong += hWrongCount;
+                    totalHistoricalPenalty += hWrongCount * hNeg;
+
+                    Object.entries(hGrading).forEach(([q, stat]) => {
+                        if (stat === 'wrong' && hAnswers[q] && histOptionBias[hAnswers[q]] !== undefined) {
+                            histOptionBias[hAnswers[q]]++;
+                        }
+                    });
+                });
+
+                let overallCommonOption = '-';
+                let maxHistOptionCount = 0;
+                Object.entries(histOptionBias).forEach(([opt, count]) => {
+                    if (count > maxHistOptionCount) {
+                        maxHistOptionCount = count;
+                        overallCommonOption = opt;
+                    }
+                });
+
+                return {
+                    wrongQuestions,
+                    skippedQuestions,
+                    correctQuestions,
+                    penaltyLost,
+                    potentialScoreWithoutGuessing,
+                    mostFrequentOption: maxOptionCount > 0 ? mostFrequentOption : 'None',
+                    optionCounts,
+                    phase1Wrong,
+                    phase2Wrong,
+                    phase3Wrong,
+                    maxStreak,
+                    totalHistoricalExams: historyExams.length,
+                    totalHistoricalWrong,
+                    totalHistoricalPenalty: totalHistoricalPenalty.toFixed(2),
+                    overallCommonOption: maxHistOptionCount > 0 ? overallCommonOption : 'None'
+                };
+            }, [exam, grading, userAnswers, totalQ, negMark, posMark, history]);
+
+            // Charts initialization (Radar + Donut only, Performance Trend removed as requested)
             useEffect(() => {
                 if (!exam) return;
 
-                // Clean up previous charts
                 if (radarInst.current) radarInst.current.destroy();
                 if (doughInst.current) doughInst.current.destroy();
-                if (trendInst.current) trendInst.current.destroy();
 
-                // 1. Radar Chart
+                // 1. Skill Radar Chart
                 if (radarRef.current) {
                     const ctxR = radarRef.current.getContext('2d');
-                    
                     radarInst.current = new Chart(ctxR, {
                         type: 'radar',
                         data: {
-                            labels: ['Accuracy', 'Speed', 'Coverage', 'Consistency', 'Focus', 'Efficiency'],
+                            labels: ['Accuracy', 'Speed', 'Coverage', 'Consistency', 'Precision', 'Efficiency'],
                             datasets: [{
-                                label: 'Current Exam',
+                                label: 'Exam Profile',
                                 data: [
                                     exam.accuracy || 0,
                                     Math.min(100, (60 / Math.max(stats.avgSpeed || 1, 1)) * 15),
-                                    (stats.attempted / (exam.totalQuestions || 1)) * 100,
+                                    (stats.attempted / (totalQ || 1)) * 100,
                                     stats.consistency,
-                                    85,
+                                    stats.attempted > 0 ? Math.round((stats.correct / stats.attempted) * 100) : 0,
                                     stats.efficiency
                                 ],
-                                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                backgroundColor: 'rgba(59, 130, 246, 0.25)',
                                 borderColor: '#3b82f6',
                                 pointBackgroundColor: '#3b82f6',
                                 pointBorderColor: '#fff',
@@ -1256,25 +1412,22 @@
                                     grid: { color: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
                                     pointLabels: { 
                                         color: darkMode ? '#cbd5e1' : '#64748b', 
-                                        font: {size: 11, weight: 'bold'},
-                                        padding: 10
+                                        font: { size: 11, weight: 'bold' },
+                                        padding: 8
                                     },
                                     ticks: { display: false },
                                     suggestedMin: 0, 
                                     suggestedMax: 100
                                 }
                             },
-                            plugins: { 
-                                legend: { display: false }
-                            }
+                            plugins: { legend: { display: false } }
                         }
                     });
                 }
 
-                // 2. Doughnut Chart
+                // 2. Doughnut Breakdown Chart
                 if (doughRef.current) {
                     const ctxD = doughRef.current.getContext('2d');
-                    
                     doughInst.current = new Chart(ctxD, {
                         type: 'doughnut',
                         data: {
@@ -1296,41 +1449,9 @@
                                     labels: { 
                                         color: darkMode ? '#cbd5e1' : '#475569',
                                         usePointStyle: true,
-                                        padding: 15
+                                        padding: 12
                                     } 
                                 }
-                            }
-                        }
-                    });
-                }
-
-                // 3. Mini Trend Line
-                if (trendRef.current) {
-                    const ctxT = trendRef.current.getContext('2d');
-                    
-                    trendInst.current = new Chart(ctxT, {
-                        type: 'line',
-                        data: {
-                            labels: ['Q1', 'Q10', 'Q20', 'Q30', 'Q40', 'Q50'],
-                            datasets: [{
-                                data: [85, 78, 92, 65, 88, 95],
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                borderWidth: 2,
-                                tension: 0.4,
-                                fill: true,
-                                pointBackgroundColor: '#10b981',
-                                pointBorderColor: '#fff',
-                                pointRadius: 3
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                y: { display: false },
-                                x: { display: false }
                             }
                         }
                     });
@@ -1339,9 +1460,8 @@
                 return () => {
                     if (radarInst.current) radarInst.current.destroy();
                     if (doughInst.current) doughInst.current.destroy();
-                    if (trendInst.current) trendInst.current.destroy();
                 };
-            }, [exam, darkMode, stats, t]);
+            }, [exam, darkMode, stats, totalQ, t]);
 
             const handleRetakeExam = () => {
                 if (window.confirm(t('retake_confirm'))) {
@@ -1350,8 +1470,61 @@
                 }
             };
 
-            const handleComparison = () => {
-                setShowComparison(true);
+            // Smart Student Feature: Retake Only Incorrect Questions
+            const handleRetakeMistakesOnly = () => {
+                if (!mistakeAnalysis || mistakeAnalysis.wrongQuestions.length === 0) {
+                    alert(lang === 'bn' ? 'কোন ভুল উত্তর পাওয়া যায়নি!' : 'No incorrect answers found to retake!');
+                    return;
+                }
+                if (!window.confirm(lang === 'bn' 
+                    ? `আপনি কি শুধুমাত্র ভুল হওয়া ${mistakeAnalysis.wrongQuestions.length}টি প্রশ্ন নিয়ে নতুন প্র্যাকটিস সেশন শুরু করতে চান?` 
+                    : `Start a targeted practice session with only the ${mistakeAnalysis.wrongQuestions.length} questions you got wrong?`)) {
+                    return;
+                }
+
+                const wrongCount = mistakeAnalysis.wrongQuestions.length;
+                const retakeConfig = {
+                    examName: `${exam.examName || 'Exam'} (Mistakes Practice)`,
+                    questionCount: wrongCount,
+                    duration: Math.max(3, Math.ceil(wrongCount * 1.2)),
+                    positiveMarks: posMark,
+                    negativeMarks: negMark,
+                    optionsCount: exam.config?.optionsCount || 4,
+                    isRetake: true,
+                    previousScore: exam.score
+                };
+
+                const newSession = {
+                    config: retakeConfig,
+                    examName: retakeConfig.examName,
+                    timeLeft: retakeConfig.duration * 60,
+                    answers: {},
+                    flags: [],
+                    startTime: new Date().toISOString(),
+                    isRetake: true,
+                    previousScore: exam.score
+                };
+
+                localStorage.setItem('omr_current_session', JSON.stringify(newSession));
+                window.location.href = 'exam.html';
+            };
+
+            // Smart Student Feature: Print / Save Summary
+            const handlePrintSummary = () => {
+                window.print();
+            };
+
+            // Jump to card helper
+            const scrollToQuestionCard = (qNum) => {
+                setAnswerFilter('all');
+                setTimeout(() => {
+                    const el = document.getElementById(`answer-card-${qNum}`);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.classList.add('ring-2', 'ring-blue-500');
+                        setTimeout(() => el.classList.remove('ring-2', 'ring-blue-500'), 1500);
+                    }
+                }, 50);
             };
 
             if (!exam) {
@@ -1365,218 +1538,474 @@
                         </button>
                         <div className="text-center py-12">
                             <Icons.AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-                            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
-                                Exam Not Found
-                            </h3>
-                            <p className="text-slate-600 dark:text-slate-400">
-                                The requested exam could not be found.
-                            </p>
+                            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Exam Not Found</h3>
+                            <p className="text-slate-600 dark:text-slate-400">The requested exam could not be found.</p>
                         </div>
                     </div>
                 );
             }
 
+            // Question list filtered for the Answer Breakdown section
+            const filteredQuestions = Array.from({ length: totalQ }, (_, i) => i + 1).filter(qNum => {
+                const status = grading[qNum] || (userAnswers[qNum] ? 'correct' : 'skipped');
+                if (answerFilter === 'correct' && status !== 'correct') return false;
+                if (answerFilter === 'wrong' && status !== 'wrong') return false;
+                if (answerFilter === 'skipped' && status !== 'skipped') return false;
+                if (searchQuery.trim() !== '') {
+                    return qNum.toString().includes(searchQuery.trim());
+                }
+                return true;
+            });
+
             return (
-                <div className="animate-fade-in pb-10">
-                    {/* Back Button */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-colors group">
-                            <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm group-hover:shadow-md transition-all">
+                <div className="animate-fade-in pb-12">
+                    {/* Top Control Bar */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                        <button onClick={onBack} className="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-blue-600 font-bold transition-colors group self-start">
+                            <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm group-hover:shadow-md border border-slate-200 dark:border-slate-700 transition-all">
                                 <Icons.ArrowLeft />
                             </div>
-                            {t('btn_back')}
+                            <span>{t('btn_back')}</span>
                         </button>
                         
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             <button 
-                                onClick={handleComparison}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-full font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                                onClick={handlePrintSummary}
+                                className="flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition"
+                                title="Print or save this report"
                             >
-                                <Icons.Compare /> {t('btn_compare')}
+                                <Icons.Printer />
+                                <span>{t('print_summary')}</span>
                             </button>
                             <button 
-                                onClick={handleRetakeExam}
-                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full font-bold hover:shadow-lg hover:shadow-emerald-500/30 transition-all"
+                                onClick={() => setShowComparison(true)}
+                                className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition"
                             >
-                                <Icons.Refresh /> {t('btn_retake')}
+                                <Icons.Compare />
+                                <span>{t('btn_compare')}</span>
+                            </button>
+                            {mistakeAnalysis && mistakeAnalysis.wrongQuestions.length > 0 && (
+                                <button 
+                                    onClick={handleRetakeMistakesOnly}
+                                    className="flex items-center gap-1.5 px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-amber-500/20 transition hover:scale-105 active:scale-95"
+                                    title="Practice only the questions you got wrong"
+                                >
+                                    <Icons.Zap />
+                                    <span>{t('retake_mistakes')} ({mistakeAnalysis.wrongQuestions.length})</span>
+                                </button>
+                            )}
+                            <button 
+                                onClick={handleRetakeExam}
+                                className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-xs sm:text-sm font-bold hover:shadow-lg hover:shadow-blue-500/20 transition hover:scale-105 active:scale-95"
+                            >
+                                <Icons.Refresh />
+                                <span>{t('btn_retake')}</span>
                             </button>
                         </div>
                     </div>
                     
-                    {/* Hero Card */}
-                    <div className="glass-panel p-6 md:p-8 rounded-3xl mb-6 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                    {/* Header Banner */}
+                    <div className="glass-panel p-5 sm:p-7 rounded-3xl mb-6 relative overflow-hidden border border-white/60 dark:border-slate-700 shadow-xl">
+                        <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
                         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <h2 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white">{DataManager.getSafeExamName(exam)}</h2>
+                                <div className="flex flex-wrap items-center gap-2 mb-2">
+                                    <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{DataManager.getSafeExamName(exam)}</h1>
                                     {exam.isRetake && (
-                                        <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-full">
+                                        <span className="px-2.5 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-lg border border-purple-200 dark:border-purple-800">
                                             Retake
                                         </span>
                                     )}
                                 </div>
-                                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-medium">
-                                    <Icons.Clock />
-                                    {new Date(exam.date).toLocaleString()}
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">{t('det_score')}</div>
-                                <div className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">{DataManager.getExamProperty(exam, 'score', 0)}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Stats Grid - Responsive */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
-                        {[
-                            { icon: Icons.Activity, label: t('det_acc'), value: `${DataManager.getExamProperty(exam, 'accuracy', 0)}%`, color: 'border-blue-500' },
-                            { icon: Icons.Clock, label: t('det_time'), value: `${Math.floor(DataManager.getExamProperty(exam, 'timeTaken', 0)/60)}m ${DataManager.getExamProperty(exam, 'timeTaken', 0)%60}s`, color: 'border-purple-500' },
-                            { icon: Icons.Zap, label: t('det_speed'), value: `${stats.avgSpeed || 0}s`, color: 'border-amber-500' },
-                            { icon: Icons.Award, label: t('eff_score'), value: `${stats.efficiency || 0}%`, color: 'border-green-500' },
-                        ].map((stat, idx) => (
-                            <div key={idx} className="glass-panel p-4 md:p-5 rounded-2xl border-b-4 hover:-translate-y-1 transition-transform">
-                                <div className="flex items-center gap-2 mb-2 text-slate-600 dark:text-slate-300 font-bold uppercase text-xs tracking-wider">
-                                    <stat.icon /> {stat.label}
-                                </div>
-                                <div className="text-2xl md:text-3xl font-bold dark:text-white">{stat.value}</div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Analysis Grid - Fixed Responsive Layout */}
-                    <div className="detail-layout">
-                        {/* Charts Column - Takes 2/3 on large screens */}
-                        <div className="space-y-4 md:space-y-6">
-                            {/* Performance Radar */}
-                            <div className="glass-panel p-5 md:p-6 rounded-3xl h-80 md:h-96 flex flex-col">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
-                                        <Icons.Target /> {t('det_chart_perf')}
-                                    </h3>
-                                    <Tooltip text={t('tooltip_radar')} />
-                                </div>
-                                <div className="flex-grow relative">
-                                    <canvas ref={radarRef}></canvas>
-                                </div>
-                            </div>
-
-                            {/* Question Heatmap */}
-                            <div className="glass-panel p-5 md:p-6 rounded-3xl flex flex-col">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 md:mb-6">
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-                                            {t('det_breakdown')}
-                                        </h3>
-                                        <Tooltip text={t('tooltip_heatmap')} />
-                                    </div>
-                                    <div className="flex flex-wrap gap-2 text-xs font-bold bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
-                                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-green-500"></span> {t('lbl_correct')}</span>
-                                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-red-500"></span> {t('lbl_wrong')}</span>
-                                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-slate-300 dark:bg-slate-600"></span> {t('lbl_skip')}</span>
-                                    </div>
-                                </div>
-                                
-                                <div className="overflow-x-auto pb-2">
-                                    <div className="heatmap-grid">
-                                        {Array.from({ length: DataManager.getExamProperty(exam, 'totalQuestions', 0) }, (_, i) => i + 1).map(qNum => {
-                                            const status = (exam.gradingDetails && exam.gradingDetails[qNum]) || 'skipped';
-                                            let classes = "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700";
-                                            
-                                            if (status === 'correct') classes = "bg-green-500 text-white shadow-lg shadow-green-500/30 border-green-400";
-                                            if (status === 'wrong') classes = "bg-red-500 text-white shadow-lg shadow-red-500/30 border-red-400";
-                                            
-                                            return (
-                                                <div key={qNum} className={`aspect-square rounded-lg flex items-center justify-center text-xs font-bold transition-all hover:scale-110 cursor-help ${classes}`} 
-                                                     title={`Q${qNum}: ${status}`}>
-                                                    {qNum}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
+                                    <span className="flex items-center gap-1.5"><Icons.Clock /> {new Date(exam.date).toLocaleString()}</span>
+                                    <span>•</span>
+                                    <span>{totalQ} Questions</span>
+                                    <span>•</span>
+                                    <span>Duration: {exam.config?.duration || Math.round(exam.timeTaken/60)}m</span>
                                 </div>
                             </div>
                             
-                            {/* Predictive Analytics */}
-                            <PredictiveAnalytics history={history} />
+                            <div className="flex items-center gap-3 sm:gap-6 self-stretch sm:self-auto justify-between sm:justify-end bg-slate-50/80 dark:bg-slate-800/80 sm:bg-transparent p-3 sm:p-0 rounded-2xl border border-slate-200 dark:border-slate-700 sm:border-0">
+                                <div className="text-left sm:text-right">
+                                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{t('det_score')}</div>
+                                    <div className="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">
+                                        {DataManager.getExamProperty(exam, 'score', 0)}
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{t('det_acc')}</div>
+                                    <div className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
+                                        {DataManager.getExamProperty(exam, 'accuracy', 0)}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Key Metrics Overview Grid */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                        <div className="glass-panel p-4 sm:p-5 rounded-2xl border-l-4 border-l-green-500 shadow-sm">
+                            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between mb-1">
+                                <span>{t('lbl_correct')}</span>
+                                <span className="p-1 rounded-md bg-green-100 dark:bg-green-950/40 text-green-600"><Icons.Check /></span>
+                            </div>
+                            <div className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">{stats.correct} <span className="text-xs font-normal text-slate-400">({totalQ > 0 ? ((stats.correct/totalQ)*100).toFixed(0) : 0}%)</span></div>
+                            <div className="text-xs text-green-600 dark:text-green-400 font-semibold mt-1">+{ (stats.correct * posMark).toFixed(2) } marks gained</div>
                         </div>
 
-                        {/* Insights Column - Takes 1/3 on large screens */}
-                        <div className="space-y-4 md:space-y-6">
-                            {/* Breakdown Donut - Fixed height */}
-                            <div className="glass-panel p-5 md:p-6 rounded-3xl breakdown-container">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
-                                        <Icons.BarChart /> Breakdown
-                                    </h3>
-                                    <Tooltip text={t('tooltip_doughnut')} />
+                        <div className="glass-panel p-4 sm:p-5 rounded-2xl border-l-4 border-l-red-500 shadow-sm">
+                            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between mb-1">
+                                <span>{t('lbl_wrong')}</span>
+                                <span className="p-1 rounded-md bg-red-100 dark:bg-red-950/40 text-red-600"><Icons.X /></span>
+                            </div>
+                            <div className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">{stats.wrong} <span className="text-xs font-normal text-slate-400">({totalQ > 0 ? ((stats.wrong/totalQ)*100).toFixed(0) : 0}%)</span></div>
+                            <div className="text-xs text-red-600 dark:text-red-400 font-semibold mt-1">-{ (stats.wrong * negMark).toFixed(2) } negative penalty</div>
+                        </div>
+
+                        <div className="glass-panel p-4 sm:p-5 rounded-2xl border-l-4 border-l-slate-400 shadow-sm">
+                            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between mb-1">
+                                <span>{t('lbl_skip')}</span>
+                                <span className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500">—</span>
+                            </div>
+                            <div className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">{stats.skipped} <span className="text-xs font-normal text-slate-400">({totalQ > 0 ? ((stats.skipped/totalQ)*100).toFixed(0) : 0}%)</span></div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">0.00 penalty applied</div>
+                        </div>
+
+                        <div className="glass-panel p-4 sm:p-5 rounded-2xl border-l-4 border-l-purple-500 shadow-sm">
+                            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between mb-1">
+                                <span>{t('det_speed')} / Time</span>
+                                <span className="p-1 rounded-md bg-purple-100 dark:bg-purple-950/40 text-purple-600"><Icons.Zap /></span>
+                            </div>
+                            <div className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">{stats.avgSpeed}s <span className="text-xs font-normal text-slate-400">/ Q</span></div>
+                            <div className="text-xs text-purple-600 dark:text-purple-400 font-medium mt-1">{Math.floor(DataManager.getExamProperty(exam, 'timeTaken', 0)/60)}m {DataManager.getExamProperty(exam, 'timeTaken', 0)%60}s spent</div>
+                        </div>
+                    </div>
+
+                    {/* Dedicated Section 1: Most Frequent Mistakes Analysis */}
+                    {mistakeAnalysis && (
+                        <div className="glass-panel p-5 sm:p-7 rounded-3xl mb-6 border border-red-200/60 dark:border-red-950/50 bg-gradient-to-br from-white/90 via-red-50/20 to-white/90 dark:from-slate-900/90 dark:via-red-950/10 dark:to-slate-900/90 shadow-xl">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 mb-5 border-b border-red-100 dark:border-red-900/30">
+                                <div>
+                                    <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                        <span className="w-8 h-8 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
+                                            <Icons.AlertCircle />
+                                        </span>
+                                        {t('frequent_mistakes')}
+                                    </h2>
+                                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                        Identified error tendencies, penalty loss, and cognitive mistake patterns from your exams.
+                                    </p>
                                 </div>
-                                <div className="flex-grow relative">
-                                    <canvas ref={doughRef}></canvas>
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-6">
-                                        <div className="text-center">
-                                            <div className="text-3xl font-black dark:text-white">{stats.attempted}/{DataManager.getExamProperty(exam, 'totalQuestions', 0)}</div>
-                                            <div className="text-[10px] text-slate-400 uppercase font-bold">Attempted</div>
-                                        </div>
+                                {mistakeAnalysis.totalHistoricalExams > 0 && (
+                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full self-start sm:self-auto border border-slate-200 dark:border-slate-700">
+                                        Compared with {mistakeAnalysis.totalHistoricalExams} past exams
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Mistake Diagnostic Tiles */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                                <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 border border-red-200 dark:border-red-900/40 shadow-xs">
+                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">{t('penalty_lost')}</div>
+                                    <div className="text-2xl sm:text-3xl font-black text-red-600 dark:text-red-400">-{mistakeAnalysis.penaltyLost} <span className="text-xs text-slate-400 font-normal">pts</span></div>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">
+                                        Without wrong guesses, potential score: <span className="font-bold text-green-600">{mistakeAnalysis.potentialScoreWithoutGuessing}</span>
+                                    </p>
+                                </div>
+
+                                <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 border border-amber-200 dark:border-amber-900/40 shadow-xs">
+                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">{t('wrong_option_bias')}</div>
+                                    <div className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400">
+                                        Option {mistakeAnalysis.mostFrequentOption}
                                     </div>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">
+                                        Most chosen trap option when answering incorrectly
+                                    </p>
+                                </div>
+
+                                <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 border border-indigo-200 dark:border-indigo-900/40 shadow-xs">
+                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">{t('fatigue_analysis')}</div>
+                                    <div className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mt-1 flex items-center justify-between">
+                                        <span className="text-xs">Early: <strong className="text-slate-700 dark:text-slate-200">{mistakeAnalysis.phase1Wrong}</strong></span>
+                                        <span className="text-xs">Mid: <strong className="text-slate-700 dark:text-slate-200">{mistakeAnalysis.phase2Wrong}</strong></span>
+                                        <span className="text-xs">Late: <strong className="text-red-600 dark:text-red-400">{mistakeAnalysis.phase3Wrong}</strong></span>
+                                    </div>
+                                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-2 flex overflow-hidden">
+                                        <div style={{ width: `${(mistakeAnalysis.phase1Wrong / Math.max(1, mistakeAnalysis.wrongQuestions.length)) * 100}%` }} className="bg-blue-400 h-full"></div>
+                                        <div style={{ width: `${(mistakeAnalysis.phase2Wrong / Math.max(1, mistakeAnalysis.wrongQuestions.length)) * 100}%` }} className="bg-amber-400 h-full"></div>
+                                        <div style={{ width: `${(mistakeAnalysis.phase3Wrong / Math.max(1, mistakeAnalysis.wrongQuestions.length)) * 100}%` }} className="bg-red-500 h-full"></div>
+                                    </div>
+                                </div>
+
+                                <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 border border-purple-200 dark:border-purple-900/40 shadow-xs">
+                                    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">{t('consecutive_streak')}</div>
+                                    <div className="text-2xl sm:text-3xl font-black text-purple-600 dark:text-purple-400">{mistakeAnalysis.maxStreak} <span className="text-xs text-slate-400 font-normal">Q's</span></div>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">
+                                        Longest streak of back-to-back wrong answers
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* AI Insights - Scrollable container */}
-                            <div className="glass-panel p-5 md:p-6 rounded-3xl ai-insights-container">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
-                                        <Icons.Brain /> {t('det_insights')}
-                                    </h3>
-                                    <Tooltip text={t('tooltip_ai')} />
+                            {/* Actionable Student Advice Cards */}
+                            <div className="bg-white/90 dark:bg-slate-800/90 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700">
+                                <h3 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <Icons.Target /> {t('smart_tips_title')}
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {parseFloat(mistakeAnalysis.penaltyLost) > 2 ? (
+                                        <div className="flex items-start gap-3 p-3 rounded-xl bg-red-50/60 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30">
+                                            <span className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/40 text-red-600 flex-shrink-0"><Icons.AlertCircle /></span>
+                                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                                                <strong>Negative Marking Warning:</strong> You lost {mistakeAnalysis.penaltyLost} marks from wrong guesses. In competitive tests, skipping high-doubt questions would have elevated your score to {mistakeAnalysis.potentialScoreWithoutGuessing}.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-start gap-3 p-3 rounded-xl bg-green-50/60 dark:bg-green-950/20 border border-green-100 dark:border-green-900/30">
+                                            <span className="p-1.5 rounded-lg bg-green-100 dark:bg-green-900/40 text-green-600 flex-shrink-0"><Icons.Check /></span>
+                                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                                                <strong>Disciplined Guessing:</strong> Low penalty deduction! You demonstrated strong control over wild guessing.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {mistakeAnalysis.phase3Wrong >= mistakeAnalysis.phase1Wrong && mistakeAnalysis.phase3Wrong > 2 ? (
+                                        <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30">
+                                            <span className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 flex-shrink-0"><Icons.Clock /></span>
+                                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                                                <strong>Fatigue in Final Phase:</strong> Mistakes concentrated in the final questions (Q{Math.ceil(totalQ * 0.67)}+). Maintain a steady pace from the start so you don't rush through the end.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30">
+                                            <span className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-600 flex-shrink-0"><Icons.Zap /></span>
+                                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                                                <strong>Consistent Pacing:</strong> Errors were evenly distributed, showing you remained focused throughout the examination duration.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {mistakeAnalysis.maxStreak >= 3 && (
+                                        <div className="flex items-start gap-3 p-3 rounded-xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30">
+                                            <span className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex-shrink-0"><Icons.TrendingDown /></span>
+                                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                                                <strong>Streak Reset Rule:</strong> You experienced a streak of {mistakeAnalysis.maxStreak} consecutive wrong answers. If stuck on 2 hard questions in a row, pause for 5 seconds and skip ahead to reset momentum.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {mistakeAnalysis.totalHistoricalExams > 1 && (
+                                        <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700">
+                                            <span className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex-shrink-0"><Icons.BarChart /></span>
+                                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                                                <strong>Multi-Exam Trend:</strong> Across previous exams, you have lost a cumulative total of <span className="font-bold text-red-500">-{mistakeAnalysis.totalHistoricalPenalty} marks</span> to incorrect answers. Reviewing your wrong answers directly below is your fastest route to improvement.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="space-y-3">
-                                    {[t('insight1'), t('insight2'), t('insight3')].map((insight, idx) => (
-                                        <div key={idx} className="p-3 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-                                            <div className="flex items-start gap-2">
-                                                <div className="p-1 bg-blue-100 dark:bg-blue-800 rounded-lg">
-                                                    <Icons.Check />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Dedicated Section 2: Detailed Question & Answer Review (Right, Wrong, Skipped) */}
+                    <div className="glass-panel p-5 sm:p-7 rounded-3xl mb-6 shadow-xl border border-white/60 dark:border-slate-700">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 mb-5 border-b border-slate-200 dark:border-slate-700">
+                            <div>
+                                <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+                                        <Icons.FileText />
+                                    </span>
+                                    {t('answer_breakdown')}
+                                </h2>
+                                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                    Inspect your chosen answer vs the correct answer for every question.
+                                </p>
+                            </div>
+
+                            {/* Filter Tabs & Search */}
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1 overflow-x-auto">
+                                    <button
+                                        onClick={() => setAnswerFilter('all')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${answerFilter === 'all' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-800'}`}
+                                    >
+                                        <span>{t('all_questions')}</span>
+                                        <span className="px-1.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-600 text-[10px]">{totalQ}</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setAnswerFilter('correct')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${answerFilter === 'correct' ? 'bg-green-500 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-green-600'}`}
+                                    >
+                                        <Icons.Check />
+                                        <span>{t('lbl_correct')}</span>
+                                        <span className={`px-1.5 py-0.5 rounded-md text-[10px] ${answerFilter === 'correct' ? 'bg-green-600 text-white' : 'bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300'}`}>{stats.correct}</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setAnswerFilter('wrong')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${answerFilter === 'wrong' ? 'bg-red-500 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-red-600'}`}
+                                    >
+                                        <Icons.X />
+                                        <span>{t('lbl_wrong')}</span>
+                                        <span className={`px-1.5 py-0.5 rounded-md text-[10px] ${answerFilter === 'wrong' ? 'bg-red-600 text-white' : 'bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300'}`}>{stats.wrong}</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setAnswerFilter('skipped')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${answerFilter === 'skipped' ? 'bg-slate-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-800'}`}
+                                    >
+                                        <span>{t('lbl_skip')}</span>
+                                        <span className={`px-1.5 py-0.5 rounded-md text-[10px] ${answerFilter === 'skipped' ? 'bg-slate-700 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}>{stats.skipped}</span>
+                                    </button>
+                                </div>
+
+                                <div className="relative">
+                                    <input 
+                                        type="number" 
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder="Jump to Q#..." 
+                                        className="w-full sm:w-28 pl-8 pr-2 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:border-blue-500"
+                                    />
+                                    <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                                        <Icons.Search />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Interactive Question Cards Grid */}
+                        {filteredQuestions.length === 0 ? (
+                            <div className="text-center py-10 bg-slate-50/50 dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">No questions match the selected filter.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                                {filteredQuestions.map(qNum => {
+                                    const status = grading[qNum] || (userAnswers[qNum] ? 'answered' : 'skipped');
+                                    const userAns = userAnswers[qNum] || null;
+                                    const correctKey = correctKeys[qNum] || null;
+
+                                    let badgeColor = 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700';
+                                    let borderColor = 'border-slate-200 dark:border-slate-700 hover:border-slate-300';
+                                    let scoreImpact = '0.00';
+                                    let scoreImpactColor = 'text-slate-400';
+
+                                    if (status === 'correct') {
+                                        badgeColor = 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300 border-green-200 dark:border-green-800';
+                                        borderColor = 'border-green-200 dark:border-green-900/50 bg-green-50/20 dark:bg-green-950/10 hover:border-green-300';
+                                        scoreImpact = `+${posMark.toFixed(2)}`;
+                                        scoreImpactColor = 'text-green-600 dark:text-green-400 font-bold';
+                                    } else if (status === 'wrong') {
+                                        badgeColor = 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300 border-red-200 dark:border-red-800';
+                                        borderColor = 'border-red-200 dark:border-red-900/50 bg-red-50/20 dark:bg-red-950/10 hover:border-red-300';
+                                        scoreImpact = `-${negMark.toFixed(2)}`;
+                                        scoreImpactColor = 'text-red-600 dark:text-red-400 font-bold';
+                                    }
+
+                                    return (
+                                        <div 
+                                            key={qNum} 
+                                            id={`answer-card-${qNum}`}
+                                            className={`p-3.5 rounded-2xl border transition-all shadow-xs ${borderColor} flex flex-col justify-between gap-3`}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-black text-slate-800 dark:text-white text-sm">
+                                                    Question {qNum}
+                                                </span>
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className={`text-[11px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider border ${badgeColor}`}>
+                                                        {status === 'correct' ? t('lbl_correct') : status === 'wrong' ? t('lbl_wrong') : t('lbl_skip')}
+                                                    </span>
+                                                    <span className={`text-xs ${scoreImpactColor}`}>{scoreImpact}</span>
                                                 </div>
-                                                <p className="text-sm text-slate-600 dark:text-slate-300">{insight}</p>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2 pt-1">
+                                                <div className="p-2 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60">
+                                                    <div className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">{t('your_answer')}</div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        {userAns ? (
+                                                            <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm ${status === 'correct' ? 'bg-green-500 text-white' : status === 'wrong' ? 'bg-red-500 text-white' : 'bg-slate-500 text-white'}`}>
+                                                                {userAns}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-xs text-slate-400 italic">— {t('not_answered')}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-2 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60">
+                                                    <div className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">{t('correct_key')}</div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        {correctKey ? (
+                                                            <span className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-400 flex items-center justify-center font-bold text-sm">
+                                                                {correctKey}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-xs text-slate-400 italic">Not available</span>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    ))}
-                                    {/* Advanced Insights */}
-                                    <div className="p-3 bg-purple-50/50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800">
-                                        <div className="flex items-start gap-2">
-                                            <div className="p-1 bg-purple-100 dark:bg-purple-800 rounded-lg">
-                                                <Icons.TrendingUp />
-                                            </div>
-                                            <p className="text-sm text-slate-600 dark:text-slate-300">
-                                                Your time management improved by 15% compared to previous attempts.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="p-3 bg-amber-50/50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800">
-                                        <div className="flex items-start gap-2">
-                                            <div className="p-1 bg-amber-100 dark:bg-amber-800 rounded-lg">
-                                                <Icons.Zap />
-                                            </div>
-                                            <p className="text-sm text-slate-600 dark:text-slate-300">
-                                                Consider reviewing questions 15-20, which showed consistent difficulty.
-                                            </p>
-                                        </div>
-                                    </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Visual Charts & Heatmap Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        {/* Question Heatmap */}
+                        <div className="lg:col-span-2 glass-panel p-5 sm:p-6 rounded-3xl flex flex-col shadow-lg border border-white/60 dark:border-slate-700">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                                <h3 className="font-bold text-base sm:text-lg dark:text-white flex items-center gap-2">
+                                    <Icons.Target /> {t('det_breakdown')}
+                                </h3>
+                                <div className="flex flex-wrap gap-2 text-xs font-bold bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl self-start sm:self-auto">
+                                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-green-500"></span> {t('lbl_correct')}</span>
+                                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-red-500"></span> {t('lbl_wrong')}</span>
+                                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-slate-300 dark:bg-slate-600"></span> {t('lbl_skip')}</span>
                                 </div>
                             </div>
-
-                            {/* Mini Trend */}
-                            <div className="glass-panel p-5 md:p-6 rounded-3xl">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
-                                        <Icons.TrendingUp /> {t('det_trend')}
-                                    </h3>
-                                    <Tooltip text={t('tooltip_mini_trend')} />
+                            <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+                                Tap any question below to jump straight to its answer review card.
+                            </p>
+                            <div className="overflow-x-auto pb-2">
+                                <div className="heatmap-grid">
+                                    {Array.from({ length: totalQ }, (_, i) => i + 1).map(qNum => {
+                                        const status = grading[qNum] || (userAnswers[qNum] ? 'correct' : 'skipped');
+                                        let classes = "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700";
+                                        
+                                        if (status === 'correct') classes = "bg-green-500 text-white shadow-xs border-green-400";
+                                        if (status === 'wrong') classes = "bg-red-500 text-white shadow-xs border-red-400";
+                                        
+                                        return (
+                                            <button 
+                                                key={qNum} 
+                                                onClick={() => scrollToQuestionCard(qNum)}
+                                                className={`aspect-square rounded-lg flex items-center justify-center text-xs font-bold transition-all hover:scale-110 active:scale-95 cursor-pointer ${classes}`} 
+                                                title={`Q${qNum}: ${status}`}
+                                            >
+                                                {qNum}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
-                                <div className="h-32">
-                                    <canvas ref={trendRef}></canvas>
+                            </div>
+                        </div>
+
+                        {/* Doughnut Breakdown */}
+                        <div className="glass-panel p-5 sm:p-6 rounded-3xl flex flex-col shadow-lg border border-white/60 dark:border-slate-700">
+                            <h3 className="font-bold text-base sm:text-lg dark:text-white flex items-center gap-2 mb-4">
+                                <Icons.PieChart /> Proportional Breakdown
+                            </h3>
+                            <div className="flex-grow relative h-64">
+                                <canvas ref={doughRef}></canvas>
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-8">
+                                    <div className="text-center">
+                                        <div className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">{stats.attempted}/{totalQ}</div>
+                                        <div className="text-[10px] text-slate-400 uppercase font-bold">Attempted</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1717,8 +2146,6 @@
             const fileInputRef = useRef(null);
             
             // Refs for charts
-            const trendRef = useRef(null);
-            const trendInst = useRef(null);
             const distributionRef = useRef(null);
             const distributionInst = useRef(null);
             const groupsChartRef = useRef(null);
@@ -1796,80 +2223,8 @@
                 })).sort((a, b) => b.averageScore - a.averageScore).slice(0, 10);
             }, [filteredHistory]);
 
-            // Trend Chart
+            // Distribution Chart (Performance Trend removed as requested)
             useEffect(() => {
-                if (view === 'dashboard' && trendRef.current && filteredHistory.length > 0) {
-                    if (trendInst.current) trendInst.current.destroy();
-                    const ctx = trendRef.current.getContext('2d');
-                    
-                    const chartData = [...filteredHistory].reverse().slice(-20); // Show last 20 exams
-                    
-                    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
-                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
-
-                    trendInst.current = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: chartData.map(d => {
-                                try {
-                                    const date = new Date(d.date);
-                                    return `${date.getDate()}/${date.getMonth() + 1}`;
-                                } catch {
-                                    return '';
-                                }
-                            }),
-                            datasets: [{
-                                label: 'Score Trend',
-                                data: chartData.map(d => DataManager.getExamProperty(d, 'score', 0)),
-                                borderColor: '#3b82f6',
-                                backgroundColor: gradient,
-                                borderWidth: 3,
-                                tension: 0.4,
-                                fill: true,
-                                pointBackgroundColor: '#2563eb',
-                                pointBorderColor: '#fff',
-                                pointRadius: 4,
-                                pointHoverRadius: 8
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { 
-                                legend: { display: false },
-                                tooltip: {
-                                    callbacks: {
-                                        title: (context) => {
-                                            const index = context[0].dataIndex;
-                                            return DataManager.getSafeExamName(chartData[index]);
-                                        },
-                                        label: (context) => {
-                                            const exam = chartData[context.dataIndex];
-                                            return [
-                                                `Score: ${DataManager.getExamProperty(exam, 'score', 0)}`,
-                                                `Accuracy: ${DataManager.getExamProperty(exam, 'accuracy', 0)}%`,
-                                                `Time: ${Math.floor(DataManager.getExamProperty(exam, 'timeTaken', 0)/60)}m ${DataManager.getExamProperty(exam, 'timeTaken', 0)%60}s`
-                                            ];
-                                        }
-                                    }
-                                }
-                            },
-                            scales: {
-                                y: { 
-                                    grid: { color: darkMode ? '#334155' : '#e2e8f0', borderDash: [5, 5] }, 
-                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' } 
-                                },
-                                x: { 
-                                    grid: { display: false }, 
-                                    ticks: { color: darkMode ? '#94a3b8' : '#64748b' } 
-                                }
-                            }
-                        }
-                    });
-                }
-
-                // Distribution Chart
                 if (view === 'dashboard' && distributionRef.current && filteredHistory.length > 0) {
                     if (distributionInst.current) distributionInst.current.destroy();
                     const ctxD = distributionRef.current.getContext('2d');
@@ -1993,7 +2348,6 @@
                 }
 
                 return () => {
-                    if (trendInst.current) trendInst.current.destroy();
                     if (distributionInst.current) distributionInst.current.destroy();
                     if (groupsChartInst.current) groupsChartInst.current.destroy();
                 };
@@ -2249,23 +2603,59 @@
                                     </>
                                 )}
 
-                                {/* Charts Section */}
+                                {/* Charts & Overall Mistakes Diagnostic Section */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-                                    {/* Trend Chart */}
-                                    <div className="glass-panel p-5 md:p-8 rounded-3xl border border-white/60 dark:border-slate-700 shadow-xl">
-                                        <div className="flex justify-between items-center mb-4 md:mb-6">
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                                    <Icons.BarChart /> Performance Trend
-                                                </h3>
-                                                <Tooltip text={t('tooltip_trend_chart')} />
+                                    {/* Overall Mistakes Diagnostic Hub */}
+                                    <div className="glass-panel p-5 md:p-8 rounded-3xl border border-red-200/60 dark:border-red-950/40 shadow-xl bg-gradient-to-br from-white/90 via-red-50/20 to-white/90 dark:from-slate-900/90 dark:via-red-950/10 dark:to-slate-900/90 flex flex-col justify-between">
+                                        <div>
+                                            <div className="flex justify-between items-center mb-4 md:mb-6">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-8 h-8 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
+                                                        <Icons.AlertCircle />
+                                                    </span>
+                                                    <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white">
+                                                        {t('frequent_mistakes')}
+                                                    </h3>
+                                                </div>
+                                                <span className="text-xs font-bold text-slate-400 uppercase bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
+                                                    {filteredHistory.length} Exams
+                                                </span>
                                             </div>
-                                            <span className="text-xs font-bold text-slate-400 uppercase bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
-                                                {filteredHistory.length} Exams
-                                            </span>
+
+                                            <div className="grid grid-cols-2 gap-3 mb-4">
+                                                <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+                                                    <div className="text-[10px] uppercase font-bold text-slate-400 mb-1">Total Inaccuracies</div>
+                                                    <div className="text-2xl font-black text-red-500">
+                                                        {filteredHistory.reduce((acc, h) => acc + (Object.values(h.gradingDetails || {}).filter(s => s === 'wrong').length), 0)}
+                                                    </div>
+                                                    <div className="text-[11px] text-slate-500 mt-0.5">questions answered wrongly</div>
+                                                </div>
+                                                <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+                                                    <div className="text-[10px] uppercase font-bold text-slate-400 mb-1">Negative Marks Lost</div>
+                                                    <div className="text-2xl font-black text-amber-500">
+                                                        -{filteredHistory.reduce((acc, h) => {
+                                                            const w = Object.values(h.gradingDetails || {}).filter(s => s === 'wrong').length;
+                                                            const neg = parseFloat(h.config?.negativeMarks || 0.25);
+                                                            return acc + (w * neg);
+                                                        }, 0).toFixed(2)}
+                                                    </div>
+                                                    <div className="text-[11px] text-slate-500 mt-0.5">points deducted in penalties</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-3.5 rounded-2xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-1.5">
+                                                <div className="font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
+                                                    <Icons.Target /> Key Strategic Recommendation:
+                                                </div>
+                                                <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                                                    Open any exam below to inspect question-by-question Right, Wrong, and Skipped answers with personalized advice.
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="h-64 md:h-80">
-                                            <canvas ref={trendRef}></canvas>
+
+                                        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs text-slate-400">
+                                            <span>Average Accuracy: <strong>{analyticsData.avgAcc}%</strong></span>
+                                            <span>Completed Sessions: <strong>{analyticsData.totalExams}</strong></span>
                                         </div>
                                     </div>
 

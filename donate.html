@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Donate - OMR Master Pro</title>
     
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -236,7 +237,7 @@
 
             const secondaryLinks = [
                 { name: t('about'), icon: Icons.Info, href: 'about.html' },
-                { name: t('guideline'), icon: Icons.Book, href: 'guidelines.html' },
+                { name: t('guideline'), icon: Icons.Book, href: 'guideline.html' },
                 { name: t('report'), icon: Icons.Flag, href: 'report.html' },
                 { name: t('contact'), icon: Icons.Mail, href: 'contact.html' },
                 { name: t('donation'), icon: Icons.Heart, href: 'donate.html', active: activePage === 'donation' },
@@ -314,11 +315,11 @@
                 <footer className="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
                     <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center justify-center gap-4 text-center">
                         <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
-                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UR</span>
-                            Urfa Hasan Fattah & Rifat
+                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
+                            Urfa Hasan Fattah
                         </div>
                         <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
-                            {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah & Rifatuzzaman Rifat</span>. &copy; {currentYear} {t('footer_rights')}
+                            {t('footer_credit')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {currentYear} {t('footer_rights')}
                         </p>
                         <a 
                             href="donate.html" 

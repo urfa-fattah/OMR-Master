@@ -2,22 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>OMR Master Pro - Active Session</title>
     
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Production React builds — faster load, smaller size -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Consolidated font preload — single request per family -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
+                    screens: {
+                        'xs': '375px',
+                    },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                         bangla: ['Hind Siliguri', 'sans-serif'],
@@ -38,6 +44,10 @@
     </script>
 
     <style>
+        html, body {
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
         body {
             background-attachment: fixed;
             background: radial-gradient(circle at top left, #f8fafc, #e2e8f0); 
@@ -69,19 +79,35 @@
             border-bottom: 1px solid rgba(30, 41, 59, 0.8);
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        /* Custom Scrollbar - Responsive width */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @media (max-width: 640px) {
+            ::-webkit-scrollbar { width: 3px; height: 3px; }
+        }
 
-        /* Bubble Animation */
+        /* Bubble Animation & Touch Handling */
         .bubble {
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
         }
         .bubble:active {
-            transform: scale(0.95);
+            transform: scale(0.92);
+        }
+
+        /* Extra small devices bubble adjustment */
+        @media (max-width: 359px) {
+            .bubble {
+                width: 1.75rem !important;
+                height: 1.75rem !important;
+                font-size: 0.75rem !important;
+            }
         }
 
         /* Exam Container Responsive */
@@ -95,6 +121,37 @@
             .exam-grid {
                 grid-template-columns: 1fr !important;
             }
+        }
+
+        /* OMR scroll container — dynamic height across device screens */
+        .omr-scroll {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: calc(100dvh - 230px);
+        }
+        @media (min-width: 640px) {
+            .omr-scroll {
+                max-height: calc(100dvh - 250px);
+            }
+        }
+        @media (min-width: 1024px) {
+            .omr-scroll {
+                max-height: calc(100vh - 260px);
+            }
+        }
+
+        /* Custom confirm modal backdrop */
+        .confirm-backdrop {
+            animation: fadeIn 0.15s ease-out;
+        }
+        .confirm-modal {
+            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.92); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
         /* Timer Animation */
@@ -224,7 +281,7 @@
         const AppContext = createContext();
 
         // --- Navbar (Unchanged as requested) ---
-        const Navbar = ({ activePage, toggleFocus, isFocusMode, timeLeft, examName }) => {
+        const Navbar = ({ activePage, toggleFocus, isFocusMode, timeLeft, examName, onQuit }) => {
             const { lang, setLang, darkMode, setDarkMode } = useContext(AppContext);
             const [sessionActive, setSessionActive] = useState(false);
             const [isOpen, setIsOpen] = useState(false);
@@ -263,7 +320,7 @@
 
             const secondaryLinks = [
                 { name: t('about'), icon: Icons.Book, href: 'about.html' },
-                { name: t('guideline'), icon: Icons.Flag, href: 'guidelines.html' },
+                { name: t('guideline'), icon: Icons.Flag, href: 'guideline.html' },
                 { name: t('report'), icon: Icons.AlertCircle, href: 'report.html' },
                 { name: t('contact'), icon: Icons.Mail, href: 'contact.html' },
             ];
@@ -283,7 +340,7 @@
                                     <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight leading-none">{t('app_name')}</h1>
                                     <span className="text-[10px] font-bold tracking-widest text-blue-600 dark:text-blue-400 uppercase">{t('pro')}</span>
                                     {examName && (
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs">
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[110px] xs:max-w-[170px] sm:max-w-xs">
                                             {examName}
                                         </p>
                                     )}
@@ -328,14 +385,14 @@
                             </div>
 
                             {/* Mobile Navigation */}
-                            <div className="lg:hidden flex items-center gap-3">
-                                <div className={`font-mono text-lg font-bold px-3 py-1.5 rounded ${isLowTime ? 'bg-red-500/10 text-red-600 timer-warning' : 'bg-blue-500/10 text-blue-600'}`}>
+                            <div className="lg:hidden flex items-center gap-1.5 xs:gap-2 sm:gap-3">
+                                <div className={`font-mono text-xs xs:text-sm sm:text-base font-bold px-2 xs:px-2.5 py-1 rounded-lg ${isLowTime ? 'bg-red-500/10 text-red-600 timer-warning border border-red-500/20' : 'bg-blue-500/10 text-blue-600 border border-blue-500/20'}`}>
                                     {formatTime(timeLeft)}
                                 </div>
-                                <button onClick={toggleLang} className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{lang === 'en' ? 'BN' : 'EN'}</button>
-                                <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-300">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
-                                <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} /></svg>
+                                <button onClick={toggleLang} className="px-1.5 py-1 rounded text-xs xs:text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">{lang === 'en' ? 'BN' : 'EN'}</button>
+                                <button onClick={toggleTheme} className="p-1.5 text-slate-600 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-800">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
+                                <button onClick={() => setIsOpen(!isOpen)} className="p-1.5 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition" aria-label="Toggle menu">
+                                    <svg className="w-5 h-5 xs:w-6 xs:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} /></svg>
                                 </button>
                             </div>
                         </div>
@@ -359,6 +416,11 @@
                                 <button onClick={toggleFocus} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20">
                                     <Icons.Focus /> {t('focus_mode')}
                                 </button>
+                                {onQuit && (
+                                    <button onClick={() => { setIsOpen(false); onQuit(); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30">
+                                        <Icons.X /> {lang === 'bn' ? 'পরীক্ষা থেকে বের হন' : 'Quit Exam'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}
@@ -371,7 +433,7 @@
             const { lang } = useContext(AppContext);
             const t = (k) => translations[lang][k];
             return (
-                <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg mt-auto">
+                <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg mt-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
                     <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col items-center justify-center gap-2 text-center">
                         <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
                             <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
@@ -396,53 +458,92 @@
             const [flags, setFlags] = useState([]);
             const [autoSaveStatus, setAutoSaveStatus] = useState("saved");
             const [currentQuestion, setCurrentQuestion] = useState(1);
+            const [showSubmitModal, setShowSubmitModal] = useState(false);
+            const [showQuitModal, setShowQuitModal] = useState(false);
+            const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
             
             const answersRef = useRef({});
             const timerRef = useRef(null);
             const saveIntervalRef = useRef(null);
+            // FIX: use a ref to always have fresh timeLeft in callbacks
+            const timeLeftRef = useRef(0);
+            // FIX: ref for debounced scroll to avoid scroll-animation queueing on fast key presses
+            const scrollDebounceRef = useRef(null);
+
+            // FIX: Reactive isMobile — listen to resize instead of reading in render
+            useEffect(() => {
+                const handleResize = () => setIsMobile(window.innerWidth < 1024);
+                window.addEventListener('resize', handleResize, { passive: true });
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
 
             // 1. Initialize
             useEffect(() => {
-                const stored = localStorage.getItem('omr_current_session');
-                const retakeConfig = localStorage.getItem('omr_retake_exam_config');
-                
-                if (retakeConfig) {
-                    const parsedRetake = JSON.parse(retakeConfig);
-                    const newSession = {
-                        config: parsedRetake.config,
-                        timeLeft: parsedRetake.config.duration * 60,
-                        answers: {},
-                        flags: [],
-                        startedAt: new Date().toISOString(),
-                        examName: parsedRetake.examName,
-                        isRetake: true,
-                        previousScore: parsedRetake.previousScore || null
-                    };
+                try {
+                    const stored = localStorage.getItem('omr_current_session');
+                    const retakeConfig = localStorage.getItem('omr_retake_exam_config');
                     
-                    setSession(newSession);
-                    setTimeLeft(newSession.config.duration * 60);
-                    localStorage.setItem('omr_current_session', JSON.stringify(newSession));
-                    localStorage.removeItem('omr_retake_exam_config');
-                } else if (stored) {
-                    const parsed = JSON.parse(stored);
-                    setSession(parsed);
-                    setTimeLeft(parsed.timeLeft);
-                    setAnswers(parsed.answers || {});
-                    setFlags(parsed.flags || []);
-                    answersRef.current = parsed.answers || {};
-                } else {
+                    if (retakeConfig) {
+                        const parsedRetake = JSON.parse(retakeConfig);
+                        const newSession = {
+                            config: parsedRetake.config,
+                            timeLeft: (parsedRetake.config?.duration || 60) * 60,
+                            answers: {},
+                            flags: [],
+                            startedAt: new Date().toISOString(),
+                            examName: parsedRetake.examName,
+                            isRetake: true,
+                            previousScore: parsedRetake.previousScore || null
+                        };
+                        
+                        setSession(newSession);
+                        const t0 = (newSession.config?.duration || 60) * 60;
+                        setTimeLeft(t0);
+                        timeLeftRef.current = t0;
+                        localStorage.setItem('omr_current_session', JSON.stringify(newSession));
+                        localStorage.removeItem('omr_retake_exam_config');
+                    } else if (stored) {
+                        const parsed = JSON.parse(stored);
+                        setSession(parsed);
+                        setTimeLeft(parsed.timeLeft || 0);
+                        timeLeftRef.current = parsed.timeLeft || 0;
+                        setAnswers(parsed.answers || {});
+                        setFlags(parsed.flags || []);
+                        answersRef.current = parsed.answers || {};
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } catch (err) {
+                    console.error('Failed to load session in exam.html:', err);
+                    localStorage.removeItem('omr_current_session');
                     window.location.href = 'index.html';
                 }
             }, []);
 
+            // FIX: beforeunload warning — prevent accidental navigation away from active exam
+            useEffect(() => {
+                if (!session) return;
+                const handleBeforeUnload = (e) => {
+                    e.preventDefault();
+                    e.returnValue = 'Your exam is in progress. Are you sure you want to leave?';
+                    return e.returnValue;
+                };
+                window.addEventListener('beforeunload', handleBeforeUnload);
+                return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+            }, [session]);
+
             // 2. Submit Logic
             const submitExam = useCallback((isTimeout = false) => {
                 if (!session) return;
+                // Remove beforeunload before navigating
+                window.onbeforeunload = null;
                 const finalAnswers = answersRef.current;
+                // FIX: read timeLeft from ref for accuracy
+                const currentTimeLeft = isTimeout ? 0 : timeLeftRef.current;
                 const gradingData = {
                     config: session.config,
                     answers: finalAnswers,
-                    timeTaken: session.config.duration * 60 - (isTimeout ? 0 : timeLeft),
+                    timeTaken: session.config.duration * 60 - currentTimeLeft,
                     submitTime: new Date().toISOString(),
                     flags: flags,
                     examName: session.examName || 'Untitled Exam',
@@ -457,110 +558,33 @@
                 localStorage.removeItem('omr_current_session');
                 
                 window.location.href = 'correction.html';
-            }, [session, timeLeft, flags]);
+            }, [session, flags]);
 
-            // 3. Timer Logic
+            // 3. Timer Logic — FIX: also keep timeLeftRef in sync
             useEffect(() => {
                 if (!session) return;
                 timerRef.current = setInterval(() => {
                     setTimeLeft((prev) => {
+                        const next = prev <= 1 ? 0 : prev - 1;
+                        timeLeftRef.current = next;
                         if (prev <= 1) {
                             clearInterval(timerRef.current);
                             submitExam(true);
-                            return 0;
                         }
-                        return prev - 1;
+                        return next;
                     });
                 }, 1000);
                 return () => clearInterval(timerRef.current);
             }, [session, submitExam]);
 
-            // 4. Auto-Save Logic
-            useEffect(() => {
-                if (!session) return;
-                saveIntervalRef.current = setInterval(() => {
-                    autoSaveProgress();
-                }, 10000);
-                return () => clearInterval(saveIntervalRef.current);
-            }, [session, flags, timeLeft, answers]);
-
-            // 5. Smart Keyboard Listener
-            useEffect(() => {
-                if(!session) return;
-                const handleKeyDown = (e) => {
-                    // Prevent triggering if typing in some unexpected input
-                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-                    const key = e.key.toUpperCase();
-                    const validOptions = ['A', 'B', 'C', 'D', 'E'].slice(0, session.config.optionsCount);
-
-                    if (validOptions.includes(key)) {
-                        handleBubbleClick(currentQuestion, key);
-                        // Auto-advance smart feature
-                        if (currentQuestion < session.config.questionCount) {
-                            const nextQ = currentQuestion + 1;
-                            setCurrentQuestion(nextQ);
-                            scrollToQuestion(nextQ);
-                        }
-                    } else if (key === 'F') {
-                        toggleFlag(currentQuestion);
-                    } else if (e.key === 'Backspace' || e.key === 'Delete') {
-                        clearRow(currentQuestion);
-                    } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-                        e.preventDefault();
-                        if (currentQuestion < session.config.questionCount) {
-                            setCurrentQuestion(prev => prev + 1);
-                            scrollToQuestion(currentQuestion + 1);
-                        }
-                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-                        e.preventDefault();
-                        if (currentQuestion > 1) {
-                            setCurrentQuestion(prev => prev - 1);
-                            scrollToQuestion(currentQuestion - 1);
-                        }
-                    }
-                };
-                window.addEventListener('keydown', handleKeyDown);
-                return () => window.removeEventListener('keydown', handleKeyDown);
-            }, [currentQuestion, session]);
-
-            // Handlers
-            const handleBubbleClick = (qNum, option) => {
-                setAnswers(prev => {
-                    const next = { ...prev, [qNum]: option };
-                    answersRef.current = next;
-                    return next;
-                });
-                setCurrentQuestion(qNum);
-            };
-
-            const clearRow = (qNum) => {
-                setAnswers(prev => {
-                    const next = { ...prev };
-                    delete next[qNum];
-                    answersRef.current = next;
-                    return next;
-                });
-            };
-
-            const toggleFlag = (qNum) => {
-                setFlags(prev => prev.includes(qNum) ? prev.filter(f => f !== qNum) : [...prev, qNum]);
-            };
-
-            const scrollToQuestion = (qNum) => {
-                const element = document.getElementById(`question-${qNum}`);
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            };
-
-            const autoSaveProgress = (manual = false) => {
+            // 4. Auto-Save Logic — FIX: reads timeLeft from ref (always fresh)
+            const autoSaveProgress = useCallback((manual = false) => {
                 if (!session) return;
                 const currentData = JSON.parse(localStorage.getItem('omr_current_session') || '{}');
                 const updated = {
                     ...currentData,
                     answers: answersRef.current,
-                    timeLeft: timeLeft,
+                    timeLeft: timeLeftRef.current,
                     flags: flags,
                     lastSaved: new Date().toISOString()
                 };
@@ -571,12 +595,104 @@
                     setAutoSaveStatus("saving");
                     setTimeout(() => setAutoSaveStatus("saved"), 500);
                 }
-            };
+            }, [session, flags]);
+
+            useEffect(() => {
+                if (!session) return;
+                saveIntervalRef.current = setInterval(() => {
+                    autoSaveProgress();
+                }, 10000);
+                return () => clearInterval(saveIntervalRef.current);
+            }, [session, autoSaveProgress]);
+
+            // FIX: Debounced scroll — prevents scroll animation queue on rapid key presses
+            const scrollToQuestion = useCallback((qNum) => {
+                if (scrollDebounceRef.current) clearTimeout(scrollDebounceRef.current);
+                scrollDebounceRef.current = setTimeout(() => {
+                    const element = document.getElementById(`question-${qNum}`);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 80);
+            }, []);
+
+            // Handlers
+            const handleBubbleClick = useCallback((qNum, option) => {
+                setAnswers(prev => {
+                    const next = { ...prev, [qNum]: option };
+                    answersRef.current = next;
+                    return next;
+                });
+                setCurrentQuestion(qNum);
+            }, []);
+
+            const clearRow = useCallback((qNum) => {
+                setAnswers(prev => {
+                    const next = { ...prev };
+                    delete next[qNum];
+                    answersRef.current = next;
+                    return next;
+                });
+            }, []);
+
+            const toggleFlag = useCallback((qNum) => {
+                setFlags(prev => prev.includes(qNum) ? prev.filter(f => f !== qNum) : [...prev, qNum]);
+            }, []);
+
+            // 5. Smart Keyboard Listener — FIX: use functional updaters to avoid stale closures
+            useEffect(() => {
+                if (!session) return;
+                const handleKeyDown = (e) => {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                    if (e.target.closest('[data-modal]')) return;
+
+                    const key = e.key.toUpperCase();
+                    const validOptions = ['A', 'B', 'C', 'D', 'E'].slice(0, session.config.optionsCount);
+
+                    if (validOptions.includes(key)) {
+                        setCurrentQuestion(prev => {
+                            handleBubbleClick(prev, key);
+                            if (prev < session.config.questionCount) {
+                                const nextQ = prev + 1;
+                                scrollToQuestion(nextQ);
+                                return nextQ;
+                            }
+                            return prev;
+                        });
+                    } else if (key === 'F') {
+                        setCurrentQuestion(prev => { toggleFlag(prev); return prev; });
+                    } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                        setCurrentQuestion(prev => { clearRow(prev); return prev; });
+                    } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        setCurrentQuestion(prev => {
+                            if (prev < session.config.questionCount) {
+                                const next = prev + 1;
+                                scrollToQuestion(next);
+                                return next;
+                            }
+                            return prev;
+                        });
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        setCurrentQuestion(prev => {
+                            if (prev > 1) {
+                                const next = prev - 1;
+                                scrollToQuestion(next);
+                                return next;
+                            }
+                            return prev;
+                        });
+                    }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [session, handleBubbleClick, clearRow, toggleFlag, scrollToQuestion]);
 
             if (!session) return (
                 <div className="flex h-screen items-center justify-center">
                     <div className="text-center">
-                        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
+                        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center animate-pulse">
                             <Icons.Play className="text-white text-2xl" />
                         </div>
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('loading_exam')}</h2>
@@ -585,8 +701,15 @@
                 </div>
             );
 
-            const { config } = session;
-            const options = ['A', 'B', 'C', 'D', 'E'].slice(0, config.optionsCount);
+            const config = session?.config || {
+                examName: session?.examName || 'Exam',
+                questionCount: session?.questionCount || 100,
+                duration: session?.duration || 60,
+                optionsCount: session?.optionsCount || 4,
+                positiveMarks: 1,
+                negativeMarks: 0.25
+            };
+            const options = ['A', 'B', 'C', 'D', 'E'].slice(0, config.optionsCount || 4);
             const isLowTime = timeLeft < 60;
             const attemptedCount = Object.keys(answers).length;
             const progressPercentage = (attemptedCount / config.questionCount) * 100;
@@ -594,78 +717,200 @@
 
             return (
                 <div className="min-h-screen flex flex-col">
+                    {/* Custom Submit Confirm Modal */}
+                    {showSubmitModal && (
+                        <div className="confirm-backdrop fixed inset-0 z-[200] flex items-center justify-center p-3 xs:p-4 bg-slate-900/60 backdrop-blur-sm" data-modal>
+                            <div className="confirm-modal bg-white dark:bg-slate-900 rounded-2xl p-4 xs:p-6 shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                        <Icons.AlertCircle />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Submit Exam?</h3>
+                                </div>
+                                <p className="text-slate-600 dark:text-slate-400 text-sm mb-2">
+                                    {t('confirm_submit')}
+                                </p>
+                                <div className="text-sm bg-slate-50 dark:bg-slate-800 rounded-xl p-3 mb-5 space-y-1">
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 dark:text-slate-400">{t('attempted')}</span>
+                                        <span className="font-bold text-slate-800 dark:text-white">{attemptedCount}/{config.questionCount}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 dark:text-slate-400">{t('unanswered')}</span>
+                                        <span className="font-bold text-slate-800 dark:text-white">{unansweredCount}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 dark:text-slate-400">{t('flagged')}</span>
+                                        <span className="font-bold text-slate-800 dark:text-white">{flags.length}</span>
+                                    </div>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setShowSubmitModal(false)}
+                                        className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={() => { setShowSubmitModal(false); submitExam(); }}
+                                        className="flex-1 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold hover:from-green-600 hover:to-emerald-700 transition"
+                                    >
+                                        {t('submit_exam')}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Custom Quit Exam Modal */}
+                    {showQuitModal && (
+                        <div className="confirm-backdrop fixed inset-0 z-[200] flex items-center justify-center p-3 xs:p-4 bg-slate-900/60 backdrop-blur-sm" data-modal>
+                            <div className="confirm-modal bg-white dark:bg-slate-900 rounded-2xl p-4 xs:p-6 shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
+                                        <Icons.AlertCircle />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">{lang === 'bn' ? 'পরীক্ষা থেকে বের হবেন?' : 'Quit Exam?'}</h3>
+                                </div>
+                                <p className="text-slate-600 dark:text-slate-400 text-sm mb-5">
+                                    {lang === 'bn' 
+                                        ? 'আপনি কি নিশ্চিত যে পরীক্ষাটি বাতিল করে বের হতে চান? আপনার বর্তমান পরীক্ষার অগ্রগতি মুছে যাবে।' 
+                                        : 'Are you sure you want to quit? Your active session progress will be discarded and you will return to the dashboard.'}
+                                </p>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setShowQuitModal(false)}
+                                        className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition text-sm"
+                                    >
+                                        {lang === 'bn' ? 'চালিয়ে যান' : 'Continue'}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            localStorage.removeItem('omr_current_session');
+                                            window.location.href = 'index.html';
+                                        }}
+                                        className="flex-1 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl font-bold hover:from-red-600 hover:to-rose-700 transition shadow-lg shadow-red-500/20 text-sm"
+                                    >
+                                        {lang === 'bn' ? 'হ্যাঁ, বের হন' : 'Quit Exam'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <Navbar 
                         activePage="exam"
                         toggleFocus={() => setIsFocusMode(!isFocusMode)} 
                         isFocusMode={isFocusMode} 
                         timeLeft={timeLeft}
                         examName={session.examName}
+                        onQuit={() => setShowQuitModal(true)}
                     />
 
-                    <main className="flex-grow pt-24 pb-12">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <main className="flex-grow pt-20 sm:pt-24 pb-8 sm:pb-12">
+                        <div className="max-w-7xl mx-auto px-2.5 xs:px-4 sm:px-6 lg:px-8">
                             
                             {/* Unified Top Stats Bar */}
-                            <div className="glass-panel rounded-2xl p-4 mb-6 shadow-lg">
-                                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div className="glass-panel rounded-2xl p-3 sm:p-4 mb-4 sm:mb-6 shadow-lg">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                                     
                                     {/* Left Stats Overview */}
-                                    <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center">
+                                    <div className="flex items-center gap-3 sm:gap-6 justify-between sm:justify-start">
+                                        <div className="flex items-center gap-2 sm:gap-3">
+                                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center flex-shrink-0">
                                                 <Icons.CheckCircle />
                                             </div>
                                             <div>
-                                                <div className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">{t('attempted')}</div>
-                                                <div className="font-bold text-slate-800 dark:text-white text-lg">
-                                                    {attemptedCount} / {config.questionCount}
+                                                <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">{t('attempted')}</div>
+                                                <div className="font-bold text-slate-800 dark:text-white text-sm sm:text-lg">
+                                                    {attemptedCount} <span className="text-xs sm:text-sm font-normal text-slate-500">/ {config.questionCount}</span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center">
+                                        <div className="flex items-center gap-2 sm:gap-3">
+                                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center flex-shrink-0">
                                                 <Icons.Flag />
                                             </div>
                                             <div>
-                                                <div className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">{t('flagged')}</div>
-                                                <div className="font-bold text-slate-800 dark:text-white text-lg">{flags.length}</div>
+                                                <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">{t('flagged')}</div>
+                                                <div className="font-bold text-slate-800 dark:text-white text-sm sm:text-lg">{flags.length}</div>
                                             </div>
                                         </div>
 
-                                        <div className="hidden sm:flex items-center gap-3">
-                                            <div className="w-48 h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                        {/* Progress bar on tablet/desktop */}
+                                        <div className="hidden md:flex items-center gap-3">
+                                            <div className="w-32 lg:w-48 h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                                                 <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-300" 
                                                      style={{width: `${progressPercentage}%`}}></div>
                                             </div>
-                                            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{progressPercentage.toFixed(0)}%</span>
+                                            <span className="text-xs sm:text-sm font-bold text-blue-600 dark:text-blue-400">{progressPercentage.toFixed(0)}%</span>
                                         </div>
                                     </div>
                                     
                                     {/* Right Actions */}
-                                    <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-                                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mr-2">
+                                    <div className="flex items-center gap-2 sm:gap-3 justify-end">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mr-1 sm:mr-2">
                                             <div className={`w-2 h-2 rounded-full ${autoSaveStatus === 'saved' ? 'bg-green-500' : 'bg-amber-500 animate-pulse'}`}></div>
-                                            <span className="hidden sm:inline">{autoSaveStatus === 'saving' ? t('saving') : t('saved')}</span>
+                                            <span className="hidden xs:inline">{autoSaveStatus === 'saving' ? t('saving') : t('saved')}</span>
                                         </div>
+                                        
+                                        {/* Quit button */}
+                                        <button 
+                                            onClick={() => setShowQuitModal(true)}
+                                            className="px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/40 hover:bg-red-100 dark:hover:bg-red-900/50 transition flex items-center gap-1.5 text-xs sm:text-sm font-bold"
+                                            title={lang === 'bn' ? 'পরীক্ষা থেকে বের হন' : 'Quit Exam'}
+                                        >
+                                            <Icons.X />
+                                            <span className="hidden xs:inline">{lang === 'bn' ? 'বের হন' : 'Quit'}</span>
+                                        </button>
                                         
                                         <button 
                                             onClick={() => autoSaveProgress(true)}
-                                            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                                            className="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
                                             title="Manual Save"
                                         >
                                             <Icons.Save />
                                         </button>
                                         
+                                        {/* Submit button with modal trigger */}
                                         <button 
-                                            onClick={() => { if(confirm(t('confirm_submit'))) submitExam(); }}
-                                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2.5 rounded-xl shadow-lg shadow-green-500/20 font-bold transition-all hover:scale-105"
+                                            onClick={() => setShowSubmitModal(true)}
+                                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl shadow-lg shadow-green-500/20 text-xs sm:text-sm font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
                                         >
-                                            {t('submit_exam')}
+                                            <span>{t('submit_exam')}</span>
                                         </button>
                                     </div>
                                 </div>
+
+                                {/* Mobile-only progress bar directly below */}
+                                <div className="md:hidden mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                                    <div className="flex-grow h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                        <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-300" 
+                                             style={{width: `${progressPercentage}%`}}></div>
+                                    </div>
+                                    <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 flex-shrink-0">{progressPercentage.toFixed(0)}%</span>
+                                </div>
                             </div>
+
+                            {/* Mobile/Tablet Question Paper Quick Link */}
+                            {config.pdfLink && !isFocusMode && (
+                                <div className="lg:hidden mb-4">
+                                    <a 
+                                        href={config.pdfLink} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-indigo-950/40 border border-blue-200 dark:border-slate-700 text-blue-700 dark:text-blue-300 font-semibold text-sm shadow-sm hover:shadow transition"
+                                    >
+                                        <span className="flex items-center gap-2">
+                                            <Icons.Book /> {t('pdf_viewer')} - Open Question Paper
+                                        </span>
+                                        <span className="flex items-center gap-1 text-xs bg-white dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-blue-100 dark:border-slate-600">
+                                            <Icons.ExternalLink /> Open ↗
+                                        </span>
+                                    </a>
+                                </div>
+                            )}
 
                             {/* Main Layout: PDF + Smarter OMR */}
                             <div className="flex flex-col lg:flex-row gap-6">
@@ -692,24 +937,25 @@
                                 <div className={`glass-panel rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 flex flex-col ${config.pdfLink && !isFocusMode ? 'lg:w-[45%]' : 'w-full'}`}>
                                     
                                     {/* OMR Header with Keyboard Hint */}
-                                    <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 rounded-t-2xl flex justify-between items-center">
-                                        <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                            <div className="w-2 h-6 bg-blue-500 rounded-full"></div>
+                                    <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 rounded-t-2xl flex justify-between items-center flex-shrink-0">
+                                        <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 text-sm sm:text-base">
+                                            <div className="w-2 h-5 sm:h-6 bg-blue-500 rounded-full"></div>
                                             OMR Response Sheet
                                         </h3>
                                         <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
                                             <Icons.Keyboard /> 
-                                            <span className="font-medium">Keys: <span className="font-bold text-slate-700 dark:text-slate-300">A-E</span> to answer, <span className="font-bold text-slate-700 dark:text-slate-300">F</span> flag, <span className="font-bold text-slate-700 dark:text-slate-300">Del</span> clear</span>
+                                            <span className="font-medium">Keys: <span className="font-bold text-slate-700 dark:text-slate-300">A-E</span> answer, <span className="font-bold text-slate-700 dark:text-slate-300">F</span> flag, <span className="font-bold text-slate-700 dark:text-slate-300">Del</span> clear</span>
                                         </div>
                                     </div>
 
-                                    {/* Chaos-Free OMR List */}
-                                    <div className="p-3 sm:p-5 overflow-y-auto h-[calc(100vh-270px)] custom-scrollbar">
-                                        <div className={`grid gap-2 ${config.pdfLink && !isFocusMode ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
+                                    {/* Responsive OMR Sheet Scroll Container */}
+                                    <div className="omr-scroll p-2.5 xs:p-3 sm:p-5">
+                                        <div className={`grid gap-2 ${config.pdfLink && !isFocusMode ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'}`}>
                                             {Array.from({ length: config.questionCount }, (_, i) => i + 1).map(qNum => {
                                                 const isAnswered = !!answers[qNum];
                                                 const isFlagged = flags.includes(qNum);
                                                 const isActive = currentQuestion === qNum;
+                                                const showActions = isActive || isMobile;
 
                                                 return (
                                                     <div 
@@ -717,20 +963,20 @@
                                                         id={`question-${qNum}`}
                                                         onClick={() => setCurrentQuestion(qNum)}
                                                         className={`
-                                                            group relative flex items-center justify-between p-3 rounded-xl border transition-all duration-200 cursor-pointer
+                                                            group relative flex items-center justify-between p-2 xs:p-2.5 sm:p-3 rounded-xl border transition-all duration-150 cursor-pointer
                                                             ${isActive ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 shadow-sm ring-1 ring-blue-500' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-slate-500'}
                                                             ${isFlagged ? 'border-l-4 border-l-amber-500 border-amber-300 dark:border-amber-600 bg-amber-50/30 dark:bg-amber-900/10' : ''}
                                                             ${isAnswered && !isActive && !isFlagged ? 'bg-slate-50/50 dark:bg-slate-800/30' : 'bg-white dark:bg-slate-800'}
                                                         `}
                                                     >
-                                                        <div className="flex items-center gap-3">
+                                                        <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 min-w-0">
                                                             {/* Question Number */}
-                                                            <div className={`w-7 text-right font-bold ${isAnswered ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                                                            <div className={`w-8 flex-shrink-0 text-right font-bold text-xs xs:text-sm ${isAnswered ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
                                                                 {qNum}.
                                                             </div>
 
                                                             {/* Bubbles */}
-                                                            <div className="flex gap-1.5 sm:gap-2">
+                                                            <div className="flex gap-1 xs:gap-1.5 sm:gap-2">
                                                                 {options.map(opt => (
                                                                     <button
                                                                         key={opt}
@@ -738,12 +984,13 @@
                                                                             e.stopPropagation();
                                                                             handleBubbleClick(qNum, opt);
                                                                             if (qNum < config.questionCount) {
-                                                                                setCurrentQuestion(qNum + 1);
-                                                                                scrollToQuestion(qNum + 1);
+                                                                                const nextQ = qNum + 1;
+                                                                                setCurrentQuestion(nextQ);
+                                                                                scrollToQuestion(nextQ);
                                                                             }
                                                                         }}
                                                                         className={`
-                                                                            w-8 h-8 sm:w-9 sm:h-9 rounded-full text-sm font-bold flex items-center justify-center border-2 bubble
+                                                                            w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 rounded-full text-xs xs:text-sm font-bold flex items-center justify-center border-2 bubble flex-shrink-0
                                                                             ${answers[qNum] === opt 
                                                                                 ? 'bg-blue-600 border-blue-600 text-white shadow-md' 
                                                                                 : 'bg-transparent border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30'}
@@ -755,11 +1002,11 @@
                                                             </div>
                                                         </div>
 
-                                                        {/* Quick Actions (Hover / Active state) */}
-                                                        <div className={`flex flex-col gap-1 transition-opacity duration-200 ${isActive || window.innerWidth < 1024 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                                        {/* Quick Actions */}
+                                                        <div className={`flex flex-col gap-0.5 xs:gap-1 transition-opacity duration-150 flex-shrink-0 ml-1 ${showActions ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                                                             <button 
                                                                 onClick={(e) => { e.stopPropagation(); toggleFlag(qNum); }} 
-                                                                className={`p-1.5 rounded-md transition-colors ${isFlagged ? 'text-amber-500 bg-amber-100 dark:bg-amber-900/30' : 'text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                                                                className={`p-1 xs:p-1.5 rounded-md transition-colors ${isFlagged ? 'text-amber-500 bg-amber-100 dark:bg-amber-900/30' : 'text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                                                                 title="Flag"
                                                             >
                                                                 <Icons.Flag />
@@ -767,7 +1014,7 @@
                                                             <button 
                                                                 onClick={(e) => { e.stopPropagation(); clearRow(qNum); }} 
                                                                 disabled={!isAnswered}
-                                                                className={`p-1.5 rounded-md transition-colors ${isAnswered ? 'text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 cursor-pointer' : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'}`}
+                                                                className={`p-1 xs:p-1.5 rounded-md transition-colors ${isAnswered ? 'text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 cursor-pointer' : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'}`}
                                                                 title="Clear"
                                                             >
                                                                 <Icons.X />
@@ -790,6 +1037,51 @@
             );
         };
 
+        class ErrorBoundary extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { hasError: false, error: null };
+            }
+            static getDerivedStateFromError(error) {
+                return { hasError: true, error };
+            }
+            componentDidCatch(error, errorInfo) {
+                console.error("Exam ErrorBoundary caught:", error, errorInfo);
+            }
+            render() {
+                if (this.state.hasError) {
+                    return (
+                        <div className="min-h-screen pt-24 flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
+                            <div className="glass-panel p-8 rounded-3xl max-w-md w-full text-center">
+                                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Something went wrong</h2>
+                                <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm">We encountered an issue during the exam session.</p>
+                                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                    <button 
+                                        onClick={() => window.location.reload()}
+                                        className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition text-sm shadow-md"
+                                    >
+                                        Reload Exam
+                                    </button>
+                                    <button 
+                                        onClick={() => window.location.href = 'index.html'}
+                                        className="px-5 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold hover:bg-slate-300 transition text-sm"
+                                    >
+                                        Return Home
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+                return this.props.children;
+            }
+        }
+
         // --- App Wrapper ---
         const AppWrapper = () => {
             const [lang, setLang] = useState('en');
@@ -806,9 +1098,11 @@
             }, []);
 
             return (
-                <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
-                    <ExamInterface />
-                </AppContext.Provider>
+                <ErrorBoundary>
+                    <AppContext.Provider value={{ lang, setLang, darkMode, setDarkMode }}>
+                        <ExamInterface />
+                    </AppContext.Provider>
+                </ErrorBoundary>
             );
         };
 

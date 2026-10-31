@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - OMR Master Pro</title>
     
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -186,19 +187,6 @@
                 linkedin: '#',
                 email: 'mailto:uhfabdulfattah@gmail.com',
                 skills: ['React.js', 'Tailwind CSS', 'JavaScript (ES6+)', 'UI/UX Design', 'State Management', 'Web Performance']
-            },
-            {
-                id: 'rifat',
-                name: 'Rifatuzzaman Rifat',
-                role: 'Co-Founder',
-                subRole: 'Frontend Developer',
-                bio_en: "A dedicated Co-Founder focused on performance optimization and responsive design. Rifat ensures the platform runs smoothly across all devices and contributes key features to the core engine.",
-                bio_bn: "একজন নিবেদিত সহ-প্রতিষ্ঠাতা যিনি পারফরম্যান্স অপ্টিমাইজেশন এবং রেসপন্সিভ ডিজাইনে মনোযোগী। রিফাত নিশ্চিত করেন যে প্ল্যাটফর্মটি সমস্ত ডিভাইসে মসৃণভাবে চলে।",
-                image: 'Rifat.jpg',
-                github: 'rifatuzzaman-rifat',
-                linkedin: '#',
-                email: 'mailto:rifat@omrmaster.com',
-                skills: ['HTML5 & CSS3', 'React.js', 'Git Version Control', 'Responsive Design', 'Web Accessibility', 'Problem Solving']
             }
         ];
 
@@ -274,7 +262,7 @@
 
             // Updated Secondary Links to point to separate HTML files
             const secondaryLinks = [
-                { name: t('guideline'), icon: Icons.Book, href: 'guidelines.html' },
+                { name: t('guideline'), icon: Icons.Book, href: 'guideline.html' },
                 { name: t('report'), icon: Icons.Flag, href: 'report.html' },
                 { name: t('contact'), icon: Icons.Mail, href: 'contact.html' },
             ];
@@ -351,11 +339,11 @@
                 <footer className="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg">
                     <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center justify-center gap-2 text-center">
                         <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-lg">
-                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UR</span>
-                            Urfa Hasan Fattah & Rifat
+                            <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg">UH</span>
+                            Urfa Hasan Fattah
                         </div>
                         <p className={`text-sm text-slate-500 dark:text-slate-400 ${lang === 'bn' ? 'font-bangla' : ''}`}>
-                            {t('developed_by')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah & Rifatuzzaman Rifat </span>. &copy; {currentYear} All Rights Reserved.
+                            {t('developed_by')} <span className="font-semibold text-slate-700 dark:text-slate-300">Urfa Hasan Fattah</span>. &copy; {currentYear} All Rights Reserved.
                         </p>
                     </div>
                 </footer>
@@ -370,7 +358,7 @@
             const features = [
                 { icon: Icons.Target, title: t('feature1'), desc: lang === 'en' ? 'Instant scoring and detailed answer analysis' : 'তাৎক্ষণিক স্কোরিং এবং বিশদ উত্তর বিশ্লেষণ' },
                 { icon: Icons.Book, title: t('feature2'), desc: lang === 'en' ? 'View question papers while answering in split-view' : 'স্প্লিট-ভিউতে প্রশ্নপত্র দেখার সময় উত্তর দিন' },
-                { icon: Icons.BarChart, title: t('feature3'), desc: lang === 'en' ? 'Track performance trends and identify weak areas' : 'কর্মক্ষমতার প্রবণতা ট্র্যাক করুন এবং দুর্বল অঞ্চলগুলি সনাক্ত করুন' },
+                { icon: Icons.BarChart, title: t('feature3'), desc: lang === 'en' ? 'In-depth mistake analysis and detailed answer breakdown' : 'গভীর ভুল বিশ্লেষণ এবং বিশদ উত্তর পর্যালোচনা' },
                 { icon: Icons.Settings, title: t('feature4'), desc: lang === 'en' ? 'Create exams with custom parameters and rules' : 'কাস্টম প্যারামিটার এবং নিয়ম সহ পরীক্ষা তৈরি করুন' },
                 { icon: Icons.Globe, title: t('feature5'), desc: lang === 'en' ? 'Full interface support in English and Bengali' : 'ইংরেজি এবং বাংলা ভাষায় সম্পূর্ণ ইন্টারফেস সমর্থন' },
                 { icon: Icons.Cpu, title: t('feature6'), desc: lang === 'en' ? 'Works without internet after initial load' : 'প্রাথমিক লোডের পরে ইন্টারনেট ছাড়াই কাজ করে' },
